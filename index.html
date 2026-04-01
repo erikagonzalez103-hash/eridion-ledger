@@ -109,6 +109,25 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
 .mg-rev{font-family:'DM Serif Display',serif;font-size:16px;color:#F5F5F5;}
 .mg-profit{font-size:10px;color:#3CA83C;margin-top:3px;}
 .mg-count{font-size:9px;color:#5A7A99;margin-top:2px;}
+.scan-btn{background:#1B3F6B;color:#3CA83C;border:1.5px solid #3CA83C;border-radius:4px;padding:7px 16px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;margin-left:auto;}
+.scan-btn:hover{background:#3CA83C;color:#0E1E35;}
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal-box{background:#152844;border:1.5px solid #3CA83C;border-radius:10px;padding:24px;width:100%;max-width:560px;max-height:80vh;overflow-y:auto;}
+.modal-title{font-size:9px;font-weight:600;letter-spacing:3px;color:#3CA83C;text-transform:uppercase;margin-bottom:6px;}
+.modal-sub{font-size:11px;color:#7C9AB5;margin-bottom:16px;line-height:1.5;}
+.modal-textarea{width:100%;background:#0E1E35;border:1px solid #2A4A6A;border-radius:4px;padding:10px;color:#F5F5F5;font-family:'DM Sans',sans-serif;font-size:11px;height:200px;resize:vertical;outline:none;line-height:1.5;}
+.modal-textarea:focus{border-color:#3CA83C;}
+.modal-actions{display:flex;gap:8px;margin-top:12px;}
+.modal-parse-btn{background:#3CA83C;color:#0E1E35;border:none;border-radius:4px;padding:9px 20px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
+.modal-parse-btn:hover{background:#4DC84D;}
+.modal-cancel-btn{background:transparent;color:#5A7A99;border:1px solid #2A4A6A;border-radius:4px;padding:9px 16px;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;}
+.modal-result{margin-top:12px;background:#0A1728;border-radius:6px;padding:12px;font-size:11px;color:#9BAFC0;line-height:1.6;display:none;}
+.modal-result.success{border-left:3px solid #3CA83C;color:#7DD87D;}
+.modal-result.error{border-left:3px solid #E24B4A;color:#F07070;}
+.parse-field{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #1A3050;}
+.parse-field:last-child{border-bottom:none;}
+.parse-key{color:#5A7A99;font-size:10px;}
+.parse-val{color:#F5F5F5;font-weight:500;font-size:11px;}
 @media(max-width:700px){
   .form-row.cols-4,.form-row.cols-3{grid-template-columns:1fr 1fr;}
   .alloc-chips{grid-template-columns:repeat(3,1fr);}
@@ -137,7 +156,10 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
 <!-- ENTRY -->
 <div class="panel active" id="panel-entry">
   <div class="form-card">
-    <div class="form-title">Record Incoming Payment</div>
+    <div style="display:flex;align-items:center;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #2A4A6A;">
+      <div class="form-title" style="margin:0;padding:0;border:none;">Record Incoming Payment</div>
+      <button class="scan-btn" onclick="openScanModal()">⚡ Scan Stripe Email</button>
+    </div>
     <div class="form-row cols-4">
       <div class="field"><label>Date Received</label><input type="date" id="f-date"/></div>
       <div class="field"><label>Month</label>
@@ -242,6 +264,20 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
     <div style="margin-left:auto;font-size:10px;color:#5A7A99;" id="rp-summary"></div>
   </div>
   <div id="report-content"></div>
+</div>
+
+<!-- SCAN MODAL -->
+<div class="modal-overlay" id="scan-modal" style="display:none" onclick="handleModalClick(event)">
+  <div class="modal-box">
+    <div class="modal-title">⚡ Scan Stripe Email</div>
+    <div class="modal-sub">Copy the full text of your Stripe payment notification email and paste it below. Works with Stripe payment emails for any client — Desco, Taylor Hunt, and others.</div>
+    <textarea class="modal-textarea" id="scan-input" placeholder="Paste your Stripe email text here...&#10;&#10;Example:&#10;Payment of $2,651.85 from david@descohomes.com for Eridion Glass, LLC&#10;...&#10;$2,651.85 — Payment for invoice(s) 2054&#10;Customer: Desco Fine Homes&#10;Invoice number — 2054"></textarea>
+    <div class="modal-actions">
+      <button class="modal-parse-btn" onclick="parseStripeEmail()">Parse & Fill Form</button>
+      <button class="modal-cancel-btn" onclick="closeScanModal()">Cancel</button>
+    </div>
+    <div class="modal-result" id="scan-result"></div>
+  </div>
 </div>
 
 <script>
@@ -520,6 +556,122 @@ function exportCSV(){
   const a=document.createElement('a');
   a.href=url;a.download=`eridion_pf_${period.replace(' ','_')}.csv`;a.click();
   URL.revokeObjectURL(url);
+}
+
+function openScanModal(){
+  document.getElementById('scan-modal').style.display='flex';
+  document.getElementById('scan-input').value='';
+  document.getElementById('scan-result').style.display='none';
+  setTimeout(()=>document.getElementById('scan-input').focus(),100);
+}
+
+function closeScanModal(){
+  document.getElementById('scan-modal').style.display='none';
+}
+
+function handleModalClick(e){
+  if(e.target===document.getElementById('scan-modal'))closeScanModal();
+}
+
+function parseStripeEmail(){
+  const text=document.getElementById('scan-input').value.trim();
+  if(!text){alert('Please paste your Stripe email text first.');return;}
+
+  const result={};
+
+  // Amount — payment line takes priority over email subject line
+  const amtMatch=text.match(/\$([0-9,]+\.\d{2})\s*[—–-]\s*Payment for invoice/i)
+    ||text.match(/PAYMENT\s*\n\s*\$([0-9,]+\.\d{2})/i)
+    ||text.match(/Payment of \$([0-9,]+\.\d{2})/i);
+  if(amtMatch)result.payment=parseFloat(amtMatch[1].replace(/,/g,''));
+
+  // Stripe fee — from Fee field in dashboard view
+  const feeMatch=text.match(/^Fee\s*\$([0-9,]+\.\d{2})/im)
+    ||text.match(/Fee[:\s]+\$([0-9,]+\.\d{2})/i);
+  if(feeMatch)result.stripe=parseFloat(feeMatch[1].replace(/,/g,''));
+
+  // Invoice number(s) — look for "invoice(s) NNNN" pattern
+  const invMatch=text.match(/invoice[s\(\)]*\s*[—–:]*\s*(\d[\d,\s]*)/i)
+    ||text.match(/Invoice number\s*[—–]\s*(\d[\d,\s]*)/i);
+  if(invMatch)result.invoice=invMatch[1].trim().replace(/\s+/g,', ');
+
+  // Client name — CUSTOMER section is most reliable
+  // Never grab the greeting line "Congratulations, Eridion Glass"
+  const lines=text.split('\n').map(l=>l.trim()).filter(l=>l);
+  let client='';
+  for(let i=0;i<lines.length;i++){
+    if(lines[i].toUpperCase()==='CUSTOMER'&&lines[i+1]){
+      const candidate=lines[i+1].trim();
+      if(!candidate.includes('Eridion')&&!candidate.includes('Congratulations')&&!candidate.includes('@')){
+        client=candidate;break;
+      }
+    }
+  }
+  // Fallback: look for known builder name patterns, skip greeting
+  if(!client){
+    const builderMatch=text.match(/\n([A-Z][a-zA-Z\s]+(?:Homes?|Fine Homes?|Construction|Builders?|Group|Hunt))\n/m);
+    if(builderMatch)client=builderMatch[1].trim();
+  }
+  if(client)result.client=client;
+
+  // Date
+  const dateMatch=text.match(/(\w+ \d{1,2},?\s*\d{4})/);
+  if(dateMatch){
+    const d=new Date(dateMatch[1]);
+    if(!isNaN(d)){
+      result.date=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      result.month=months[d.getMonth()]+' '+d.getFullYear();
+    }
+  }
+
+  // Payment ID
+  const pidMatch=text.match(/pi_[A-Za-z0-9]+/);
+  if(pidMatch)result.paymentId=pidMatch[0];
+
+  const resultDiv=document.getElementById('scan-result');
+
+  if(!result.payment&&!result.client){
+    resultDiv.style.display='block';
+    resultDiv.className='modal-result error';
+    resultDiv.innerHTML='Could not parse this email. Make sure you copied the full Stripe notification text including the payment amount, customer name, and invoice number.';
+    return;
+  }
+
+  // Store result globally to avoid JSON stringify issues with special chars
+  window._scanResult=result;
+
+  resultDiv.style.display='block';
+  resultDiv.className='modal-result success';
+  resultDiv.innerHTML=`<div style="font-size:9px;font-weight:600;letter-spacing:2px;color:#3CA83C;margin-bottom:8px;">PARSED SUCCESSFULLY — REVIEW BELOW</div>`
+    +(result.client?`<div class="parse-field"><span class="parse-key">Client</span><span class="parse-val">${result.client}</span></div>`:'<div class="parse-field"><span class="parse-key" style="color:#F0B05A">Client</span><span class="parse-val" style="color:#F0B05A">Not found — enter manually</span></div>')
+    +(result.payment?`<div class="parse-field"><span class="parse-key">Amount</span><span class="parse-val">$${result.payment.toFixed(2)}</span></div>`:'')
+    +(result.stripe?`<div class="parse-field"><span class="parse-key">Stripe Fee</span><span class="parse-val">$${result.stripe.toFixed(2)}</span></div>`:'<div class="parse-field"><span class="parse-key" style="color:#5A7A99">Stripe Fee</span><span class="parse-val" style="color:#5A7A99">Not found — enter if applicable</span></div>')
+    +(result.invoice?`<div class="parse-field"><span class="parse-key">Invoice #(s)</span><span class="parse-val">${result.invoice}</span></div>`:'<div class="parse-field"><span class="parse-key" style="color:#F0B05A">Invoice #</span><span class="parse-val" style="color:#F0B05A">Not found — enter manually</span></div>')
+    +(result.date?`<div class="parse-field"><span class="parse-key">Date</span><span class="parse-val">${result.date}</span></div>`:'')
+    +(result.paymentId?`<div class="parse-field"><span class="parse-key">Payment ID</span><span class="parse-val" style="font-size:9px;color:#5A7A99">${result.paymentId}</span></div>`:'')
+    +`<button class="modal-parse-btn" style="margin-top:12px;width:100%" onclick="fillFormFromScan()">✓ Use This Data</button>`;
+}
+
+function fillFormFromScan(){
+  const result=window._scanResult;
+  if(!result)return;
+  if(result.client)document.getElementById('f-client').value=result.client;
+  if(result.payment)document.getElementById('f-payment').value=result.payment.toFixed(2);
+  if(result.stripe)document.getElementById('f-stripe').value=result.stripe.toFixed(2);
+  if(result.invoice)document.getElementById('f-invoice').value=result.invoice;
+  if(result.date)document.getElementById('f-date').value=result.date;
+  if(result.month){
+    const sel=document.getElementById('f-month');
+    for(let i=0;i<sel.options.length;i++){
+      if(sel.options[i].value===result.month){sel.selectedIndex=i;break;}
+    }
+  }
+  if(result.paymentId)document.getElementById('f-check').value=result.paymentId;
+  closeScanModal();
+  previewAlloc();
+  document.getElementById('f-jobnum').focus();
+  document.getElementById('f-jobnum').scrollIntoView({behavior:'smooth',block:'center'});
 }
 
 init();
