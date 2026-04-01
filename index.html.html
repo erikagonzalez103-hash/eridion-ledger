@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eridion Glass — Profit First Ledger</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:#0E1E35;color:#F5F5F5;min-height:100vh;padding-bottom:40px;}
+.hdr{background:#0E1E35;border-bottom:3px solid #3CA83C;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;}
+.hdr-left{display:flex;align-items:center;gap:12px;}
+.hdr-title{font-family:'DM Serif Display',serif;font-size:17px;color:#F5F5F5;letter-spacing:1px;}
+.hdr-sub{font-size:9px;color:#3CA83C;letter-spacing:3px;text-transform:uppercase;margin-top:2px;}
+.tab-bar{display:flex;background:#0A1728;border-bottom:1px solid #1E3A5A;padding:0 24px;}
+.tab{padding:12px 20px;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#5A7A99;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;}
+.tab.active{color:#3CA83C;border-bottom-color:#3CA83C;}
+.tab:hover{color:#9BAFC0;}
+.panel{display:none;padding:20px 24px;}
+.panel.active{display:block;}
+.form-card{background:#152844;border:1px solid #2A4A6A;border-radius:8px;padding:20px 24px;margin-bottom:20px;}
+.form-title{font-size:9px;font-weight:600;letter-spacing:3px;color:#3CA83C;text-transform:uppercase;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #2A4A6A;}
+.form-row{display:grid;gap:12px;margin-bottom:12px;}
+.form-row.cols-4{grid-template-columns:1fr 1fr 1fr 1fr;}
+.form-row.cols-3{grid-template-columns:1fr 1fr 1fr;}
+.field label{font-size:9px;font-weight:600;letter-spacing:2px;color:#5A7A99;text-transform:uppercase;display:block;margin-bottom:5px;}
+.field input,.field select{width:100%;background:#0E1E35;border:1px solid #2A4A6A;border-radius:4px;padding:8px 10px;color:#F5F5F5;font-family:'DM Sans',sans-serif;font-size:12px;outline:none;transition:border-color .2s;}
+.field input:focus,.field select:focus{border-color:#3CA83C;}
+.field select option{background:#0E1E35;}
+.job-num-field input{border-color:#3CA83C;background:#0A1F35;}
+.job-num-field label{color:#3CA83C;}
+.submit-btn{background:#3CA83C;color:#0E1E35;border:none;border-radius:4px;padding:10px 24px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.submit-btn:hover{background:#4DC84D;}
+.clear-btn{background:transparent;color:#5A7A99;border:1px solid #2A4A6A;border-radius:4px;padding:10px 16px;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;margin-left:8px;}
+.alloc-preview{background:#0A1728;border:1px solid #1E3A5A;border-radius:6px;padding:16px;margin-top:16px;}
+.alloc-preview-title{font-size:9px;letter-spacing:2px;color:#5A7A99;text-transform:uppercase;margin-bottom:12px;}
+.alloc-chips{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;}
+.alloc-chip{text-align:center;padding:10px 6px;border-radius:4px;background:#152844;}
+.chip-label{font-size:8px;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.chip-amt{font-family:'DM Serif Display',serif;font-size:14px;}
+.chip-pct{font-size:8px;color:#5A7A99;margin-top:2px;}
+.c-profit .chip-label{color:#3CA83C;}.c-profit .chip-amt{color:#3CA83C;}
+.c-owners .chip-label{color:#5599CC;}.c-owners .chip-amt{color:#5599CC;}
+.c-tax .chip-label{color:#F0B05A;}.c-tax .chip-amt{color:#F0B05A;}
+.c-opex .chip-label{color:#9B7DD8;}.c-opex .chip-amt{color:#9B7DD8;}
+.c-mat .chip-label{color:#E87040;}.c-mat .chip-amt{color:#E87040;}
+.c-subs .chip-label{color:#40C0B0;}.c-subs .chip-amt{color:#40C0B0;}
+.preview-footer{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid #2A4A6A;font-size:10px;color:#5A7A99;}
+.preview-footer span{color:#F5F5F5;font-weight:500;}
+.recent-card{background:#152844;border:1px solid #2A4A6A;border-radius:8px;padding:16px 24px;}
+.recent-title{font-size:9px;font-weight:600;letter-spacing:3px;color:#5A7A99;text-transform:uppercase;margin-bottom:12px;}
+.recent-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #1A3050;font-size:11px;}
+.recent-row:last-child{border-bottom:none;}
+.recent-date{color:#5A7A99;min-width:80px;}
+.recent-client{color:#F5F5F5;font-weight:500;min-width:120px;}
+.recent-job{color:#7C9AB5;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.recent-jobnum{background:#0A1F35;color:#3CA83C;border:1px solid #1E4A2A;border-radius:3px;padding:2px 7px;font-size:9px;font-weight:600;letter-spacing:1px;min-width:60px;text-align:center;white-space:nowrap;}
+.recent-amt{font-family:'DM Serif Display',serif;font-size:13px;color:#F5F5F5;min-width:80px;text-align:right;}
+.recent-del{background:none;border:none;color:#3A5A7A;cursor:pointer;font-size:14px;padding:2px 6px;}
+.recent-del:hover{color:#E24B4A;}
+.ledger-controls{display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap;}
+.filter-select{background:#152844;border:1px solid #2A4A6A;border-radius:4px;padding:7px 12px;color:#F5F5F5;font-family:'DM Sans',sans-serif;font-size:11px;outline:none;}
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:11px;}
+thead tr{background:#0A1728;border-bottom:2px solid #3CA83C;}
+th{padding:9px 8px;text-align:left;font-size:8px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#5A7A99;white-space:nowrap;}
+td{padding:7px 8px;border-bottom:1px solid #1A3050;color:#D0DDE8;white-space:nowrap;}
+tr:hover td{background:rgba(255,255,255,0.02);}
+.jn-badge{background:#0A1F35;color:#3CA83C;border:1px solid #1E4A2A;border-radius:3px;padding:2px 6px;font-size:9px;font-weight:600;letter-spacing:1px;}
+td.c-profit{color:#3CA83C;font-family:'DM Serif Display',serif;}
+td.c-owners{color:#5599CC;font-family:'DM Serif Display',serif;}
+td.c-tax{color:#F0B05A;font-family:'DM Serif Display',serif;}
+td.c-opex{color:#9B7DD8;font-family:'DM Serif Display',serif;}
+td.c-mat{color:#E87040;font-family:'DM Serif Display',serif;}
+td.c-subs{color:#40C0B0;font-family:'DM Serif Display',serif;}
+td.amt-main{font-family:'DM Serif Display',serif;font-size:13px;}
+.del-btn{background:none;border:none;color:#3A5A7A;cursor:pointer;font-size:13px;padding:2px 5px;}
+.del-btn:hover{color:#E24B4A;}
+tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
+.bucket-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.bc{background:#152844;border-radius:8px;padding:16px;position:relative;overflow:hidden;}
+.bc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.bc.bp::before{background:#3CA83C;}.bc.bo::before{background:#5599CC;}
+.bc.bt::before{background:#F0B05A;}.bc.bx::before{background:#9B7DD8;}
+.bc.bm::before{background:#E87040;}.bc.bs::before{background:#40C0B0;}
+.bc-label{font-size:8px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#5A7A99;margin-bottom:6px;}
+.bc-amt{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:2px;}
+.bc-meta{font-size:10px;color:#5A7A99;}
+.bp .bc-amt{color:#3CA83C;}.bo .bc-amt{color:#5599CC;}
+.bt .bc-amt{color:#F0B05A;}.bx .bc-amt{color:#9B7DD8;}
+.bm .bc-amt{color:#E87040;}.bs .bc-amt{color:#40C0B0;}
+.report-card{background:#152844;border:1px solid #2A4A6A;border-radius:8px;padding:20px 24px;margin-bottom:16px;}
+.report-hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px;}
+.report-title{font-family:'DM Serif Display',serif;font-size:16px;color:#F5F5F5;}
+.report-meta{font-size:10px;color:#5A7A99;}
+.rrow{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1A3050;}
+.rrow:last-child{border-bottom:none;}
+.rrow-label{font-size:12px;color:#9BAFC0;}
+.rrow-amt{font-family:'DM Serif Display',serif;font-size:15px;}
+.rtotal{display:flex;justify-content:space-between;align-items:center;padding:12px 0 0;border-top:2px solid #3CA83C;margin-top:8px;}
+.rtotal-label{font-size:11px;font-weight:600;color:#3CA83C;letter-spacing:1px;}
+.rtotal-amt{font-family:'DM Serif Display',serif;font-size:20px;color:#3CA83C;}
+.export-btn{background:#1B3F6B;color:#9BAFC0;border:1px solid #2A4A6A;border-radius:4px;padding:8px 16px;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;}
+.export-btn:hover{background:#2A5490;color:#F5F5F5;}
+.empty{text-align:center;padding:40px;color:#3A5A7A;font-size:13px;}
+.month-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.mg-cell{background:#0A1728;border-radius:6px;padding:12px;border-left:3px solid #2A4A6A;}
+.mg-month{font-size:9px;color:#5A7A99;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.mg-rev{font-family:'DM Serif Display',serif;font-size:16px;color:#F5F5F5;}
+.mg-profit{font-size:10px;color:#3CA83C;margin-top:3px;}
+.mg-count{font-size:9px;color:#5A7A99;margin-top:2px;}
+@media(max-width:700px){
+  .form-row.cols-4,.form-row.cols-3{grid-template-columns:1fr 1fr;}
+  .alloc-chips{grid-template-columns:repeat(3,1fr);}
+  .bucket-grid{grid-template-columns:1fr 1fr;}
+  .month-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <svg width="32" height="32" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="#3CA83C" stroke-width="2.5"/><polygon points="8,12 26,17 26,21 8,16" fill="#3CA83C"/><polygon points="8,19 22,23 22,27 8,23" fill="#3CA83C"/><polygon points="8,12 10,12 10,23 8,23" fill="#3CA83C"/><polygon points="18,12 26,17 24,20 16,15" fill="#0E1E35"/></svg>
+    <div><div class="hdr-title">ERIDION GLASS — PROFIT FIRST</div><div class="hdr-sub">Revenue Allocation Ledger</div></div>
+  </div>
+  <div style="font-size:10px;color:#3CA83C;letter-spacing:1px;" id="hdr-count">0 entries</div>
+</div>
+
+<div class="tab-bar">
+  <div class="tab active" onclick="showTab('entry',this)">Add Payment</div>
+  <div class="tab" onclick="showTab('ledger',this)">Ledger</div>
+  <div class="tab" onclick="showTab('buckets',this)">Buckets</div>
+  <div class="tab" onclick="showTab('reports',this)">Reports</div>
+</div>
+
+<!-- ENTRY -->
+<div class="panel active" id="panel-entry">
+  <div class="form-card">
+    <div class="form-title">Record Incoming Payment</div>
+    <div class="form-row cols-4">
+      <div class="field"><label>Date Received</label><input type="date" id="f-date"/></div>
+      <div class="field"><label>Month</label>
+        <select id="f-month">
+          <option value="Jan 2026">Jan 2026</option><option value="Feb 2026">Feb 2026</option>
+          <option value="Mar 2026" selected>Mar 2026</option><option value="Apr 2026">Apr 2026</option>
+          <option value="May 2026">May 2026</option><option value="Jun 2026">Jun 2026</option>
+          <option value="Jul 2026">Jul 2026</option><option value="Aug 2026">Aug 2026</option>
+          <option value="Sep 2026">Sep 2026</option><option value="Oct 2026">Oct 2026</option>
+          <option value="Nov 2026">Nov 2026</option><option value="Dec 2026">Dec 2026</option>
+        </select>
+      </div>
+      <div class="field"><label>Client</label><input type="text" id="f-client" placeholder="e.g. Grand Homes"/></div>
+      <div class="field"><label>Check # or Deposit</label><input type="text" id="f-check" placeholder="e.g. 79731"/></div>
+    </div>
+    <div class="form-row cols-4">
+      <div class="field job-num-field"><label>Job Number(s)</label><input type="text" id="f-jobnum" placeholder="e.g. 26058, 26059"/></div>
+      <div class="field"><label>Invoice #(s)</label><input type="text" id="f-invoice" placeholder="e.g. 1981, 1982"/></div>
+      <div class="field" style="grid-column:span 2"><label>Job / Description</label><input type="text" id="f-job" placeholder="e.g. 30 Plantation, 28 Plantation"/></div>
+    </div>
+    <div class="form-row cols-3">
+      <div class="field"><label>Payment Amount ($)</label><input type="number" id="f-payment" placeholder="0.00" step="0.01" oninput="previewAlloc()"/></div>
+      <div class="field"><label>Stripe Fee ($) — if applicable</label><input type="number" id="f-stripe" placeholder="0.00" step="0.01" oninput="previewAlloc()"/></div>
+      <div class="field"><label>Notes (optional)</label><input type="text" id="f-notes" placeholder="e.g. partial payment, final draw"/></div>
+    </div>
+    <div class="alloc-preview" id="alloc-preview" style="display:none">
+      <div class="alloc-preview-title">Allocation Preview — move these amounts to each Profit First account</div>
+      <div class="alloc-chips">
+        <div class="alloc-chip c-profit"><div class="chip-label">Profit</div><div class="chip-amt" id="pv-profit">$0</div><div class="chip-pct">12.7%</div></div>
+        <div class="alloc-chip c-owners"><div class="chip-label">Owner's Comp</div><div class="chip-amt" id="pv-owners">$0</div><div class="chip-pct">10.7%</div></div>
+        <div class="alloc-chip c-tax"><div class="chip-label">Tax Reserve</div><div class="chip-amt" id="pv-tax">$0</div><div class="chip-pct">17%</div></div>
+        <div class="alloc-chip c-opex"><div class="chip-label">OPEX</div><div class="chip-amt" id="pv-opex">$0</div><div class="chip-pct">13.5%</div></div>
+        <div class="alloc-chip c-mat"><div class="chip-label">Materials</div><div class="chip-amt" id="pv-mat">$0</div><div class="chip-pct">31.8%</div></div>
+        <div class="alloc-chip c-subs"><div class="chip-label">Subs</div><div class="chip-amt" id="pv-subs">$0</div><div class="chip-pct">14.3%</div></div>
+      </div>
+      <div class="preview-footer">
+        <div>Real Revenue (after Stripe): <span id="pv-real">$0</span></div>
+        <div>Total allocated: <span id="pv-total" style="color:#3CA83C">$0</span></div>
+      </div>
+    </div>
+    <div style="margin-top:16px;display:flex;align-items:center;">
+      <button class="submit-btn" onclick="addEntry()">Record Payment</button>
+      <button class="clear-btn" onclick="clearForm()">Clear</button>
+    </div>
+  </div>
+  <div class="recent-card" id="recent-card" style="display:none">
+    <div class="recent-title">Recent Entries</div>
+    <div id="recent-list"></div>
+  </div>
+</div>
+
+<!-- LEDGER -->
+<div class="panel" id="panel-ledger">
+  <div class="ledger-controls">
+    <select class="filter-select" id="fl-month" onchange="renderLedger()">
+      <option value="all">All Months</option>
+      <option value="Jan 2026">Jan 2026</option><option value="Feb 2026">Feb 2026</option>
+      <option value="Mar 2026">Mar 2026</option><option value="Apr 2026">Apr 2026</option>
+      <option value="May 2026">May 2026</option><option value="Jun 2026">Jun 2026</option>
+      <option value="Jul 2026">Jul 2026</option><option value="Aug 2026">Aug 2026</option>
+      <option value="Sep 2026">Sep 2026</option><option value="Oct 2026">Oct 2026</option>
+      <option value="Nov 2026">Nov 2026</option><option value="Dec 2026">Dec 2026</option>
+    </select>
+    <select class="filter-select" id="fl-client" onchange="renderLedger()"><option value="all">All Clients</option></select>
+    <input type="text" class="filter-select" id="fl-jobnum" placeholder="Job # search..." oninput="renderLedger()" style="width:140px;"/>
+    <div style="margin-left:auto;font-size:11px;color:#5A7A99;" id="ledger-summary"></div>
+  </div>
+  <div class="tbl-wrap" id="ledger-wrap"><div class="empty">No entries yet.</div></div>
+</div>
+
+<!-- BUCKETS -->
+<div class="panel" id="panel-buckets">
+  <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center;">
+    <select class="filter-select" id="bk-month" onchange="renderBuckets()">
+      <option value="all">All Time</option>
+      <option value="Jan 2026">Jan 2026</option><option value="Feb 2026">Feb 2026</option>
+      <option value="Mar 2026">Mar 2026</option><option value="Apr 2026">Apr 2026</option>
+      <option value="May 2026">May 2026</option><option value="Jun 2026">Jun 2026</option>
+      <option value="Jul 2026">Jul 2026</option><option value="Aug 2026">Aug 2026</option>
+      <option value="Sep 2026">Sep 2026</option><option value="Oct 2026">Oct 2026</option>
+      <option value="Nov 2026">Nov 2026</option><option value="Dec 2026">Dec 2026</option>
+    </select>
+    <span style="font-size:11px;color:#5A7A99;" id="bk-label"></span>
+  </div>
+  <div class="bucket-grid" id="bucket-grid"></div>
+  <div id="bucket-totals"></div>
+</div>
+
+<!-- REPORTS -->
+<div class="panel" id="panel-reports">
+  <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center;">
+    <select class="filter-select" id="rp-period" onchange="renderReports()">
+      <option value="all">Full Year 2026</option>
+      <option value="Jan 2026">Jan 2026</option><option value="Feb 2026">Feb 2026</option>
+      <option value="Mar 2026">Mar 2026</option><option value="Apr 2026">Apr 2026</option>
+      <option value="May 2026">May 2026</option><option value="Jun 2026">Jun 2026</option>
+      <option value="Jul 2026">Jul 2026</option><option value="Aug 2026">Aug 2026</option>
+      <option value="Sep 2026">Sep 2026</option><option value="Oct 2026">Oct 2026</option>
+      <option value="Nov 2026">Nov 2026</option><option value="Dec 2026">Dec 2026</option>
+    </select>
+    <button class="export-btn" onclick="exportCSV()">Export CSV</button>
+    <div style="margin-left:auto;font-size:10px;color:#5A7A99;" id="rp-summary"></div>
+  </div>
+  <div id="report-content"></div>
+</div>
+
+<script>
+const PCT={profit:.127,owners:.107,tax:.17,opex:.135,mat:.318,subs:.143};
+const STORAGE_KEY='eridion_pf_v2';
+let entries=[];
+
+function loadEntries(){
+  try{const raw=localStorage.getItem(STORAGE_KEY);return raw?JSON.parse(raw):[];}
+  catch(e){return[];}
+}
+function saveEntries(){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(entries));}
+  catch(e){alert('Storage full — please export your data.');}
+}
+
+function init(){
+  entries=loadEntries();
+  setDefaultDate();
+  updateHdrCount();
+  renderRecent();
+}
+
+function setDefaultDate(){
+  const d=new Date();
+  document.getElementById('f-date').value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function fmt(n,dec=2){return'$'+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec});}
+
+function calcAlloc(payment,stripe){
+  const real=Math.max(0,(payment||0)-(stripe||0));
+  return{real,profit:real*PCT.profit,owners:real*PCT.owners,tax:real*PCT.tax,opex:real*PCT.opex,mat:real*PCT.mat,subs:real*PCT.subs};
+}
+
+function previewAlloc(){
+  const payment=parseFloat(document.getElementById('f-payment').value)||0;
+  const stripe=parseFloat(document.getElementById('f-stripe').value)||0;
+  const preview=document.getElementById('alloc-preview');
+  if(payment<=0){preview.style.display='none';return;}
+  preview.style.display='block';
+  const a=calcAlloc(payment,stripe);
+  document.getElementById('pv-profit').textContent=fmt(a.profit);
+  document.getElementById('pv-owners').textContent=fmt(a.owners);
+  document.getElementById('pv-tax').textContent=fmt(a.tax);
+  document.getElementById('pv-opex').textContent=fmt(a.opex);
+  document.getElementById('pv-mat').textContent=fmt(a.mat);
+  document.getElementById('pv-subs').textContent=fmt(a.subs);
+  document.getElementById('pv-real').textContent=fmt(a.real);
+  document.getElementById('pv-total').textContent=fmt(a.real);
+}
+
+function addEntry(){
+  const payment=parseFloat(document.getElementById('f-payment').value)||0;
+  if(!payment){alert('Please enter a payment amount.');return;}
+  const client=document.getElementById('f-client').value.trim();
+  if(!client){alert('Please enter a client name.');return;}
+  const stripe=parseFloat(document.getElementById('f-stripe').value)||0;
+  const a=calcAlloc(payment,stripe);
+  const entry={
+    id:Date.now(),
+    date:document.getElementById('f-date').value,
+    month:document.getElementById('f-month').value,
+    client,
+    check:document.getElementById('f-check').value.trim(),
+    jobnum:document.getElementById('f-jobnum').value.trim(),
+    invoice:document.getElementById('f-invoice').value.trim(),
+    job:document.getElementById('f-job').value.trim(),
+    payment,stripe,
+    notes:document.getElementById('f-notes').value.trim(),
+    ...a
+  };
+  entries.unshift(entry);
+  saveEntries();
+  updateHdrCount();
+  renderRecent();
+  clearForm();
+  document.getElementById('alloc-preview').style.display='none';
+}
+
+function clearForm(){
+  ['f-client','f-check','f-jobnum','f-invoice','f-job','f-payment','f-stripe','f-notes'].forEach(id=>{document.getElementById(id).value='';});
+  setDefaultDate();
+  document.getElementById('alloc-preview').style.display='none';
+}
+
+function deleteEntry(id){
+  if(!confirm('Delete this entry?'))return;
+  entries=entries.filter(e=>e.id!==id);
+  saveEntries();
+  updateHdrCount();
+  renderRecent();
+  renderLedger();
+  renderBuckets();
+  renderReports();
+}
+
+function updateHdrCount(){
+  document.getElementById('hdr-count').textContent=entries.length+' entr'+(entries.length===1?'y':'ies');
+}
+
+function renderRecent(){
+  const card=document.getElementById('recent-card');
+  const list=document.getElementById('recent-list');
+  const recent=entries.slice(0,8);
+  if(!recent.length){card.style.display='none';return;}
+  card.style.display='block';
+  list.innerHTML=recent.map(e=>`
+    <div class="recent-row">
+      <span class="recent-date">${e.date||e.month}</span>
+      <span class="recent-client">${e.client}</span>
+      <span class="recent-job">${e.job||e.invoice||'—'}</span>
+      ${e.jobnum?`<span class="recent-jobnum">#${e.jobnum}</span>`:'<span style="min-width:60px"></span>'}
+      <span class="recent-amt">${fmt(e.payment)}</span>
+      <button class="recent-del" onclick="deleteEntry(${e.id})">✕</button>
+    </div>`).join('');
+}
+
+function showTab(name,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  el.classList.add('active');
+  if(name==='ledger')renderLedger();
+  if(name==='buckets')renderBuckets();
+  if(name==='reports')renderReports();
+}
+
+function filterEntries(month,client,jobnum){
+  let f=entries;
+  if(month&&month!=='all')f=f.filter(e=>e.month===month);
+  if(client&&client!=='all')f=f.filter(e=>e.client===client);
+  if(jobnum&&jobnum.trim())f=f.filter(e=>e.jobnum&&e.jobnum.includes(jobnum.trim()));
+  return f;
+}
+
+function renderLedger(){
+  const mv=document.getElementById('fl-month').value;
+  const cv=document.getElementById('fl-client').value;
+  const jv=document.getElementById('fl-jobnum').value;
+  const filtered=filterEntries(mv,cv,jv);
+  const clientSel=document.getElementById('fl-client');
+  const clients=[...new Set(entries.map(e=>e.client))].sort();
+  const cur=clientSel.value;
+  clientSel.innerHTML='<option value="all">All Clients</option>'+clients.map(c=>`<option value="${c}"${c===cur?' selected':''}>${c}</option>`).join('');
+  const wrap=document.getElementById('ledger-wrap');
+  if(!filtered.length){wrap.innerHTML='<div class="empty">No entries match this filter.</div>';return;}
+  const t=filtered.reduce((a,e)=>({payment:a.payment+e.payment,stripe:a.stripe+(e.stripe||0),real:a.real+e.real,profit:a.profit+e.profit,owners:a.owners+e.owners,tax:a.tax+e.tax,opex:a.opex+e.opex,mat:a.mat+e.mat,subs:a.subs+e.subs}),{payment:0,stripe:0,real:0,profit:0,owners:0,tax:0,opex:0,mat:0,subs:0});
+  document.getElementById('ledger-summary').textContent=`${filtered.length} payments · ${fmt(t.payment,0)} total`;
+  wrap.innerHTML=`<table>
+    <thead><tr>
+      <th>Date</th><th>Month</th><th>Client</th><th>Job #</th><th>Invoice(s)</th><th>Job</th>
+      <th>Payment</th><th>Stripe</th><th>Real Rev</th>
+      <th style="color:#3CA83C">Profit</th><th style="color:#5599CC">Owner</th>
+      <th style="color:#F0B05A">Tax</th><th style="color:#9B7DD8">OPEX</th>
+      <th style="color:#E87040">Mat</th><th style="color:#40C0B0">Subs</th>
+      <th>Notes</th><th></th>
+    </tr></thead>
+    <tbody>${filtered.map(e=>`<tr>
+      <td>${e.date||'—'}</td><td>${e.month}</td>
+      <td style="font-weight:500;color:#F5F5F5">${e.client}</td>
+      <td>${e.jobnum?`<span class="jn-badge">#${e.jobnum}</span>`:'—'}</td>
+      <td style="color:#7C9AB5">${e.invoice||'—'}</td>
+      <td style="color:#7C9AB5;max-width:140px;overflow:hidden;text-overflow:ellipsis">${e.job||'—'}</td>
+      <td class="amt-main">${fmt(e.payment)}</td>
+      <td style="color:#5A7A99">${e.stripe?fmt(e.stripe):'—'}</td>
+      <td style="color:#9BAFC0">${fmt(e.real)}</td>
+      <td class="c-profit">${fmt(e.profit)}</td>
+      <td class="c-owners">${fmt(e.owners)}</td>
+      <td class="c-tax">${fmt(e.tax)}</td>
+      <td class="c-opex">${fmt(e.opex)}</td>
+      <td class="c-mat">${fmt(e.mat)}</td>
+      <td class="c-subs">${fmt(e.subs)}</td>
+      <td style="color:#5A7A99;font-size:10px">${e.notes||'—'}</td>
+      <td><button class="del-btn" onclick="deleteEntry(${e.id})">✕</button></td>
+    </tr>`).join('')}</tbody>
+    <tfoot><tr>
+      <td colspan="6" style="color:#5A7A99;font-size:10px;letter-spacing:1px">TOTALS — ${filtered.length} payments</td>
+      <td class="amt-main" style="color:#F5F5F5">${fmt(t.payment)}</td>
+      <td style="color:#5A7A99">${t.stripe?fmt(t.stripe):'—'}</td>
+      <td style="color:#9BAFC0">${fmt(t.real)}</td>
+      <td class="c-profit">${fmt(t.profit)}</td>
+      <td class="c-owners">${fmt(t.owners)}</td>
+      <td class="c-tax">${fmt(t.tax)}</td>
+      <td class="c-opex">${fmt(t.opex)}</td>
+      <td class="c-mat">${fmt(t.mat)}</td>
+      <td class="c-subs">${fmt(t.subs)}</td>
+      <td colspan="2"></td>
+    </tr></tfoot>
+  </table>`;
+}
+
+function renderBuckets(){
+  const mv=document.getElementById('bk-month').value;
+  const filtered=filterEntries(mv);
+  document.getElementById('bk-label').textContent=mv==='all'?'Showing all time':mv;
+  if(!filtered.length){
+    document.getElementById('bucket-grid').innerHTML='';
+    document.getElementById('bucket-totals').innerHTML='<div class="empty">No entries for this period.</div>';
+    return;
+  }
+  const t=filtered.reduce((a,e)=>({payment:a.payment+e.payment,real:a.real+e.real,profit:a.profit+e.profit,owners:a.owners+e.owners,tax:a.tax+e.tax,opex:a.opex+e.opex,mat:a.mat+e.mat,subs:a.subs+e.subs}),{payment:0,real:0,profit:0,owners:0,tax:0,opex:0,mat:0,subs:0});
+  const buckets=[
+    {cls:'bp',label:'Profit',amt:t.profit,pct:12.7,need:null},
+    {cls:'bo',label:"Owner's Comp",amt:t.owners,pct:10.7,need:5500},
+    {cls:'bt',label:'Tax Reserve',amt:t.tax,pct:17,need:null},
+    {cls:'bx',label:'OPEX',amt:t.opex,pct:13.5,need:6919},
+    {cls:'bm',label:'Materials',amt:t.mat,pct:31.8,need:null},
+    {cls:'bs',label:'Subs / Payroll',amt:t.subs,pct:14.3,need:null},
+  ];
+  document.getElementById('bucket-grid').innerHTML=buckets.map(b=>`
+    <div class="bc ${b.cls}">
+      <div class="bc-label">${b.label}</div>
+      <div class="bc-amt">${fmt(b.amt,0)}</div>
+      <div class="bc-meta">${b.pct}% TAP · ${filtered.length} payments${b.need?` · need ${fmt(b.need,0)}/mo`:''}</div>
+    </div>`).join('');
+  document.getElementById('bucket-totals').innerHTML=`
+    <div class="report-card">
+      <div class="report-hdr"><div class="report-title">Period Summary</div><div class="report-meta">${filtered.length} payments · ${mv==='all'?'All time':mv}</div></div>
+      <div class="rrow"><span class="rrow-label">Gross Revenue</span><span class="rrow-amt">${fmt(t.payment)}</span></div>
+      <div class="rrow"><span class="rrow-label">Real Revenue (after Stripe)</span><span class="rrow-amt">${fmt(t.real)}</span></div>
+      <div class="rrow"><span class="rrow-label" style="color:#3CA83C">→ Profit account</span><span class="rrow-amt" style="color:#3CA83C">${fmt(t.profit)}</span></div>
+      <div class="rrow"><span class="rrow-label" style="color:#5599CC">→ Owner's Comp account</span><span class="rrow-amt" style="color:#5599CC">${fmt(t.owners)}</span></div>
+      <div class="rrow"><span class="rrow-label" style="color:#F0B05A">→ Tax Reserve account</span><span class="rrow-amt" style="color:#F0B05A">${fmt(t.tax)}</span></div>
+      <div class="rrow"><span class="rrow-label" style="color:#9B7DD8">→ OPEX account</span><span class="rrow-amt" style="color:#9B7DD8">${fmt(t.opex)}</span></div>
+      <div class="rrow"><span class="rrow-label" style="color:#E87040">→ Materials account</span><span class="rrow-amt" style="color:#E87040">${fmt(t.mat)}</span></div>
+      <div class="rrow"><span class="rrow-label" style="color:#40C0B0">→ Subs / Payroll account</span><span class="rrow-amt" style="color:#40C0B0">${fmt(t.subs)}</span></div>
+      <div class="rtotal"><span class="rtotal-label">Total Allocated</span><span class="rtotal-amt">${fmt(t.real)}</span></div>
+    </div>`;
+}
+
+function renderReports(){
+  const period=document.getElementById('rp-period').value;
+  const filtered=filterEntries(period==='all'?'all':period);
+  if(!filtered.length){document.getElementById('report-content').innerHTML='<div class="empty">No entries for this period.</div>';return;}
+  const months=[...new Set(filtered.map(e=>e.month))].sort();
+  document.getElementById('rp-summary').textContent=`${filtered.length} payments · ${months.length} month${months.length!==1?'s':''}`;
+  let html='';
+  if(period==='all'){
+    html+='<div class="month-grid">';
+    months.forEach(m=>{
+      const me=filtered.filter(e=>e.month===m);
+      const rev=me.reduce((a,e)=>a+e.payment,0);
+      const prof=me.reduce((a,e)=>a+e.profit,0);
+      html+=`<div class="mg-cell"><div class="mg-month">${m}</div><div class="mg-rev">${fmt(rev,0)}</div><div class="mg-profit">+${fmt(prof,0)} profit</div><div class="mg-count">${me.length} payment${me.length!==1?'s':''}</div></div>`;
+    });
+    html+='</div>';
+  }
+  const t=filtered.reduce((a,e)=>({payment:a.payment+e.payment,real:a.real+e.real,stripe:a.stripe+(e.stripe||0),profit:a.profit+e.profit,owners:a.owners+e.owners,tax:a.tax+e.tax,opex:a.opex+e.opex,mat:a.mat+e.mat,subs:a.subs+e.subs}),{payment:0,real:0,stripe:0,profit:0,owners:0,tax:0,opex:0,mat:0,subs:0});
+  html+=`<div class="report-card">
+    <div class="report-hdr"><div class="report-title">Profit First Allocation Report</div><div class="report-meta">${period==='all'?'Full Year 2026':period} · ${filtered.length} payments</div></div>
+    <div class="rrow"><span class="rrow-label">Gross Revenue</span><span class="rrow-amt">${fmt(t.payment)}</span></div>
+    <div class="rrow"><span class="rrow-label">Stripe Fees (pass-through)</span><span class="rrow-amt" style="color:#5A7A99">−${fmt(t.stripe)}</span></div>
+    <div class="rrow"><span class="rrow-label">Real Revenue</span><span class="rrow-amt">${fmt(t.real)}</span></div>
+    <div style="height:1px;background:#2A4A6A;margin:8px 0"></div>
+    <div class="rrow"><span class="rrow-label" style="color:#3CA83C">Profit (12.7%)</span><span class="rrow-amt" style="color:#3CA83C">${fmt(t.profit)}</span></div>
+    <div class="rrow"><span class="rrow-label" style="color:#5599CC">Owner's Comp (10.7%)</span><span class="rrow-amt" style="color:#5599CC">${fmt(t.owners)}</span></div>
+    <div class="rrow"><span class="rrow-label" style="color:#F0B05A">Tax Reserve (17%)</span><span class="rrow-amt" style="color:#F0B05A">${fmt(t.tax)}</span></div>
+    <div class="rrow"><span class="rrow-label" style="color:#9B7DD8">OPEX (13.5%)</span><span class="rrow-amt" style="color:#9B7DD8">${fmt(t.opex)}</span></div>
+    <div class="rrow"><span class="rrow-label" style="color:#E87040">Materials (31.8%)</span><span class="rrow-amt" style="color:#E87040">${fmt(t.mat)}</span></div>
+    <div class="rrow"><span class="rrow-label" style="color:#40C0B0">Subs / Payroll (14.3%)</span><span class="rrow-amt" style="color:#40C0B0">${fmt(t.subs)}</span></div>
+    <div class="rtotal"><span class="rtotal-label">Total Allocated</span><span class="rtotal-amt">${fmt(t.real)}</span></div>
+  </div>`;
+  document.getElementById('report-content').innerHTML=html;
+}
+
+function exportCSV(){
+  const period=document.getElementById('rp-period').value;
+  const filtered=filterEntries(period==='all'?'all':period);
+  if(!filtered.length){alert('No data to export.');return;}
+  const headers=['Date','Month','Client','Job Number','Invoice(s)','Job','Payment','Stripe Fee','Real Revenue','Profit','Owners Comp','Tax Reserve','OPEX','Materials','Subs','Notes'];
+  const rows=filtered.map(e=>[e.date,e.month,e.client,e.jobnum,e.invoice,`"${(e.job||'').replace(/"/g,'""')}"`,e.payment.toFixed(2),(e.stripe||0).toFixed(2),e.real.toFixed(2),e.profit.toFixed(2),e.owners.toFixed(2),e.tax.toFixed(2),e.opex.toFixed(2),e.mat.toFixed(2),e.subs.toFixed(2),`"${(e.notes||'').replace(/"/g,'""')}"`]);
+  const csv=[headers.join(','),...rows.map(r=>r.join(','))].join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`eridion_pf_${period.replace(' ','_')}.csv`;a.click();
+  URL.revokeObjectURL(url);
+}
+
+init();
+</script>
+</body>
+</html>
