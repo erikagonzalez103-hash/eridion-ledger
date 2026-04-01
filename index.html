@@ -181,8 +181,16 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
       <div class="field" style="grid-column:span 2"><label>Job / Description</label><input type="text" id="f-job" placeholder="e.g. 30 Plantation, 28 Plantation"/></div>
     </div>
     <div class="form-row cols-3">
-      <div class="field"><label>Payment Amount ($)</label><input type="number" id="f-payment" placeholder="0.00" step="0.01" oninput="previewAlloc()"/></div>
-      <div class="field"><label>Stripe Fee ($) — if applicable</label><input type="number" id="f-stripe" placeholder="0.00" step="0.01" oninput="previewAlloc()"/></div>
+      <div class="field"><label>Payment Amount ($)</label><input type="number" id="f-payment" placeholder="0.00" step="0.01" oninput="onPaymentInput()"/></div>
+      <div class="field">
+        <label style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span>Stripe Fee ($)</span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:9px;color:#5A7A99;font-weight:400;letter-spacing:1px;white-space:nowrap;">
+            <input type="checkbox" id="stripe-toggle" checked onchange="onStripeToggle()" style="width:auto;accent-color:#3CA83C;cursor:pointer;margin:0;"/>AUTO (2.9%+$0.30)
+          </span>
+        </label>
+        <input type="number" id="f-stripe" placeholder="0.00" step="0.01" oninput="previewAlloc()" style="background:#0A1F35;color:#3CA83C;" readonly/>
+      </div>
       <div class="field"><label>Notes (optional)</label><input type="text" id="f-notes" placeholder="e.g. partial payment, final draw"/></div>
     </div>
     <div class="alloc-preview" id="alloc-preview" style="display:none">
@@ -313,6 +321,35 @@ function calcAlloc(payment,stripe){
   return{real,profit:real*PCT.profit,owners:real*PCT.owners,tax:real*PCT.tax,opex:real*PCT.opex,mat:real*PCT.mat,subs:real*PCT.subs};
 }
 
+function onPaymentInput(){
+  const payment=parseFloat(document.getElementById('f-payment').value)||0;
+  if(document.getElementById('stripe-toggle').checked&&payment>0){
+    const fee=Math.round((payment*0.029+0.30)*100)/100;
+    document.getElementById('f-stripe').value=fee.toFixed(2);
+  }else if(document.getElementById('stripe-toggle').checked&&payment<=0){
+    document.getElementById('f-stripe').value='';
+  }
+  previewAlloc();
+}
+
+function onStripeToggle(){
+  const auto=document.getElementById('stripe-toggle').checked;
+  const stripeField=document.getElementById('f-stripe');
+  if(auto){
+    stripeField.readOnly=true;
+    stripeField.style.background='#0A1F35';
+    stripeField.style.color='#3CA83C';
+    onPaymentInput();
+  }else{
+    stripeField.readOnly=false;
+    stripeField.style.background='#0E1E35';
+    stripeField.style.color='#F5F5F5';
+    stripeField.value='';
+    stripeField.placeholder='Enter fee manually';
+    previewAlloc();
+  }
+}
+
 function previewAlloc(){
   const payment=parseFloat(document.getElementById('f-payment').value)||0;
   const stripe=parseFloat(document.getElementById('f-stripe').value)||0;
@@ -359,7 +396,7 @@ function addEntry(){
 }
 
 function clearForm(){
-  ['f-client','f-check','f-jobnum','f-invoice','f-job','f-payment','f-stripe','f-notes'].forEach(id=>{document.getElementById(id).value='';});
+  ['f-client','f-check','f-jobnum','f-invoice','f-job','f-payment','f-notes'].forEach(id=>{document.getElementById(id).value='';}); document.getElementById('f-stripe').value=''; if(document.getElementById('stripe-toggle').checked){document.getElementById('f-stripe').readOnly=true;document.getElementById('f-stripe').style.background='#0A1F35';document.getElementById('f-stripe').style.color='#3CA83C';}
   setDefaultDate();
   document.getElementById('alloc-preview').style.display='none';
 }
