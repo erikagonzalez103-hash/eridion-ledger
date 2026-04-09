@@ -12,6 +12,17 @@ body{font-family:'DM Sans',sans-serif;background:#0E1E35;color:#F5F5F5;min-heigh
 .hdr-left{display:flex;align-items:center;gap:12px;}
 .hdr-title{font-family:'DM Serif Display',serif;font-size:17px;letter-spacing:1px;}
 .hdr-sub{font-size:9px;color:#3CA83C;letter-spacing:3px;text-transform:uppercase;margin-top:2px;}
+.hdr-right{display:flex;align-items:center;gap:14px;}
+/* XERO STATUS BADGE */
+.xero-badge{display:flex;align-items:center;gap:6px;background:#0A1728;border:1px solid #2A4A6A;border-radius:20px;padding:5px 12px;cursor:pointer;transition:border-color .2s;}
+.xero-badge:hover{border-color:#3CA83C;}
+.xero-dot{width:7px;height:7px;border-radius:50%;background:#3A5A7A;transition:background .3s;}
+.xero-dot.connected{background:#3CA83C;box-shadow:0 0 6px rgba(60,168,60,0.5);}
+.xero-dot.error{background:#E24B4A;}
+.xero-dot.syncing{background:#F0B05A;animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.xero-label{font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#5A7A99;}
+.xero-label.connected{color:#3CA83C;}
 /* ALERT BANNER */
 .alert-banner{display:none;align-items:center;gap:10px;padding:9px 24px;font-size:11px;font-weight:500;border-bottom:1px solid;}
 .alert-banner.open{display:flex;}
@@ -25,6 +36,8 @@ body{font-family:'DM Sans',sans-serif;background:#0E1E35;color:#F5F5F5;min-heigh
 .tab{padding:11px 15px;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#5A7A99;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
 .tab.active{color:#3CA83C;border-bottom-color:#3CA83C;}
 .tab:hover{color:#9BAFC0;}
+.tab.xero-tab{color:#5A8AB5;}
+.tab.xero-tab.active{color:#5599CC;border-bottom-color:#5599CC;}
 .panel{display:none;padding:18px 24px;}
 .panel.active{display:block;}
 /* CARDS */
@@ -55,6 +68,8 @@ body{font-family:'DM Sans',sans-serif;background:#0E1E35;color:#F5F5F5;min-heigh
 .sb-overdue{background:rgba(226,75,74,0.15);color:#E24B4A;border:1px solid rgba(226,75,74,0.3);}
 .sb-recurring{background:rgba(85,153,204,0.15);color:#5599CC;border:1px solid rgba(85,153,204,0.3);}
 .sb-dist{background:rgba(155,125,216,0.15);color:#9B7DD8;border:1px solid rgba(155,125,216,0.3);}
+.sb-xero{background:rgba(85,153,204,0.15);color:#5599CC;border:1px solid rgba(85,153,204,0.3);}
+.sb-review{background:rgba(240,176,90,0.15);color:#F0B05A;border:1px solid rgba(240,176,90,0.3);}
 /* ALLOC PREVIEW */
 .alloc-preview{background:#0A1728;border:1px solid #1E3A5A;border-radius:6px;padding:14px;margin-top:12px;display:none;}
 .preview-title{font-size:9px;letter-spacing:2px;color:#5A7A99;text-transform:uppercase;margin-bottom:10px;}
@@ -72,15 +87,23 @@ body{font-family:'DM Sans',sans-serif;background:#0E1E35;color:#F5F5F5;min-heigh
 .btn-row{margin-top:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .btn-primary{background:#3CA83C;color:#0E1E35;border:none;border-radius:4px;padding:9px 20px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
 .btn-primary:hover{background:#4DC84D;}
+.btn-primary:disabled{background:#2A4A2A;color:#5A7A5A;cursor:not-allowed;}
 .btn-secondary{background:transparent;color:#5A7A99;border:1px solid #2A4A6A;border-radius:4px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;}
 .btn-secondary:hover{color:#F5F5F5;border-color:#5A7A99;}
 .btn-scan{background:#1B3F6B;color:#3CA83C;border:1.5px solid #3CA83C;border-radius:4px;padding:6px 14px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
 .btn-scan:hover{background:#3CA83C;color:#0E1E35;}
+.btn-xero{background:#1B3060;color:#5599CC;border:1.5px solid #5599CC;border-radius:4px;padding:8px 18px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.btn-xero:hover{background:#5599CC;color:#0E1E35;}
+.btn-xero:disabled{background:#1A2A40;color:#3A5A7A;border-color:#2A4A6A;cursor:not-allowed;}
 .btn-dist{background:rgba(155,125,216,0.15);color:#9B7DD8;border:1.5px solid rgba(155,125,216,0.5);border-radius:4px;padding:7px 14px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
 .btn-dist:hover{background:rgba(155,125,216,0.3);}
 .btn-export{background:#1B3F6B;color:#9BAFC0;border:1px solid #2A4A6A;border-radius:4px;padding:7px 14px;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;}
 .btn-mark{background:rgba(60,168,60,0.15);color:#3CA83C;border:1px solid rgba(60,168,60,0.3);border-radius:3px;padding:3px 7px;font-family:'DM Sans',sans-serif;font-size:9px;font-weight:600;cursor:pointer;letter-spacing:1px;}
 .btn-mark:hover{background:rgba(60,168,60,0.3);}
+.btn-import{background:rgba(85,153,204,0.15);color:#5599CC;border:1px solid rgba(85,153,204,0.3);border-radius:3px;padding:3px 8px;font-family:'DM Sans',sans-serif;font-size:9px;font-weight:600;cursor:pointer;letter-spacing:1px;}
+.btn-import:hover{background:rgba(85,153,204,0.3);}
+.btn-skip{background:none;border:none;color:#3A5A7A;cursor:pointer;font-size:9px;padding:3px 6px;font-family:'DM Sans',sans-serif;}
+.btn-skip:hover{color:#5A7A99;}
 /* RECENT ROWS */
 .recent-card{background:#152844;border:1px solid #2A4A6A;border-radius:8px;padding:12px 18px;display:none;}
 .section-lbl{font-size:9px;font-weight:600;letter-spacing:3px;color:#5A7A99;text-transform:uppercase;margin-bottom:10px;}
@@ -134,7 +157,48 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
 .bc-p .bc-bar-fill{background:#3CA83C;} .bc-o .bc-bar-fill{background:#5599CC;}
 .bc-t .bc-bar-fill{background:#F0B05A;} .bc-x .bc-bar-fill{background:#9B7DD8;}
 .bc-m .bc-bar-fill{background:#E87040;} .bc-s .bc-bar-fill{background:#40C0B0;}
-/* DISTRIBUTION MODAL */
+/* XERO SYNC PANEL */
+.xero-connect-box{background:#0A1728;border:1.5px solid #2A4A6A;border-radius:8px;padding:20px;text-align:center;margin-bottom:16px;}
+.xero-connect-box.connected{border-color:rgba(60,168,60,0.4);}
+.xero-status-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.xero-status-left{display:flex;align-items:center;gap:10px;}
+.xero-org{font-size:13px;font-weight:600;color:#F5F5F5;}
+.xero-meta{font-size:10px;color:#5A7A99;margin-top:2px;}
+.xero-passphrase-row{display:flex;gap:8px;align-items:center;margin-bottom:14px;}
+.xero-passphrase-row input{background:#0E1E35;border:1px solid #2A4A6A;border-radius:4px;padding:8px 12px;color:#F5F5F5;font-family:'DM Sans',sans-serif;font-size:12px;width:260px;outline:none;}
+.xero-passphrase-row input:focus{border-color:#5599CC;}
+.sync-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.stat-box{background:#0A1728;border:1px solid #1E3A5A;border-radius:6px;padding:12px;text-align:center;}
+.stat-val{font-family:'DM Serif Display',serif;font-size:22px;color:#5599CC;margin-bottom:2px;}
+.stat-lbl{font-size:9px;font-weight:600;letter-spacing:2px;color:#5A7A99;text-transform:uppercase;}
+/* XERO TRANSACTION ROW */
+.xtx-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #1A3050;font-size:11px;}
+.xtx-row:last-child{border-bottom:none;}
+.xtx-date{color:#5A7A99;min-width:80px;font-size:10px;}
+.xtx-contact{color:#F5F5F5;font-weight:500;min-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.xtx-desc{color:#7C9AB5;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;}
+.xtx-bucket{min-width:90px;}
+.xtx-bucket select{background:#0E1E35;border:1px solid #2A4A6A;border-radius:3px;padding:3px 6px;color:#F5F5F5;font-family:'DM Sans',sans-serif;font-size:10px;outline:none;width:100%;}
+.xtx-amt{font-family:'DM Serif Display',serif;font-size:13px;min-width:80px;text-align:right;}
+.xtx-actions{display:flex;gap:4px;min-width:90px;justify-content:flex-end;}
+/* BUDGET VS ACTUAL */
+.bva-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.bva-card{background:#152844;border:1px solid #2A4A6A;border-radius:8px;padding:14px;position:relative;overflow:hidden;}
+.bva-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.bva-p::before{background:#3CA83C;} .bva-o::before{background:#5599CC;}
+.bva-t::before{background:#F0B05A;} .bva-x::before{background:#9B7DD8;}
+.bva-m::before{background:#E87040;} .bva-s::before{background:#40C0B0;}
+.bva-lbl{font-size:8px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#5A7A99;margin-bottom:8px;}
+.bva-row{display:flex;justify-content:space-between;align-items:baseline;padding:2px 0;font-size:11px;}
+.bva-row-lbl{color:#7C9AB5;}
+.bva-row-val{font-family:'DM Serif Display',serif;font-size:13px;}
+.bva-bar-wrap{margin-top:8px;}
+.bva-bar-track{height:4px;background:#0E1E35;border-radius:2px;overflow:hidden;margin-bottom:3px;}
+.bva-bar-budget{height:100%;border-radius:2px;opacity:.3;}
+.bva-bar-actual{height:4px;border-radius:2px;margin-top:-7px;}
+.bva-pct{font-size:9px;color:#5A7A99;text-align:right;}
+.bva-over{color:#E24B4A !important;}
+/* MODAL */
 .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;}
 .modal-overlay.open{display:flex;}
 .modal-box{background:#152844;border:1.5px solid #3CA83C;border-radius:10px;padding:22px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;}
@@ -191,11 +255,13 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
 .mg-profit{font-size:10px;color:#3CA83C;margin-top:2px;}
 .mg-count{font-size:9px;color:#5A7A99;margin-top:1px;}
 .empty{text-align:center;padding:36px;color:#3A5A7A;font-size:13px;}
+.divider{height:1px;background:#1E3A5A;margin:14px 0;}
 @media(max-width:700px){
   .r4,.r3,.r3w{grid-template-columns:1fr 1fr;}
   .chips{grid-template-columns:repeat(3,1fr);}
-  .bucket-grid{grid-template-columns:1fr 1fr;}
+  .bucket-grid,.bva-grid{grid-template-columns:1fr 1fr;}
   .month-grid{grid-template-columns:1fr 1fr;}
+  .sync-stats{grid-template-columns:1fr 1fr;}
 }
 </style>
 </head>
@@ -206,7 +272,13 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
     <svg width="30" height="30" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="#3CA83C" stroke-width="2.5"/><polygon points="8,12 26,17 26,21 8,16" fill="#3CA83C"/><polygon points="8,19 22,23 22,27 8,23" fill="#3CA83C"/><polygon points="8,12 10,12 10,23 8,23" fill="#3CA83C"/><polygon points="18,12 26,17 24,20 16,15" fill="#0E1E35"/></svg>
     <div><div class="hdr-title">ERIDION GLASS &mdash; PROFIT FIRST</div><div class="hdr-sub">Revenue Allocation Ledger</div></div>
   </div>
-  <div style="font-size:10px;color:#3CA83C;letter-spacing:1px;" id="hdr-count">0 entries</div>
+  <div class="hdr-right">
+    <div class="xero-badge" onclick="showTab('xero',document.querySelector('.xero-tab'))" title="Xero Sync">
+      <div class="xero-dot" id="xero-dot"></div>
+      <span class="xero-label" id="xero-label">Xero</span>
+    </div>
+    <div style="font-size:10px;color:#3CA83C;letter-spacing:1px;" id="hdr-count">0 entries</div>
+  </div>
 </div>
 
 <div class="alert-banner" id="alert-banner">
@@ -222,6 +294,7 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
   <div class="tab" onclick="showTab('buckets',this)">Buckets</div>
   <div class="tab" onclick="showTab('cashflow',this)">Cash Flow</div>
   <div class="tab" onclick="showTab('reports',this)">Reports</div>
+  <div class="tab xero-tab" onclick="showTab('xero',this)">&#8645; Xero Sync</div>
 </div>
 
 <!-- ADD PAYMENT -->
@@ -415,6 +488,92 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
   <div id="report-content"></div>
 </div>
 
+<!-- XERO SYNC -->
+<div class="panel" id="panel-xero">
+
+  <!-- Passphrase Entry -->
+  <div class="card" id="xero-auth-card">
+    <div class="card-title-row">
+      <div class="card-title" style="color:#5599CC;">Xero Connection</div>
+      <div style="font-size:10px;color:#5A7A99;" id="xero-last-sync"></div>
+    </div>
+    <div id="xero-passphrase-section">
+      <div style="font-size:11px;color:#7C9AB5;margin-bottom:10px;">Enter your ledger passphrase to connect to Xero. This is stored only for this browser session.</div>
+      <div class="xero-passphrase-row">
+        <input type="password" id="xero-passphrase-input" placeholder="Enter passphrase..." onkeydown="if(event.key==='Enter')checkXeroStatus()"/>
+        <button class="btn-xero" onclick="checkXeroStatus()">Connect</button>
+      </div>
+      <div id="xero-auth-error" style="font-size:11px;color:#E24B4A;display:none;margin-top:6px;"></div>
+    </div>
+    <div id="xero-connected-section" style="display:none;">
+      <div class="xero-status-row">
+        <div class="xero-status-left">
+          <div class="xero-dot connected" style="width:10px;height:10px;"></div>
+          <div>
+            <div class="xero-org">Eridion Glass, LLC</div>
+            <div class="xero-meta" id="xero-status-meta">Connected via OAuth &middot; Read-only</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select class="fsel" id="xero-date-range" style="font-size:11px;">
+            <option value="this_month">This Month</option>
+            <option value="last_month">Last Month</option>
+            <option value="last_30">Last 30 Days</option>
+            <option value="last_90">Last 90 Days</option>
+            <option value="ytd">Year to Date</option>
+          </select>
+          <button class="btn-xero" id="xero-sync-btn" onclick="syncFromXero()">&#8645; Sync Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sync Stats -->
+  <div id="xero-stats-section" style="display:none;">
+    <div class="sync-stats">
+      <div class="stat-box">
+        <div class="stat-val" id="stat-received">—</div>
+        <div class="stat-lbl">Payments In</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="stat-spent" style="color:#E87040;">—</div>
+        <div class="stat-lbl">Expenses Out</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="stat-pending" style="color:#F0B05A;">—</div>
+        <div class="stat-lbl">Needs Review</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="stat-imported" style="color:#3CA83C;">—</div>
+        <div class="stat-lbl">Imported</div>
+      </div>
+    </div>
+
+    <!-- Budget vs Actual -->
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-title-row">
+        <div class="card-title" style="color:#5599CC;">Budget vs Actual &mdash; Xero Data</div>
+        <div style="font-size:10px;color:#5A7A99;" id="bva-period-label"></div>
+      </div>
+      <div class="bva-grid" id="bva-grid"></div>
+    </div>
+
+    <!-- Transaction Review Queue -->
+    <div class="card">
+      <div class="card-title-row">
+        <div class="card-title" style="color:#5599CC;">Transaction Review</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span style="font-size:10px;color:#5A7A99;" id="tx-queue-count"></span>
+          <button class="btn-primary" style="font-size:10px;padding:6px 12px;" onclick="importAllReviewed()">Import All &#10003;</button>
+        </div>
+      </div>
+      <div style="font-size:10px;color:#5A7A99;margin-bottom:12px;">Review each transaction, confirm the bucket assignment, then import. Xero RECEIVE = payment in. Xero SPEND = expense out.</div>
+      <div id="xero-tx-list"><div class="empty">Sync from Xero to see transactions.</div></div>
+    </div>
+  </div>
+
+</div>
+
 <!-- SCAN MODAL -->
 <div class="modal-overlay" id="scan-modal" onclick="onScanBg(event)">
   <div class="modal-box">
@@ -437,6 +596,7 @@ var BUCKET_LABELS  = {profit:'Profit', owners:"Owner's Comp", tax:'Tax Reserve',
 var BUCKET_ACCTS   = {profit:'...6180', owners:'...7799', tax:'...8710', opex:'...2122', materials:'...6985', subs:'...4814'};
 var BUCKET_KEYS    = ['profit','owners','tax','opex','materials','subs'];
 var BUCKET_CLASSES = {profit:'bc-p', owners:'bc-o', tax:'bc-t', opex:'bc-x', materials:'bc-m', subs:'bc-s'};
+var BVA_CLASSES    = {profit:'bva-p', owners:'bva-o', tax:'bva-t', opex:'bva-x', materials:'bva-m', subs:'bva-s'};
 
 var EXP_CATS = {
   opex:['Insurance','Bookkeeper','Truck Payment','AT&T','Public Storage','Software Subscriptions','Utilities','Vehicle Insurance','Dues & Memberships','Tools & Supplies','Loan Repayment','Bank Charges','Misc / Other'],
@@ -479,6 +639,330 @@ var RECURRING = [
 ];
 
 var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// ─── XERO CONFIG ─────────────────────────────────────────────
+var WORKER_URL = 'https://eridion-xero-worker.erikagonzalez103.workers.dev';
+var _xeroPassphrase = sessionStorage.getItem('eg_xero_pp') || '';
+var _xeroTransactions = []; // raw fetched transactions pending review
+var _importedXeroIds = {}; // track which Xero tx IDs we've already imported
+
+function getXeroHeaders() {
+  return { 'Content-Type': 'application/json', 'X-Passphrase': _xeroPassphrase };
+}
+
+// ─── BUCKET AUTO-MAPPER ──────────────────────────────────────
+// Maps Xero contact name + description to a Profit First bucket
+// Returns: 'income' | 'profit' | 'owners' | 'tax' | 'opex' | 'materials' | 'subs'
+var BUCKET_RULES = [
+  // Builder payments → income (will be allocated across all buckets)
+  { pattern: /hines|lingenfelter|grand homes|dr horton|martyn|hammer|gutman|artistic metal|builder|construction|homes/i, result: 'income' },
+  // Subs
+  { pattern: /zuritex|citizens glass|ryan gordano|subcontract|installer/i, result: 'subs' },
+  // Materials / suppliers
+  { pattern: /sky glass|imperial|waterfall|cmi|dfg|fhc|m3|glass supply|glazing supply/i, result: 'materials' },
+  // Owner's Comp
+  { pattern: /mortgage|cadillac|grocery|groceries|personal|embrace pet|insurance.*personal/i, result: 'owners' },
+  // Tax
+  { pattern: /irs|federal tax|estimated tax|state tax|payroll tax/i, result: 'tax' },
+  // OPEX — specific vendors
+  { pattern: /progressive|at&t|at&t|north bay|public storage|brinks|rescue air|xero|adobe|canva|google|apple|dropbox|monday|smart glazier|let.s grow|hp inkjet|hoa|electricity|water|insurance|bookkeeper|loan|beyond loan|truck/i, result: 'opex' },
+];
+
+function mapXeroToBucket(tx) {
+  var searchStr = ((tx.contact || '') + ' ' + (tx.lineItems || []).map(function(li){ return li.description||''; }).join(' ')).toLowerCase();
+  // RECEIVE type with builder contact → income
+  if (tx.type === 'RECEIVE') {
+    for (var i = 0; i < BUCKET_RULES.length; i++) {
+      if (BUCKET_RULES[i].pattern.test(searchStr)) return BUCKET_RULES[i].result;
+    }
+    return 'income'; // default: any RECEIVE is income
+  }
+  // SPEND type → try to map to expense bucket
+  if (tx.type === 'SPEND') {
+    for (var i = 0; i < BUCKET_RULES.length; i++) {
+      if (BUCKET_RULES[i].pattern.test(searchStr)) {
+        var r = BUCKET_RULES[i].result;
+        return r === 'income' ? 'opex' : r; // income bucket doesn't apply to expenses
+      }
+    }
+    return 'opex'; // default: unrecognized spend → OPEX
+  }
+  return 'opex';
+}
+
+function getDateRange(rangeKey) {
+  var today = new Date();
+  var toDate = today.toISOString().split('T')[0];
+  var fromDate;
+  if (rangeKey === 'this_month') {
+    fromDate = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-01';
+  } else if (rangeKey === 'last_month') {
+    var lm = new Date(today.getFullYear(), today.getMonth()-1, 1);
+    var lme = new Date(today.getFullYear(), today.getMonth(), 0);
+    fromDate = lm.toISOString().split('T')[0];
+    toDate = lme.toISOString().split('T')[0];
+  } else if (rangeKey === 'last_30') {
+    var d = new Date(today); d.setDate(d.getDate()-30);
+    fromDate = d.toISOString().split('T')[0];
+  } else if (rangeKey === 'last_90') {
+    var d = new Date(today); d.setDate(d.getDate()-90);
+    fromDate = d.toISOString().split('T')[0];
+  } else if (rangeKey === 'ytd') {
+    fromDate = today.getFullYear() + '-01-01';
+  }
+  return { fromDate: fromDate, toDate: toDate };
+}
+
+// ─── XERO STATUS CHECK ───────────────────────────────────────
+async function checkXeroStatus() {
+  var input = document.getElementById('xero-passphrase-input');
+  var pp = input.value.trim() || _xeroPassphrase;
+  if (!pp) { showXeroError('Please enter your passphrase.'); return; }
+
+  _xeroPassphrase = pp;
+  sessionStorage.setItem('eg_xero_pp', pp);
+  setXeroDot('syncing', 'Checking...');
+
+  try {
+    var res = await fetch(WORKER_URL + '/api/status', { headers: { 'X-Passphrase': pp } });
+    if (res.status === 401) { setXeroDot('error', 'Xero'); showXeroError('Wrong passphrase.'); _xeroPassphrase=''; sessionStorage.removeItem('eg_xero_pp'); return; }
+    var data = await res.json();
+    if (data.connected) {
+      setXeroDot('connected', 'Connected');
+      document.getElementById('xero-passphrase-section').style.display = 'none';
+      document.getElementById('xero-connected-section').style.display = 'block';
+      document.getElementById('xero-auth-error').style.display = 'none';
+      var syncedAt = localStorage.getItem('eg_xero_last_sync');
+      document.getElementById('xero-last-sync').textContent = syncedAt ? 'Last synced ' + syncedAt : 'Never synced';
+    } else {
+      setXeroDot('error', 'Xero');
+      showXeroError('Xero not connected. Visit the Worker /auth/xero URL to reconnect.');
+    }
+  } catch(e) {
+    setXeroDot('error', 'Error');
+    showXeroError('Could not reach the Worker. Check your internet connection.');
+  }
+}
+
+function showXeroError(msg) {
+  var el = document.getElementById('xero-auth-error');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+function setXeroDot(state, label) {
+  var dot = document.getElementById('xero-dot');
+  var lbl = document.getElementById('xero-label');
+  dot.className = 'xero-dot ' + state;
+  lbl.className = 'xero-label ' + state;
+  lbl.textContent = label;
+}
+
+// ─── XERO SYNC ───────────────────────────────────────────────
+async function syncFromXero() {
+  var btn = document.getElementById('xero-sync-btn');
+  btn.disabled = true; btn.textContent = '⟳ Syncing...';
+  setXeroDot('syncing', 'Syncing...');
+
+  var rangeKey = document.getElementById('xero-date-range').value;
+  var range = getDateRange(rangeKey);
+
+  try {
+    var res = await fetch(
+      WORKER_URL + '/api/transactions?fromDate=' + range.fromDate + '&toDate=' + range.toDate,
+      { headers: getXeroHeaders() }
+    );
+    if (!res.ok) { var e = await res.json(); throw new Error(e.error || 'Sync failed'); }
+    var data = await res.json();
+    _xeroTransactions = (data.transactions || []).filter(function(tx){
+      return !_importedXeroIds[tx.date + '_' + tx.total + '_' + tx.contact];
+    });
+
+    renderXeroStats(_xeroTransactions, range);
+    renderXeroTransactions(_xeroTransactions);
+    document.getElementById('xero-stats-section').style.display = 'block';
+
+    var now = new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    localStorage.setItem('eg_xero_last_sync', now);
+    document.getElementById('xero-last-sync').textContent = 'Last synced ' + now;
+    setXeroDot('connected', 'Connected');
+  } catch(err) {
+    setXeroDot('error', 'Error');
+    alert('Sync error: ' + err.message);
+  }
+  btn.disabled = false; btn.textContent = '⇌ Sync Now';
+}
+
+function renderXeroStats(txs, range) {
+  var received = txs.filter(function(t){ return t.type==='RECEIVE'; });
+  var spent    = txs.filter(function(t){ return t.type==='SPEND'; });
+  var totalIn  = received.reduce(function(a,t){ return a+t.total; }, 0);
+  var totalOut = spent.reduce(function(a,t){ return a+t.total; }, 0);
+
+  document.getElementById('stat-received').textContent = fmt(totalIn, 0);
+  document.getElementById('stat-spent').textContent    = fmt(totalOut, 0);
+  document.getElementById('stat-pending').textContent  = txs.length;
+  document.getElementById('stat-imported').textContent = Object.keys(_importedXeroIds).length;
+
+  // Budget vs Actual
+  renderBVA(txs, range);
+}
+
+function renderBVA(txs, range) {
+  document.getElementById('bva-period-label').textContent = range.fromDate + ' to ' + range.toDate;
+  // Actual spend per bucket from Xero transactions
+  var actual = {profit:0, owners:0, tax:0, opex:0, materials:0, subs:0};
+  var actualRevenue = 0;
+  txs.forEach(function(tx) {
+    var bucket = mapXeroToBucket(tx);
+    if (tx.type === 'RECEIVE') {
+      actualRevenue += tx.total;
+    } else if (tx.type === 'SPEND' && actual[bucket] !== undefined) {
+      actual[bucket] += tx.total;
+    }
+  });
+
+  // Budget = TAP % of actual revenue
+  var budget = {
+    profit:   actualRevenue * PCT.profit,
+    owners:   actualRevenue * PCT.owners,
+    tax:      actualRevenue * PCT.tax,
+    opex:     actualRevenue * PCT.opex,
+    materials: actualRevenue * PCT.mat,
+    subs:     actualRevenue * PCT.subs
+  };
+
+  var html = '';
+  BUCKET_KEYS.forEach(function(bk) {
+    var b = budget[bk] || 0;
+    var a = actual[bk] || 0;
+    var pct = b > 0 ? Math.round((a / b) * 100) : 0;
+    var over = a > b && b > 0;
+    var barW = Math.min(100, pct);
+    html += '<div class="bva-card ' + BVA_CLASSES[bk] + '">' +
+      '<div class="bva-lbl">' + BUCKET_LABELS[bk] + '</div>' +
+      '<div class="bva-row"><span class="bva-row-lbl">Budget (TAP)</span><span class="bva-row-val" style="color:' + BUCKET_COLORS[bk] + '">' + fmt(b,0) + '</span></div>' +
+      '<div class="bva-row"><span class="bva-row-lbl">Actual (Xero)</span><span class="bva-row-val ' + (over?'bva-over':'') + '">' + fmt(a,0) + '</span></div>' +
+      '<div class="bva-bar-wrap">' +
+        '<div class="bva-bar-track"><div class="bva-bar-budget" style="width:100%;background:' + BUCKET_COLORS[bk] + '"></div></div>' +
+        '<div class="bva-bar-actual" style="width:' + barW + '%;background:' + (over?'#E24B4A':BUCKET_COLORS[bk]) + '"></div>' +
+        '<div class="bva-pct ' + (over?'bva-over':'') + '">' + pct + '% of budget used' + (over?' ⚠ Over':'') + '</div>' +
+      '</div>' +
+    '</div>';
+  });
+  document.getElementById('bva-grid').innerHTML = html;
+}
+
+function renderXeroTransactions(txs) {
+  var list = document.getElementById('xero-tx-list');
+  document.getElementById('tx-queue-count').textContent = txs.length + ' transactions';
+
+  if (!txs.length) {
+    list.innerHTML = '<div class="empty">No new transactions to review. All caught up!</div>';
+    return;
+  }
+
+  var html = '';
+  txs.forEach(function(tx, idx) {
+    var isReceive = tx.type === 'RECEIVE';
+    var suggestedBucket = mapXeroToBucket(tx);
+    var amtColor = isReceive ? '#3CA83C' : '#E24B4A';
+    var typeLabel = isReceive ? '&#8593; IN' : '&#8595; OUT';
+    var desc = (tx.lineItems && tx.lineItems[0]) ? (tx.lineItems[0].description || '') : '';
+    var xeroDate = tx.date ? tx.date.replace(/\/Date\((\d+)[+-].+\)\//,function(_,ms){ return new Date(parseInt(ms)).toISOString().split('T')[0]; }) : '';
+
+    html += '<div class="xtx-row" id="xtx-row-' + idx + '">' +
+      '<span class="xtx-date">' + (xeroDate || '—') + '</span>' +
+      '<span style="font-size:9px;font-weight:600;color:' + amtColor + ';min-width:30px;">' + typeLabel + '</span>' +
+      '<span class="xtx-contact">' + (tx.contact || tx.accountName || '—') + '</span>' +
+      '<span class="xtx-desc">' + desc + '</span>' +
+      '<div class="xtx-bucket">' +
+        (isReceive && suggestedBucket === 'income' ?
+          '<span style="font-size:10px;color:#3CA83C;font-weight:600;">Revenue &#10003;</span>' :
+          '<select id="xtx-bucket-' + idx + '" style="background:#0E1E35;border:1px solid #2A4A6A;border-radius:3px;padding:3px 6px;color:#F5F5F5;font-family:\'DM Sans\',sans-serif;font-size:10px;outline:none;">' +
+            (isReceive ? '<option value="income"' + (suggestedBucket==='income'?' selected':'') + '>Revenue</option>' : '') +
+            BUCKET_KEYS.map(function(bk){ return '<option value="' + bk + '"' + (suggestedBucket===bk?' selected':'') + '>' + BUCKET_LABELS[bk] + '</option>'; }).join('') +
+          '</select>'
+        ) +
+      '</div>' +
+      '<span class="xtx-amt" style="color:' + amtColor + '">' + (isReceive?'+':'-') + fmt(tx.total) + '</span>' +
+      '<div class="xtx-actions">' +
+        '<button class="btn-import" onclick="importOneTx(' + idx + ')">Import</button>' +
+        '<button class="btn-skip" onclick="skipOneTx(' + idx + ')">Skip</button>' +
+      '</div>' +
+    '</div>';
+  });
+  list.innerHTML = html;
+}
+
+function importOneTx(idx) {
+  var tx = _xeroTransactions[idx];
+  if (!tx) return;
+  var bucketEl = document.getElementById('xtx-bucket-' + idx);
+  var bucket = bucketEl ? bucketEl.value : mapXeroToBucket(tx);
+  var isReceive = tx.type === 'RECEIVE';
+  var xeroDate = tx.date ? tx.date.replace(/\/Date\((\d+)[+-].+\)\//,function(_,ms){ return new Date(parseInt(ms)).toISOString().split('T')[0]; }) : todayStr();
+  var xeroMonth = xeroDate ? (function(ds){ var d=new Date(ds); return MONTHS[d.getMonth()]+' '+d.getFullYear(); })(xeroDate) : currentMonth();
+  var desc = (tx.lineItems && tx.lineItems[0]) ? (tx.lineItems[0].description || '') : '';
+
+  if (isReceive && bucket === 'income') {
+    // Import as income with full PF allocation
+    var fee = 0; // no Stripe fee on Xero bank transactions
+    var a = calcAlloc(tx.total, fee);
+    incomes.unshift({
+      id: Date.now(), type:'income',
+      date: xeroDate, month: xeroMonth,
+      client: tx.contact || tx.accountName || 'Xero Import',
+      check: tx.reference || '',
+      jobnum: '', invoice: '',
+      job: desc,
+      notes: 'Imported from Xero',
+      payment: tx.total, stripe: 0, real: a.real,
+      profit: a.profit, owners: a.owners, tax: a.tax, opex: a.opex, mat: a.mat, subs: a.subs,
+      xeroImport: true
+    });
+    saveIncomes(); updateHdrCount(); renderRecentIncome();
+  } else {
+    // Import as expense
+    expenses.unshift({
+      id: Date.now(), type:'expense',
+      date: xeroDate, month: xeroMonth,
+      bucket: bucket,
+      category: 'Xero Import',
+      vendor: tx.contact || tx.accountName || desc || 'Xero Import',
+      amount: tx.total, status: 'paid',
+      notes: 'Imported from Xero' + (desc ? ' \u00b7 ' + desc : ''),
+      xeroImport: true
+    });
+    saveExpenses(); renderRecentExpense();
+  }
+
+  // Mark as imported
+  var txKey = xeroDate + '_' + tx.total + '_' + tx.contact;
+  _importedXeroIds[txKey] = true;
+  document.getElementById('stat-imported').textContent = Object.keys(_importedXeroIds).length;
+
+  // Remove from review list
+  var row = document.getElementById('xtx-row-' + idx);
+  if (row) { row.style.opacity='0'; row.style.transition='opacity .3s'; setTimeout(function(){ row.remove(); }, 300); }
+  updateAlert();
+}
+
+function skipOneTx(idx) {
+  var row = document.getElementById('xtx-row-' + idx);
+  if (row) { row.style.opacity='0.3'; }
+}
+
+function importAllReviewed() {
+  var rows = document.querySelectorAll('[id^="xtx-row-"]');
+  var count = 0;
+  rows.forEach(function(row) {
+    if (row.style.opacity === '0.3') return; // skipped
+    var idx = parseInt(row.id.replace('xtx-row-',''));
+    if (!isNaN(idx)) { importOneTx(idx); count++; }
+  });
+  alert('Imported ' + count + ' transactions.');
+  updateAlert(); renderBuckets();
+}
 
 // ─── STORAGE ─────────────────────────────────────────────────
 var INC_KEY  = 'eg_income_v1';
@@ -554,7 +1038,6 @@ function updateAlert() {
     var days = daysUntil(e.date);
     return days !== null && days >= 0 && days <= 3;
   });
-  // Check for discrepancies
   var discrepancies = [];
   BUCKET_KEYS.forEach(function(bk) {
     var key = bk + '_actual';
@@ -587,24 +1070,14 @@ function calcBucketBalance(bucketKey, monthFilter) {
   var filtInc = monthFilter === 'all' ? incomes : incomes.filter(function(e) { return e.month === monthFilter; });
   var filtExp = monthFilter === 'all' ? expenses : expenses.filter(function(e) { return e.month === monthFilter; });
   var filtDist = monthFilter === 'all' ? distributions : distributions.filter(function(e) { return e.month === monthFilter; });
-
-  // Opening balance
   var opening = 0;
   var ob = expenses.filter(function(e) { return e.bucket === bucketKey && e.status === 'opening'; });
   if (monthFilter === 'all') { opening = ob.reduce(function(a,e) { return a + e.amount; }, 0); }
-
-  // Allocated via distributions
   var allocated = filtDist.reduce(function(a,d) { return a + (d[inKey] || 0); }, 0);
-
-  // Paid out
   var paidOut = filtExp.filter(function(e) { return e.bucket === bucketKey && (e.status === 'paid'); }).reduce(function(a,e) { return a + e.amount; }, 0);
-
-  // Pending
   var pending = filtExp.filter(function(e) { return e.bucket === bucketKey && (e.status === 'due' || e.status === 'recurring'); }).reduce(function(a,e) { return a + e.amount; }, 0);
-
   var balance = opening + allocated - paidOut;
   var projected = balance - pending;
-
   return {opening:opening, allocated:allocated, paidOut:paidOut, pending:pending, balance:balance, projected:projected};
 }
 
@@ -709,12 +1182,10 @@ function deleteDistribution(id) {
 function generateRecurringFromBuckets() {
   var month = document.getElementById('bk-month').value;
   if (month === 'all') { alert('Please select a specific month first.'); return; }
-  // Temporarily set the expense month selector and call generateRecurring
   document.getElementById('e-month').value = month;
   generateRecurring();
   renderBuckets();
 }
-
 function generateRecurring() {
   var month = document.getElementById('e-month').value;
   var existing = expenses.filter(function(e){ return e.month===month && (e.status==='recurring'||e.status==='due'); }).map(function(e){ return e.vendor; });
@@ -745,14 +1216,13 @@ function previewDistribution() {
   };
   var html = '';
   BUCKET_KEYS.forEach(function(bk) {
-    var amt = splits[bk === 'materials' ? 'mat' : bk] || splits.mat;
-    if (bk === 'materials') amt = splits.mat;
+    var amt = bk === 'materials' ? splits.mat : splits[bk];
     html += '<div class="dist-chip">' +
       '<div class="dist-chip-left">' +
         '<div class="dist-chip-bucket" style="color:' + BUCKET_COLORS[bk] + '">' + BUCKET_LABELS[bk] + '</div>' +
         '<div class="dist-chip-acct">Capital One ' + BUCKET_ACCTS[bk] + '</div>' +
       '</div>' +
-      '<div class="dist-chip-amt" style="color:' + BUCKET_COLORS[bk] + '">' + fmt(bk==='materials'?splits.mat:splits[bk]) + '</div>' +
+      '<div class="dist-chip-amt" style="color:' + BUCKET_COLORS[bk] + '">' + fmt(amt) + '</div>' +
     '</div>';
   });
   document.getElementById('dist-chips').innerHTML = html;
@@ -799,7 +1269,6 @@ function renderRecentDist() {
 
 // ─── OPENING BALANCES ────────────────────────────────────────
 function seedOpeningBalances() {
-  // Check if already seeded
   var existing = expenses.filter(function(e){ return e.status==='opening'; });
   if (existing.length > 0) return;
   var openingData = [
@@ -825,12 +1294,18 @@ function showTab(name, el) {
   document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
   document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
   document.getElementById('panel-'+name).classList.add('active');
-  el.classList.add('active');
+  if (el) el.classList.add('active');
   if (name==='ledger')    renderLedger();
   if (name==='buckets')   renderBuckets();
   if (name==='cashflow')  renderCashFlow();
   if (name==='reports')   renderReports();
   if (name==='distribute') renderRecentDist();
+  if (name==='xero') {
+    if (_xeroPassphrase) {
+      document.getElementById('xero-passphrase-input').value = _xeroPassphrase;
+      checkXeroStatus();
+    }
+  }
 }
 
 // ─── RECENT ──────────────────────────────────────────────────
@@ -846,6 +1321,7 @@ function renderRecentIncome() {
       '<span class="r-client">' + e.client + '</span>' +
       '<span class="r-desc">' + (e.job||e.invoice||'—') + '</span>' +
       (e.jobnum ? '<span class="r-jnum">#'+e.jobnum+'</span>' : '') +
+      (e.xeroImport ? '<span class="sb sb-xero">Xero</span>' : '') +
       '<span class="r-amt" style="color:#3CA83C">' + fmt(e.payment) + '</span>' +
       '<button class="r-del" onclick="deleteIncome('+e.id+')">&#x2715;</button>' +
     '</div>';
@@ -867,6 +1343,7 @@ function renderRecentExpense() {
       '<span class="r-date">' + (e.date||e.month) + '</span>' +
       '<span class="r-client" style="color:' + (BUCKET_COLORS[e.bucket]||'#F5F5F5') + '">' + (BUCKET_LABELS[e.bucket]||e.bucket) + '</span>' +
       '<span class="r-desc">' + e.vendor + '</span>' + sb +
+      (e.xeroImport ? '<span class="sb sb-xero">Xero</span>' : '') +
       '<span class="r-amt" style="color:#E24B4A">' + fmt(e.amount) + '</span>' +
       (e.status!=='paid' ? '<button class="btn-mark" onclick="markExpensePaid('+e.id+')">Paid</button>' : '') +
       '<button class="r-del" onclick="deleteExpense('+e.id+')">&#x2715;</button>' +
@@ -893,12 +1370,12 @@ function renderLedger() {
     return true;
   });
   var wrap = document.getElementById('ledger-wrap');
-  var totalIn=0, totalOut=0, totalDist=0;
-  filtered.forEach(function(e){ if(e.type==='income') totalIn+=e.payment; else if(e.type==='expense') totalOut+=e.amount; else if(e.type==='distribution') totalDist+=e.amount; });
+  var totalIn=0, totalOut=0;
+  filtered.forEach(function(e){ if(e.type==='income') totalIn+=e.payment; else if(e.type==='expense') totalOut+=e.amount; });
   document.getElementById('ledger-summary').textContent = filtered.length + ' transactions \u00b7 In: '+fmt(totalIn,0)+' \u00b7 Out: '+fmt(totalOut,0);
   if (!filtered.length) { wrap.innerHTML='<div class="empty">No transactions match this filter.</div>'; return; }
   wrap.innerHTML = '<table><thead><tr>' +
-    '<th>Date</th><th>Type</th><th>Month</th><th>Client / Vendor</th><th>Bucket / Job</th><th>Description</th><th>Status</th><th>Amount</th><th></th>' +
+    '<th>Date</th><th>Type</th><th>Month</th><th>Client / Vendor</th><th>Bucket / Job</th><th>Description</th><th>Status</th><th>Source</th><th>Amount</th><th></th>' +
     '</tr></thead><tbody>' +
     filtered.map(function(e){
       var isInc  = e.type==='income';
@@ -910,6 +1387,7 @@ function renderLedger() {
         (days!==null&&days<0)  ? '<span class="sb sb-overdue">Overdue</span>' : '<span class="sb sb-due">Due</span>';
       var typeLabel = isInc ? 'IN' : isDist ? 'DIST' : 'OUT';
       var typeColor = isInc ? '#3CA83C' : isDist ? '#9B7DD8' : '#E24B4A';
+      var sourceHtml = e.xeroImport ? '<span class="sb sb-xero">Xero</span>' : '<span style="font-size:9px;color:#3A5A7A;">Manual</span>';
       return '<tr>' +
         '<td>'+(e.date||'—')+'</td>' +
         '<td><span style="color:'+typeColor+';font-weight:600;font-size:10px;">'+typeLabel+'</span></td>' +
@@ -918,6 +1396,7 @@ function renderLedger() {
         '<td>'+(isInc?(e.jobnum?'<span class="jbadge">#'+e.jobnum+'</span>':'—'):(isDist?'<span style="color:#9B7DD8;font-size:10px;">6 Buckets</span>':'<span style="color:'+(BUCKET_COLORS[e.bucket]||'#F5F5F5')+';font-size:10px;">'+(BUCKET_LABELS[e.bucket]||e.bucket)+'</span>'))+'</td>' +
         '<td style="color:#7C9AB5;max-width:160px;overflow:hidden;text-overflow:ellipsis">'+(e.job||e.invoice||e.category||'—')+'</td>' +
         '<td>'+statusHtml+'</td>' +
+        '<td>'+sourceHtml+'</td>' +
         '<td class="tc-main" style="color:'+typeColor+'">'+(isInc?'+':isDist?'\u25B7':'-')+fmt(isInc?e.payment:isDist?e.amount:e.amount)+'</td>' +
         '<td>'+(!isInc&&!isDist&&e.status!=='paid'?'<button class="btn-mark" onclick="markExpensePaid('+e.id+')">Paid</button> ':'')+
           '<button class="del-btn" onclick="'+(isInc?'deleteIncome':isDist?'deleteDistribution':'deleteExpense')+'('+e.id+')">&#x2715;</button></td>' +
@@ -965,8 +1444,6 @@ function renderBuckets() {
       '</div>' +
       diffHtml +
     '</div>';
-
-    // Expense detail
     var bucketExps = expenses.filter(function(e){ return e.bucket===bk && e.status!=='opening' && (mv==='all'||e.month===mv); });
     if (bucketExps.length) {
       detail += '<div class="card" style="margin-bottom:10px;">' +
@@ -979,7 +1456,7 @@ function renderBuckets() {
                  (days!==null&&days<0)?'<span class="sb sb-overdue">Overdue '+Math.abs(days)+'d</span>' :
                  '<span class="sb sb-due">'+(days===0?'Today':'in '+days+'d')+'</span>';
         detail += '<div class="exp-item">' +
-          '<div class="exp-body"><div class="exp-desc">'+e.vendor+'</div><div class="exp-meta">'+e.category+(e.date?' \u00b7 '+e.date:'')+'</div></div>' +
+          '<div class="exp-body"><div class="exp-desc">'+e.vendor+'</div><div class="exp-meta">'+e.category+(e.date?' \u00b7 '+e.date:'')+(e.xeroImport?' \u00b7 <span style="color:#5599CC">Xero</span>':'')+'</div></div>' +
           sb + '<div class="exp-amt">'+fmt(e.amount)+'</div>' +
           (e.status!=='paid'?'<button class="btn-mark" onclick="markExpensePaid('+e.id+')">Mark Paid</button>':'') +
           '<button class="r-del" onclick="deleteExpense('+e.id+')">&#x2715;</button>' +
@@ -989,13 +1466,11 @@ function renderBuckets() {
     }
   });
   document.getElementById('bucket-grid').innerHTML = grid;
-  document.getElementById('bucket-expense-detail').innerHTML = detail || '<div class="empty">No expenses for this period. Use Add Expense or Generate Recurring to add items.</div>';
+  document.getElementById('bucket-expense-detail').innerHTML = detail || '<div class="empty">No expenses for this period.</div>';
 }
 function saveActual(bk, val) {
   actualBalances[bk+'_actual'] = val;
-  saveActuals();
-  updateAlert();
-  renderBuckets();
+  saveActuals(); updateAlert(); renderBuckets();
 }
 
 // ─── CASH FLOW ───────────────────────────────────────────────
@@ -1020,7 +1495,6 @@ function renderCashFlow() {
     var paidOut   = exp.filter(function(e){ return e.status==='paid'; }).reduce(function(a,e){ return a+e.amount; },0);
     var dueOut    = exp.filter(function(e){ return e.status!=='paid'; }).reduce(function(a,e){ return a+e.amount; },0);
     var net = totalIn - paidOut - dueOut;
-    // Highlight distribution days
     var hasDist = dist.length > 0;
     html += '<div class="week-card"' + (hasDist?' style="border-color:rgba(155,125,216,0.4)"':'') + '>' +
       '<div class="week-hdr">' +
@@ -1035,9 +1509,7 @@ function renderCashFlow() {
       '<div class="week-row"><span class="week-row-lbl" style="color:#F0B05A">&#9651; Due / upcoming</span><span class="week-row-amt" style="color:#F0B05A">-'+fmt(dueOut)+'</span></div>' +
     '</div>';
   });
-  // Month summary
   var mInc  = incomes.filter(function(e){ return e.month===month; });
-  var mDist = distributions.filter(function(e){ return e.month===month; });
   var mExp  = expenses.filter(function(e){ return e.month===month&&e.status!=='opening'; });
   var mIn   = mInc.reduce(function(a,e){ return a+e.payment; },0);
   var mPaid = mExp.filter(function(e){ return e.status==='paid'; }).reduce(function(a,e){ return a+e.amount; },0);
@@ -1107,10 +1579,10 @@ function exportCSV() {
   var filtInc = period==='all'?incomes:incomes.filter(function(e){ return e.month===period; });
   var filtExp = period==='all'?expenses.filter(function(e){ return e.status!=='opening'; }):expenses.filter(function(e){ return e.month===period&&e.status!=='opening'; });
   var filtDist= period==='all'?distributions:distributions.filter(function(e){ return e.month===period; });
-  var rows=[['Date','Month','Type','Client/Vendor','Bucket','Description','Amount','Stripe','Real Rev','Profit','Owners','Tax','OPEX','Materials','Subs','Status','Notes']];
-  filtInc.forEach(function(e){ rows.push([e.date,e.month,'INCOME',e.client,'ALL','"'+(e.job||e.invoice||'').replace(/"/g,'""')+'"',e.payment.toFixed(2),(e.stripe||0).toFixed(2),e.real.toFixed(2),e.profit.toFixed(2),e.owners.toFixed(2),e.tax.toFixed(2),e.opex.toFixed(2),e.mat.toFixed(2),e.subs.toFixed(2),'received',(e.notes||'')]); });
-  filtExp.forEach(function(e){ rows.push([e.date,e.month,'EXPENSE',e.vendor,e.bucket,e.category,e.amount.toFixed(2),'','','','','','','','',e.status,(e.notes||'')]); });
-  filtDist.forEach(function(e){ rows.push([e.date,e.month,'DISTRIBUTION','Income Acct','ALL','Weekly Distribution',e.amount.toFixed(2),'','',e.profit.toFixed(2),e.owners.toFixed(2),e.tax.toFixed(2),e.opex.toFixed(2),e.mat.toFixed(2),e.subs.toFixed(2),'completed','']); });
+  var rows=[['Date','Month','Type','Client/Vendor','Bucket','Description','Amount','Stripe','Real Rev','Profit','Owners','Tax','OPEX','Materials','Subs','Status','Source','Notes']];
+  filtInc.forEach(function(e){ rows.push([e.date,e.month,'INCOME',e.client,'ALL','"'+(e.job||e.invoice||'').replace(/"/g,'""')+'"',e.payment.toFixed(2),(e.stripe||0).toFixed(2),e.real.toFixed(2),e.profit.toFixed(2),e.owners.toFixed(2),e.tax.toFixed(2),e.opex.toFixed(2),e.mat.toFixed(2),e.subs.toFixed(2),'received',e.xeroImport?'Xero':'Manual',(e.notes||'')]); });
+  filtExp.forEach(function(e){ rows.push([e.date,e.month,'EXPENSE',e.vendor,e.bucket,e.category,e.amount.toFixed(2),'','','','','','','','',e.status,e.xeroImport?'Xero':'Manual',(e.notes||'')]); });
+  filtDist.forEach(function(e){ rows.push([e.date,e.month,'DISTRIBUTION','Income Acct','ALL','Weekly Distribution',e.amount.toFixed(2),'','',e.profit.toFixed(2),e.owners.toFixed(2),e.tax.toFixed(2),e.opex.toFixed(2),e.mat.toFixed(2),e.subs.toFixed(2),'completed','Manual','']); });
   var csv=rows.map(function(r){ return r.join(','); }).join('\n');
   var blob=new Blob([csv],{type:'text/csv'});
   var url=URL.createObjectURL(blob);
@@ -1181,9 +1653,7 @@ function updateHdrCount() {
 
 // ─── INIT ────────────────────────────────────────────────────
 loadData();
-// Seed opening balances if first time
 seedOpeningBalances();
-// Build month dropdowns
 var allMonthSels=['f-month','e-month','dist-month','ll-month','bk-month','cf-month','rp-period'];
 allMonthSels.forEach(function(id){
   var sel=document.getElementById(id);
@@ -1197,7 +1667,6 @@ allMonthSels.forEach(function(id){
   }
   if(id!=='rp-period'&&id!=='ll-month'&&id!=='bk-month') sel.value=currentMonth();
 });
-setDefaultDate='';
 document.getElementById('f-date').value = todayStr();
 document.getElementById('e-date').value = todayStr();
 document.getElementById('dist-date').value = todayStr();
@@ -1207,6 +1676,11 @@ renderRecentIncome();
 renderRecentExpense();
 renderRecentDist();
 updateAlert();
+// Auto-connect Xero if passphrase is in session
+if (_xeroPassphrase) {
+  document.getElementById('xero-passphrase-input').value = _xeroPassphrase;
+  checkXeroStatus();
+}
 </script>
 </body>
 </html>
