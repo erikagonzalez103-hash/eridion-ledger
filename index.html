@@ -70,6 +70,42 @@ body{font-family:'DM Sans',sans-serif;background:#0E1E35;color:#F5F5F5;min-heigh
 .sb-dist{background:rgba(155,125,216,0.15);color:#9B7DD8;border:1px solid rgba(155,125,216,0.3);}
 .sb-xero{background:rgba(85,153,204,0.15);color:#5599CC;border:1px solid rgba(85,153,204,0.3);}
 .sb-review{background:rgba(240,176,90,0.15);color:#F0B05A;border:1px solid rgba(240,176,90,0.3);}
+.sb-fcst{background:rgba(85,153,204,0.15);color:#5599CC;border:1px solid rgba(85,153,204,0.3);}
+.sb-delay{background:rgba(232,112,64,0.15);color:#E87040;border:1px solid rgba(232,112,64,0.3);}
+.sb-cancel{background:rgba(90,122,153,0.12);color:#5A7A99;border:1px solid rgba(90,122,153,0.3);text-decoration:line-through;}
+.sb-rolled{background:rgba(155,125,216,0.12);color:#9B7DD8;border:1px solid rgba(155,125,216,0.25);font-size:8px;margin-left:4px;}
+.sb-mid{background:rgba(240,176,90,0.12);color:#F0B05A;border:1px solid rgba(240,176,90,0.25);font-size:8px;margin-left:4px;}
+/* FORECAST SNAPSHOT TILES */
+.fc-snap{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px;}
+.fc-tile{background:#152844;border:1px solid #2A4A6A;border-radius:8px;padding:12px 14px;position:relative;overflow:hidden;}
+.fc-tile::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.fc-tile.fc-tile-fcst::before{background:#5599CC;} .fc-tile.fc-tile-act::before{background:#3CA83C;}
+.fc-tile.fc-tile-stripe::before{background:#9B7DD8;} .fc-tile.fc-tile-adj::before{background:#F0B05A;}
+.fc-tile.fc-tile-net::before{background:#40C0B0;}
+.fc-tile-lbl{font-size:8px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#5A7A99;margin-bottom:6px;}
+.fc-tile-amt{font-family:'DM Serif Display',serif;font-size:20px;}
+.fc-tile-sub{font-size:9px;color:#5A7A99;margin-top:2px;}
+/* FORECAST TABLE */
+.fc-tbl th{padding:8px 7px;}
+.fc-tbl td{padding:8px 7px;vertical-align:middle;}
+.fc-tbl tr.fc-cancelled td{opacity:.45;}
+.fc-tbl tr.fc-paid td{background:rgba(60,168,60,0.04);}
+.fc-variance{font-size:10px;color:#9BAFC0;}
+.fc-variance .fc-stripe{color:#9B7DD8;}
+.fc-variance .fc-other-pos{color:#3CA83C;}
+.fc-variance .fc-other-neg{color:#E24B4A;}
+.fc-act-btn{background:none;border:1px solid #2A4A6A;border-radius:3px;padding:3px 8px;color:#9BAFC0;font-family:'DM Sans',sans-serif;font-size:9px;font-weight:600;letter-spacing:1px;cursor:pointer;text-transform:uppercase;margin-right:2px;}
+.fc-act-btn:hover{border-color:#3CA83C;color:#3CA83C;}
+.fc-act-btn.fc-act-paid{border-color:#3CA83C;color:#3CA83C;}
+.fc-act-btn.fc-act-paid:hover{background:#3CA83C;color:#0E1E35;}
+.fc-act-btn.fc-act-delay:hover{border-color:#E87040;color:#E87040;}
+.fc-act-btn.fc-act-cancel:hover{border-color:#5A7A99;color:#F5F5F5;}
+.fc-act-btn.fc-act-undo:hover{border-color:#9B7DD8;color:#9B7DD8;}
+/* MARK PAID MODAL ALLOCATION PREVIEW (compact) */
+.fc-paid-preview{background:#0A1728;border:1px solid #1E3A5A;border-radius:6px;padding:10px;margin-top:10px;font-size:11px;}
+.fc-paid-row{display:flex;justify-content:space-between;padding:3px 0;}
+.fc-paid-row .fc-paid-lbl{color:#7C9AB5;}
+.fc-paid-row .fc-paid-val{font-family:'DM Serif Display',serif;color:#F5F5F5;}
 /* ALLOC PREVIEW */
 .alloc-preview{background:#0A1728;border:1px solid #1E3A5A;border-radius:6px;padding:14px;margin-top:12px;display:none;}
 .preview-title{font-size:9px;letter-spacing:2px;color:#5A7A99;text-transform:uppercase;margin-bottom:10px;}
@@ -262,6 +298,7 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
   .bucket-grid,.bva-grid{grid-template-columns:1fr 1fr;}
   .month-grid{grid-template-columns:1fr 1fr;}
   .sync-stats{grid-template-columns:1fr 1fr;}
+  .fc-snap{grid-template-columns:1fr 1fr;}
 }
 </style>
 </head>
@@ -289,6 +326,7 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
 <div class="tab-bar">
   <div class="tab active" onclick="showTab('income',this)">Add Payment</div>
   <div class="tab" onclick="showTab('expense',this)">Add Expense</div>
+  <div class="tab" onclick="showTab('forecast',this)">Forecast</div>
   <div class="tab" onclick="showTab('distribute',this)">Distribute</div>
   <div class="tab" onclick="showTab('ledger',this)">Ledger</div>
   <div class="tab" onclick="showTab('buckets',this)">Buckets</div>
@@ -389,6 +427,58 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
   <div class="recent-card" id="recent-expense-card">
     <div class="section-lbl">Recent Expenses</div>
     <div id="recent-expense-list"></div>
+  </div>
+</div>
+
+<!-- FORECAST -->
+<div class="panel" id="panel-forecast">
+  <div class="card">
+    <div class="card-title-row">
+      <div class="card-title">Add Forecasted Job</div>
+      <div style="font-size:10px;color:#5A7A99;">Plan the month &mdash; mark paid as Stripe payments come in</div>
+    </div>
+    <div class="form-row r4">
+      <div class="field"><label>Month</label><select id="fc-month"></select></div>
+      <div class="field"><label>Builder</label><input type="text" id="fc-builder" placeholder="e.g. DRH, GH, Trinity" list="fc-builder-list"/><datalist id="fc-builder-list"></datalist></div>
+      <div class="field"><label>Address</label><input type="text" id="fc-address" placeholder="e.g. 401 Moonlight Graham"/></div>
+      <div class="field jobnum"><label>Forecast Amount ($)</label><input type="number" id="fc-amount" placeholder="0.00" step="0.01"/></div>
+    </div>
+    <div class="form-row r3">
+      <div class="field"><label>Job / Description (optional)</label><input type="text" id="fc-job" placeholder="e.g. Showers, Mirrors, Wine Room"/></div>
+      <div class="field"><label>Invoice # (optional)</label><input type="text" id="fc-invoice" placeholder="e.g. 2063"/></div>
+      <div class="field"><label>Origin</label><select id="fc-origin">
+        <option value="planned">Planned (start of month)</option>
+        <option value="midmonth">Mid-month addition</option>
+      </select></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-primary" onclick="addForecast()">Add to Forecast</button>
+      <button class="btn-secondary" onclick="clearForecastForm()">Clear</button>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap;">
+    <select class="fsel" id="fc-view-month" onchange="renderForecast()"></select>
+    <select class="fsel" id="fc-view-status" onchange="renderForecast()">
+      <option value="active">Active (Forecasted + Delayed)</option>
+      <option value="all">All Statuses</option>
+      <option value="forecasted">Forecasted Only</option>
+      <option value="paid">Paid Only</option>
+      <option value="delayed">Delayed Only</option>
+      <option value="cancelled">Cancelled Only</option>
+    </select>
+    <span style="font-size:11px;color:#5A7A99;" id="fc-view-label"></span>
+    <div style="margin-left:auto;font-size:10px;color:#5A7A99;">Click <strong style="color:#3CA83C">Paid</strong> when Stripe payment lands</div>
+  </div>
+
+  <div class="fc-snap" id="fc-snap"></div>
+
+  <div class="card">
+    <div class="card-title-row">
+      <div class="card-title">Monthly Forecast</div>
+      <div style="font-size:10px;color:#5A7A99;" id="fc-tbl-count"></div>
+    </div>
+    <div class="tbl-wrap" id="fc-tbl-wrap"><div class="empty">No forecasts for this month yet. Add one above.</div></div>
   </div>
 </div>
 
@@ -572,6 +662,40 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
     </div>
   </div>
 
+</div>
+
+<!-- MARK FORECAST PAID MODAL -->
+<div class="modal-overlay" id="fc-paid-modal" onclick="onFcPaidBg(event)">
+  <div class="modal-box">
+    <div class="modal-title">&#10003; Mark Forecast Paid</div>
+    <div class="modal-sub" id="fc-paid-sub"></div>
+    <div class="form-row r2">
+      <div class="field"><label>Date Paid</label><input type="date" id="fc-paid-date"/></div>
+      <div class="field"><label>Gross Payment Received ($)</label><input type="number" id="fc-paid-gross" placeholder="0.00" step="0.01" oninput="updateFcPaidPreview()"/></div>
+    </div>
+    <div class="form-row r2">
+      <div class="field">
+        <div class="stripe-label-row">
+          <span>Stripe Fee ($)</span>
+          <div class="toggle-wrap"><input type="checkbox" id="fc-paid-stripe-auto" checked onchange="updateFcPaidPreview()"/>AUTO (2.9%+$0.30)</div>
+        </div>
+        <input type="number" id="fc-paid-stripe" placeholder="0.00" step="0.01" class="stripe-auto" readonly oninput="updateFcPaidPreview()"/>
+      </div>
+      <div class="field"><label>Check # / Notes (optional)</label><input type="text" id="fc-paid-check" placeholder="e.g. pi_3Abc, check 79731"/></div>
+    </div>
+    <div class="fc-paid-preview" id="fc-paid-preview" style="display:none;">
+      <div class="fc-paid-row"><span class="fc-paid-lbl">Forecast amount</span><span class="fc-paid-val" id="fcp-forecast">$0</span></div>
+      <div class="fc-paid-row"><span class="fc-paid-lbl">Gross received</span><span class="fc-paid-val" id="fcp-gross">$0</span></div>
+      <div class="fc-paid-row"><span class="fc-paid-lbl" style="color:#9B7DD8">&nbsp;&nbsp;Stripe fee</span><span class="fc-paid-val" id="fcp-stripe" style="color:#9B7DD8">-$0</span></div>
+      <div class="fc-paid-row"><span class="fc-paid-lbl" id="fcp-other-lbl">&nbsp;&nbsp;Other adjustment</span><span class="fc-paid-val" id="fcp-other">$0</span></div>
+      <div class="fc-paid-row" style="border-top:1px solid #2A4A6A;margin-top:4px;padding-top:6px;"><span class="fc-paid-lbl" style="color:#40C0B0">Net to bank</span><span class="fc-paid-val" id="fcp-net" style="color:#40C0B0">$0</span></div>
+      <div style="font-size:9px;color:#5A7A99;margin-top:8px;letter-spacing:1px;text-transform:uppercase;">Profit First allocation will be created automatically</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="confirmFcPaid()">Mark Paid &amp; Record Payment</button>
+      <button class="btn-secondary" onclick="closeFcPaidModal()">Cancel</button>
+    </div>
+  </div>
 </div>
 
 <!-- SCAN MODAL -->
@@ -969,19 +1093,22 @@ var INC_KEY  = 'eg_income_v1';
 var EXP_KEY  = 'eg_expense_v1';
 var DIST_KEY = 'eg_dist_v1';
 var ACT_KEY  = 'eg_actual_v1';
-var incomes = [], expenses = [], distributions = [], actualBalances = {};
+var FCT_KEY  = 'eg_forecast_v1';
+var incomes = [], expenses = [], distributions = [], actualBalances = {}, forecasts = [];
 
 function loadData() {
   function parse(key) { try { var r = localStorage.getItem(key); return r ? JSON.parse(r) : []; } catch(e) { return []; } }
   incomes       = parse(INC_KEY);
   expenses      = parse(EXP_KEY);
   distributions = parse(DIST_KEY);
+  forecasts     = parse(FCT_KEY);
   try { var r = localStorage.getItem(ACT_KEY); actualBalances = r ? JSON.parse(r) : {}; } catch(e) { actualBalances = {}; }
 }
 function saveIncomes()       { try { localStorage.setItem(INC_KEY,  JSON.stringify(incomes));       } catch(e) {} }
 function saveExpenses()      { try { localStorage.setItem(EXP_KEY,  JSON.stringify(expenses));      } catch(e) {} }
 function saveDistributions() { try { localStorage.setItem(DIST_KEY, JSON.stringify(distributions)); } catch(e) {} }
 function saveActuals()       { try { localStorage.setItem(ACT_KEY,  JSON.stringify(actualBalances));} catch(e) {} }
+function saveForecasts()     { try { localStorage.setItem(FCT_KEY,  JSON.stringify(forecasts));     } catch(e) {} }
 
 // ─── HELPERS ─────────────────────────────────────────────────
 function fmt(n, dec) {
@@ -1267,6 +1394,360 @@ function renderRecentDist() {
   }).join('');
 }
 
+// ─── FORECAST ────────────────────────────────────────────────
+// Sort key: turn "Apr 2026" into 202604 for chronological comparison
+function monthSortKey(monthStr) {
+  if (!monthStr) return 0;
+  var parts = monthStr.split(' ');
+  var mIdx = MONTHS.indexOf(parts[0]);
+  var yr = parseInt(parts[1]) || 0;
+  return yr * 100 + (mIdx + 1);
+}
+
+// Move any still-Forecasted entries from past months to the current month.
+// Keeps originalMonth for history; tracks each month it rolled through in rollHistory.
+function autorollForecasts() {
+  var nowKey = monthSortKey(currentMonth());
+  var changed = false;
+  forecasts.forEach(function(f) {
+    if (f.status !== 'forecasted') return;
+    if (monthSortKey(f.month) < nowKey) {
+      if (!f.rollHistory) f.rollHistory = [];
+      if (f.rollHistory.indexOf(f.month) === -1) f.rollHistory.push(f.month);
+      f.month = currentMonth();
+      changed = true;
+    }
+  });
+  if (changed) saveForecasts();
+}
+
+function addForecast() {
+  var builder = document.getElementById('fc-builder').value.trim();
+  var address = document.getElementById('fc-address').value.trim();
+  var amount  = parseFloat(document.getElementById('fc-amount').value) || 0;
+  var month   = document.getElementById('fc-month').value;
+  if (!builder) { alert('Please enter a builder.'); return; }
+  if (!address) { alert('Please enter an address.'); return; }
+  if (!amount)  { alert('Please enter a forecast amount.'); return; }
+  forecasts.unshift({
+    id: Date.now(), type: 'forecast',
+    month: month, originalMonth: month,
+    builder: builder, address: address,
+    job: document.getElementById('fc-job').value.trim(),
+    invoice: document.getElementById('fc-invoice').value.trim(),
+    forecastAmount: amount,
+    status: 'forecasted',
+    origin: document.getElementById('fc-origin').value,
+    rollHistory: []
+  });
+  saveForecasts(); clearForecastForm(); renderForecast(); refreshBuilderDatalist();
+}
+
+function clearForecastForm() {
+  ['fc-builder','fc-address','fc-job','fc-invoice','fc-amount'].forEach(function(id){
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('fc-origin').value = 'planned';
+}
+
+function refreshBuilderDatalist() {
+  var seen = {};
+  forecasts.forEach(function(f){ if (f.builder) seen[f.builder] = true; });
+  var dl = document.getElementById('fc-builder-list');
+  if (dl) dl.innerHTML = Object.keys(seen).map(function(b){ return '<option value="'+b+'">'; }).join('');
+}
+
+function deleteForecast(id) {
+  if (!confirm('Delete this forecast? (If it was paid, the recorded payment will NOT be deleted.)')) return;
+  forecasts = forecasts.filter(function(f){ return f.id !== id; });
+  saveForecasts(); renderForecast();
+}
+
+function markForecastDelayed(id) {
+  var f = forecasts.find(function(x){ return x.id === id; });
+  if (!f) return;
+  f.status = 'delayed';
+  saveForecasts(); renderForecast();
+}
+
+function markForecastCancelled(id) {
+  var f = forecasts.find(function(x){ return x.id === id; });
+  if (!f) return;
+  if (!confirm('Mark this forecast cancelled? It will stay in history but not count in totals.')) return;
+  f.status = 'cancelled';
+  saveForecasts(); renderForecast();
+}
+
+function reopenForecast(id) {
+  var f = forecasts.find(function(x){ return x.id === id; });
+  if (!f) return;
+  if (f.status === 'paid' && f.linkedIncomeId) {
+    if (!confirm('This forecast is linked to a recorded payment. Reopening will NOT delete the payment. Continue?')) return;
+  }
+  f.status = 'forecasted';
+  saveForecasts(); renderForecast();
+}
+
+// ─── MARK FORECAST PAID MODAL ────────────────────────────────
+var _fcPaidId = null;
+
+function openFcPaidModal(id) {
+  var f = forecasts.find(function(x){ return x.id === id; });
+  if (!f) return;
+  _fcPaidId = id;
+  document.getElementById('fc-paid-sub').innerHTML =
+    '<strong style="color:#F5F5F5">' + f.builder + '</strong> &mdash; ' + f.address +
+    (f.job ? ' (' + f.job + ')' : '') +
+    '<br>Forecasted at <strong style="color:#5599CC">' + fmt(f.forecastAmount) + '</strong>. ' +
+    'Enter what Stripe actually received (the gross before fee).';
+  document.getElementById('fc-paid-date').value = todayStr();
+  document.getElementById('fc-paid-gross').value = f.forecastAmount.toFixed(2);
+  document.getElementById('fc-paid-stripe-auto').checked = true;
+  document.getElementById('fc-paid-stripe').readOnly = true;
+  document.getElementById('fc-paid-stripe').className = 'stripe-auto';
+  document.getElementById('fc-paid-check').value = '';
+  updateFcPaidPreview();
+  document.getElementById('fc-paid-modal').classList.add('open');
+  setTimeout(function(){ document.getElementById('fc-paid-gross').focus(); document.getElementById('fc-paid-gross').select(); }, 100);
+}
+
+function closeFcPaidModal() {
+  document.getElementById('fc-paid-modal').classList.remove('open');
+  _fcPaidId = null;
+}
+
+function onFcPaidBg(e) { if (e.target === document.getElementById('fc-paid-modal')) closeFcPaidModal(); }
+
+function updateFcPaidPreview() {
+  if (!_fcPaidId) return;
+  var f = forecasts.find(function(x){ return x.id === _fcPaidId; });
+  if (!f) return;
+  var gross = parseFloat(document.getElementById('fc-paid-gross').value) || 0;
+  var auto = document.getElementById('fc-paid-stripe-auto').checked;
+  var stripeEl = document.getElementById('fc-paid-stripe');
+  stripeEl.readOnly = auto;
+  stripeEl.className = auto ? 'stripe-auto' : '';
+  if (auto) stripeEl.value = gross > 0 ? calcStripeFee(gross).toFixed(2) : '';
+  var stripe = parseFloat(stripeEl.value) || 0;
+  var net = Math.max(0, gross - stripe);
+  var other = gross - f.forecastAmount; // negative = received less than expected
+  var preview = document.getElementById('fc-paid-preview');
+  if (gross <= 0) { preview.style.display = 'none'; return; }
+  preview.style.display = 'block';
+  document.getElementById('fcp-forecast').textContent = fmt(f.forecastAmount);
+  document.getElementById('fcp-gross').textContent = fmt(gross);
+  document.getElementById('fcp-stripe').textContent = '-' + fmt(stripe);
+  var otherEl = document.getElementById('fcp-other');
+  var otherLbl = document.getElementById('fcp-other-lbl');
+  if (Math.abs(other) < 0.005) {
+    otherEl.textContent = '$0.00';
+    otherEl.style.color = '#5A7A99';
+    otherLbl.style.color = '#7C9AB5';
+  } else if (other > 0) {
+    otherEl.textContent = '+' + fmt(other);
+    otherEl.style.color = '#3CA83C';
+    otherLbl.style.color = '#3CA83C';
+    otherLbl.textContent = '\u00a0\u00a0Other adjustment (over forecast)';
+  } else {
+    otherEl.textContent = '-' + fmt(Math.abs(other));
+    otherEl.style.color = '#E24B4A';
+    otherLbl.style.color = '#E24B4A';
+    otherLbl.textContent = '\u00a0\u00a0Other adjustment (under forecast)';
+  }
+  document.getElementById('fcp-net').textContent = fmt(net);
+}
+
+function confirmFcPaid() {
+  if (!_fcPaidId) return;
+  var f = forecasts.find(function(x){ return x.id === _fcPaidId; });
+  if (!f) return;
+  var date  = document.getElementById('fc-paid-date').value;
+  var gross = parseFloat(document.getElementById('fc-paid-gross').value) || 0;
+  var auto  = document.getElementById('fc-paid-stripe-auto').checked;
+  var stripe = auto ? calcStripeFee(gross) : (parseFloat(document.getElementById('fc-paid-stripe').value) || 0);
+  var check = document.getElementById('fc-paid-check').value.trim();
+  if (!date)  { alert('Please enter the date paid.'); return; }
+  if (!gross) { alert('Please enter the gross payment amount.'); return; }
+
+  // Create the income entry — this triggers the standard Profit First allocation.
+  var a = calcAlloc(gross, stripe);
+  var jobDesc = f.job ? (f.address + ' — ' + f.job) : f.address;
+  var incomeId = Date.now();
+  // Use current month string from the date paid for the income entry
+  var paidD = new Date(date);
+  var paidMonth = MONTHS[paidD.getMonth()] + ' ' + paidD.getFullYear();
+  incomes.unshift({
+    id: incomeId, type: 'income',
+    date: date, month: paidMonth,
+    client: f.builder, check: check,
+    jobnum: '', invoice: f.invoice || '',
+    job: jobDesc,
+    notes: 'From forecast' + (f.rollHistory && f.rollHistory.length ? ' (originally ' + (f.originalMonth || f.rollHistory[0]) + ')' : ''),
+    payment: gross, stripe: stripe, real: a.real,
+    profit: a.profit, owners: a.owners, tax: a.tax, opex: a.opex, mat: a.mat, subs: a.subs,
+    fromForecast: true, forecastId: f.id
+  });
+  saveIncomes();
+
+  // Update the forecast record
+  f.status = 'paid';
+  f.datePaid = date;
+  f.grossAmount = gross;
+  f.stripeFee = stripe;
+  f.otherAdjustment = gross - f.forecastAmount; // positive if over, negative if under
+  f.netAmount = Math.max(0, gross - stripe);
+  f.linkedIncomeId = incomeId;
+  f.checkRef = check;
+  saveForecasts();
+
+  closeFcPaidModal();
+  renderForecast();
+  updateHdrCount();
+  renderRecentIncome();
+  updateAlert();
+}
+
+// ─── FORECAST RENDER ─────────────────────────────────────────
+function renderForecast() {
+  var month = document.getElementById('fc-view-month').value;
+  var statusFilter = document.getElementById('fc-view-status').value;
+  document.getElementById('fc-view-label').textContent = month;
+
+  // Filter: by month (current f.month after autoroll), by status
+  var rows = forecasts.filter(function(f){
+    if (f.month !== month) return false;
+    if (statusFilter === 'all') return true;
+    if (statusFilter === 'active') return f.status === 'forecasted' || f.status === 'delayed';
+    return f.status === statusFilter;
+  });
+
+  // Sort: forecasted first, then delayed, then paid (by date paid desc), then cancelled. Within group by id desc (newest first).
+  var statusOrder = { forecasted: 0, delayed: 1, paid: 2, cancelled: 3 };
+  rows.sort(function(a, b){
+    var so = (statusOrder[a.status]||9) - (statusOrder[b.status]||9);
+    if (so !== 0) return so;
+    if (a.status === 'paid' && b.status === 'paid') {
+      return (b.datePaid||'').localeCompare(a.datePaid||'');
+    }
+    return b.id - a.id;
+  });
+
+  // Snapshot tiles (always reflect ALL entries for the month, regardless of status filter)
+  var monthAll = forecasts.filter(function(f){ return f.month === month; });
+  var totForecast = monthAll.filter(function(f){ return f.status !== 'cancelled'; }).reduce(function(s,f){ return s + f.forecastAmount; }, 0);
+  var paidEntries = monthAll.filter(function(f){ return f.status === 'paid'; });
+  var totGross = paidEntries.reduce(function(s,f){ return s + (f.grossAmount||0); }, 0);
+  var totStripe = paidEntries.reduce(function(s,f){ return s + (f.stripeFee||0); }, 0);
+  var totOther = paidEntries.reduce(function(s,f){ return s + (f.otherAdjustment||0); }, 0);
+  var totNet = paidEntries.reduce(function(s,f){ return s + (f.netAmount||0); }, 0);
+  var fcstCount = monthAll.filter(function(f){ return f.status === 'forecasted'; }).length;
+  var delayCount = monthAll.filter(function(f){ return f.status === 'delayed'; }).length;
+  var paidCount = paidEntries.length;
+  var midCount = monthAll.filter(function(f){ return f.origin === 'midmonth' && f.status !== 'cancelled'; }).length;
+  var hitPct = totForecast > 0 ? Math.round((totGross / totForecast) * 100) : 0;
+
+  document.getElementById('fc-snap').innerHTML =
+    '<div class="fc-tile fc-tile-fcst">' +
+      '<div class="fc-tile-lbl">Forecasted</div>' +
+      '<div class="fc-tile-amt" style="color:#5599CC">' + fmt(totForecast, 0) + '</div>' +
+      '<div class="fc-tile-sub">' + monthAll.filter(function(f){ return f.status !== 'cancelled'; }).length + ' jobs &middot; ' + midCount + ' mid-month</div>' +
+    '</div>' +
+    '<div class="fc-tile fc-tile-act">' +
+      '<div class="fc-tile-lbl">Actual (Gross)</div>' +
+      '<div class="fc-tile-amt" style="color:#3CA83C">' + fmt(totGross, 0) + '</div>' +
+      '<div class="fc-tile-sub">' + paidCount + ' paid &middot; ' + hitPct + '% of forecast</div>' +
+    '</div>' +
+    '<div class="fc-tile fc-tile-stripe">' +
+      '<div class="fc-tile-lbl">Stripe Fees</div>' +
+      '<div class="fc-tile-amt" style="color:#9B7DD8">-' + fmt(totStripe, 0) + '</div>' +
+      '<div class="fc-tile-sub">' + (totGross > 0 ? (totStripe / totGross * 100).toFixed(1) + '% effective' : '—') + '</div>' +
+    '</div>' +
+    '<div class="fc-tile fc-tile-adj">' +
+      '<div class="fc-tile-lbl">Other Variance</div>' +
+      '<div class="fc-tile-amt" style="color:' + (totOther >= 0 ? '#3CA83C' : '#E24B4A') + '">' + (totOther >= 0 ? '+' : '-') + fmt(Math.abs(totOther), 0) + '</div>' +
+      '<div class="fc-tile-sub">vs. forecast (paid only)</div>' +
+    '</div>' +
+    '<div class="fc-tile fc-tile-net">' +
+      '<div class="fc-tile-lbl">Net to Bank</div>' +
+      '<div class="fc-tile-amt" style="color:#40C0B0">' + fmt(totNet, 0) + '</div>' +
+      '<div class="fc-tile-sub">' + fcstCount + ' open &middot; ' + delayCount + ' delayed</div>' +
+    '</div>';
+
+  // Table
+  var wrap = document.getElementById('fc-tbl-wrap');
+  document.getElementById('fc-tbl-count').textContent = rows.length + ' shown';
+  if (!rows.length) {
+    wrap.innerHTML = '<div class="empty">No forecasts match this filter.</div>';
+    return;
+  }
+
+  var totalRowForecast = rows.filter(function(f){ return f.status !== 'cancelled'; }).reduce(function(s,f){ return s + f.forecastAmount; }, 0);
+  var totalRowActual = rows.filter(function(f){ return f.status === 'paid'; }).reduce(function(s,f){ return s + (f.grossAmount||0); }, 0);
+
+  wrap.innerHTML = '<table class="fc-tbl"><thead><tr>' +
+    '<th>Status</th><th>Builder</th><th>Address / Job</th><th>Inv #</th>' +
+    '<th style="text-align:right">Forecast</th><th>Date Paid</th><th style="text-align:right">Gross</th>' +
+    '<th>Variance</th><th>Actions</th>' +
+  '</tr></thead><tbody>' +
+  rows.map(function(f){
+    var rolledBadge = (f.rollHistory && f.rollHistory.length) ? '<span class="sb sb-rolled">rolled</span>' : '';
+    var midBadge = f.origin === 'midmonth' ? '<span class="sb sb-mid">mid</span>' : '';
+    var statusHtml;
+    if (f.status === 'forecasted')      statusHtml = '<span class="sb sb-fcst">Forecasted</span>' + rolledBadge + midBadge;
+    else if (f.status === 'paid')       statusHtml = '<span class="sb sb-paid">Paid</span>' + midBadge;
+    else if (f.status === 'delayed')    statusHtml = '<span class="sb sb-delay">Delayed</span>' + midBadge;
+    else                                statusHtml = '<span class="sb sb-cancel">Cancelled</span>';
+
+    var datePaidCell = f.datePaid || '—';
+    var grossCell = f.status === 'paid' ? fmt(f.grossAmount, 2) : '—';
+    var varianceCell = '—';
+    if (f.status === 'paid') {
+      var other = f.otherAdjustment || 0;
+      var otherClass = Math.abs(other) < 0.005 ? '' : (other > 0 ? 'fc-other-pos' : 'fc-other-neg');
+      var otherStr = Math.abs(other) < 0.005 ? '$0' : (other > 0 ? '+' + fmt(other, 0) : '-' + fmt(Math.abs(other), 0));
+      varianceCell = '<div class="fc-variance">' +
+        '<span class="fc-stripe">Stripe -' + fmt(f.stripeFee||0, 2) + '</span><br>' +
+        '<span class="' + otherClass + '">Other ' + otherStr + '</span>' +
+      '</div>';
+    }
+
+    var actions = '';
+    if (f.status === 'forecasted' || f.status === 'delayed') {
+      actions += '<button class="fc-act-btn fc-act-paid" onclick="openFcPaidModal(' + f.id + ')">Paid</button>';
+      if (f.status === 'forecasted') actions += '<button class="fc-act-btn fc-act-delay" onclick="markForecastDelayed(' + f.id + ')">Delay</button>';
+      if (f.status === 'delayed') actions += '<button class="fc-act-btn fc-act-undo" onclick="reopenForecast(' + f.id + ')">Reopen</button>';
+      actions += '<button class="fc-act-btn fc-act-cancel" onclick="markForecastCancelled(' + f.id + ')">Cancel</button>';
+    } else if (f.status === 'paid') {
+      actions += '<button class="fc-act-btn fc-act-undo" onclick="reopenForecast(' + f.id + ')" title="Unmark paid (does NOT delete the recorded income)">Reopen</button>';
+    } else if (f.status === 'cancelled') {
+      actions += '<button class="fc-act-btn fc-act-undo" onclick="reopenForecast(' + f.id + ')">Restore</button>';
+    }
+    actions += '<button class="fc-act-btn" onclick="deleteForecast(' + f.id + ')" title="Delete forecast row">&#x2715;</button>';
+
+    var rowClass = f.status === 'cancelled' ? 'fc-cancelled' : (f.status === 'paid' ? 'fc-paid' : '');
+    var addressCell = '<div style="color:#F5F5F5">' + f.address + '</div>' + (f.job ? '<div style="font-size:9px;color:#7C9AB5">' + f.job + '</div>' : '');
+    var rolledTitle = (f.rollHistory && f.rollHistory.length) ? ' title="Rolled over from ' + f.rollHistory.join(', ') + '"' : '';
+
+    return '<tr class="' + rowClass + '"' + rolledTitle + '>' +
+      '<td>' + statusHtml + '</td>' +
+      '<td style="font-weight:600;color:#F5F5F5">' + f.builder + '</td>' +
+      '<td>' + addressCell + '</td>' +
+      '<td><span style="color:#7C9AB5">' + (f.invoice || '—') + '</span></td>' +
+      '<td class="tc-main" style="text-align:right;color:#5599CC">' + fmt(f.forecastAmount, 2) + '</td>' +
+      '<td><span style="color:#5A7A99;font-size:10px;">' + datePaidCell + '</span></td>' +
+      '<td class="tc-main" style="text-align:right;color:' + (f.status==='paid'?'#3CA83C':'#3A5A7A') + '">' + grossCell + '</td>' +
+      '<td>' + varianceCell + '</td>' +
+      '<td>' + actions + '</td>' +
+    '</tr>';
+  }).join('') +
+  '<tr><td colspan="4" style="text-align:right;color:#5A7A99;font-weight:600;letter-spacing:1px;font-size:9px;text-transform:uppercase;">Filtered Totals</td>' +
+    '<td class="tc-main" style="text-align:right;color:#5599CC">' + fmt(totalRowForecast, 2) + '</td>' +
+    '<td></td>' +
+    '<td class="tc-main" style="text-align:right;color:#3CA83C">' + fmt(totalRowActual, 2) + '</td>' +
+    '<td colspan="2"></td></tr>' +
+  '</tbody></table>';
+}
+
 // ─── OPENING BALANCES ────────────────────────────────────────
 function seedOpeningBalances() {
   var existing = expenses.filter(function(e){ return e.status==='opening'; });
@@ -1300,6 +1781,7 @@ function showTab(name, el) {
   if (name==='cashflow')  renderCashFlow();
   if (name==='reports')   renderReports();
   if (name==='distribute') renderRecentDist();
+  if (name==='forecast')  { autorollForecasts(); renderForecast(); refreshBuilderDatalist(); }
   if (name==='xero') {
     if (_xeroPassphrase) {
       document.getElementById('xero-passphrase-input').value = _xeroPassphrase;
@@ -1531,10 +2013,46 @@ function renderReports() {
   var filtInc = period==='all' ? incomes : incomes.filter(function(e){ return e.month===period; });
   var filtExp = period==='all' ? expenses.filter(function(e){ return e.status!=='opening'; }) : expenses.filter(function(e){ return e.month===period&&e.status!=='opening'; });
   var filtDist= period==='all' ? distributions : distributions.filter(function(e){ return e.month===period; });
-  if (!filtInc.length&&!filtExp.length) { document.getElementById('report-content').innerHTML='<div class="empty">No data for this period.</div>'; return; }
+  var monthFcsCheck = period==='all' ? forecasts : forecasts.filter(function(f){ return f.month===period; });
+  if (!filtInc.length&&!filtExp.length&&!monthFcsCheck.length) { document.getElementById('report-content').innerHTML='<div class="empty">No data for this period.</div>'; return; }
   var months=[]; filtInc.forEach(function(e){ if(months.indexOf(e.month)===-1)months.push(e.month); }); months.sort();
   document.getElementById('rp-summary').textContent = filtInc.length+' payments \u00b7 '+filtExp.length+' expenses \u00b7 '+filtDist.length+' distributions';
   var html='';
+
+  // ── Forecast vs Actual snapshot (only for single-month view) ──
+  if (period !== 'all') {
+    var monthFcs = forecasts.filter(function(f){ return f.month === period; });
+    if (monthFcs.length > 0) {
+      var fcstActive = monthFcs.filter(function(f){ return f.status !== 'cancelled'; });
+      var fcstPaid = monthFcs.filter(function(f){ return f.status === 'paid'; });
+      var fTotal = fcstActive.reduce(function(s,f){ return s + f.forecastAmount; }, 0);
+      var aGross = fcstPaid.reduce(function(s,f){ return s + (f.grossAmount||0); }, 0);
+      var aStripe = fcstPaid.reduce(function(s,f){ return s + (f.stripeFee||0); }, 0);
+      var aOther  = fcstPaid.reduce(function(s,f){ return s + (f.otherAdjustment||0); }, 0);
+      var aNet    = fcstPaid.reduce(function(s,f){ return s + (f.netAmount||0); }, 0);
+      var openCount = monthFcs.filter(function(f){ return f.status === 'forecasted'; }).length;
+      var delayCount = monthFcs.filter(function(f){ return f.status === 'delayed'; }).length;
+      var midCount = fcstActive.filter(function(f){ return f.origin === 'midmonth'; }).length;
+      var hitPct = fTotal > 0 ? Math.round((aGross / fTotal) * 100) : 0;
+      var remaining = fcstActive.filter(function(f){ return f.status !== 'paid'; }).reduce(function(s,f){ return s + f.forecastAmount; }, 0);
+
+      html += '<div class="rpt-card">' +
+        '<div class="rpt-hdr"><div class="rpt-title">Forecast vs Actual</div><div class="rpt-meta">' + period + ' &middot; ' + fcstPaid.length + ' of ' + fcstActive.length + ' paid</div></div>' +
+        '<div class="rrow"><span class="rrow-lbl" style="color:#5599CC">Forecasted Revenue</span><span class="rrow-amt" style="color:#5599CC">' + fmt(fTotal) + '</span></div>' +
+        '<div class="rrow"><span class="rrow-lbl" style="color:#3CA83C">Actual Revenue (Gross)</span><span class="rrow-amt" style="color:#3CA83C">' + fmt(aGross) + ' <span style="font-size:10px;color:#5A7A99">(' + hitPct + '%)</span></span></div>' +
+        '<div style="height:1px;background:#2A4A6A;margin:6px 0"></div>' +
+        '<div class="rrow"><span class="rrow-lbl" style="color:#9B7DD8">&nbsp;&nbsp;Stripe Fees</span><span class="rrow-amt" style="color:#9B7DD8">-' + fmt(aStripe) + '</span></div>' +
+        '<div class="rrow"><span class="rrow-lbl" style="color:' + (aOther >= 0 ? '#3CA83C' : '#E24B4A') + '">&nbsp;&nbsp;Other Adjustments (vs forecast)</span><span class="rrow-amt" style="color:' + (aOther >= 0 ? '#3CA83C' : '#E24B4A') + '">' + (aOther >= 0 ? '+' : '-') + fmt(Math.abs(aOther)) + '</span></div>' +
+        '<div class="rtotal"><span class="rtotal-lbl" style="color:#40C0B0">Net to Bank</span><span class="rtotal-amt" style="color:#40C0B0">' + fmt(aNet) + '</span></div>' +
+        '<div style="display:flex;gap:14px;flex-wrap:wrap;font-size:10px;color:#5A7A99;margin-top:10px;padding-top:10px;border-top:1px solid #1E3A5A;">' +
+          '<span>Open: <strong style="color:#5599CC">' + openCount + '</strong></span>' +
+          '<span>Delayed: <strong style="color:#E87040">' + delayCount + '</strong></span>' +
+          '<span>Mid-month adds: <strong style="color:#F0B05A">' + midCount + '</strong></span>' +
+          '<span>Remaining forecast: <strong style="color:#5599CC">' + fmt(remaining, 0) + '</strong></span>' +
+        '</div>' +
+      '</div>';
+    }
+  }
   if (period==='all'&&months.length>1) {
     html+='<div class="month-grid">';
     months.forEach(function(m){
@@ -1654,7 +2172,8 @@ function updateHdrCount() {
 // ─── INIT ────────────────────────────────────────────────────
 loadData();
 seedOpeningBalances();
-var allMonthSels=['f-month','e-month','dist-month','ll-month','bk-month','cf-month','rp-period'];
+autorollForecasts();
+var allMonthSels=['f-month','e-month','dist-month','ll-month','bk-month','cf-month','rp-period','fc-month','fc-view-month'];
 allMonthSels.forEach(function(id){
   var sel=document.getElementById(id);
   if(!sel) return;
@@ -1675,6 +2194,7 @@ updateHdrCount();
 renderRecentIncome();
 renderRecentExpense();
 renderRecentDist();
+refreshBuilderDatalist();
 updateAlert();
 // Auto-connect Xero if passphrase is in session
 if (_xeroPassphrase) {
