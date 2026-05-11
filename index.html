@@ -639,9 +639,9 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
       <div class="field">
         <div class="stripe-label-row">
           <span>Stripe Fee ($)</span>
-          <div class="toggle-wrap"><input type="checkbox" id="fc-paid-stripe-auto" checked onchange="updateFcPaidPreview()"/>AUTO (2.9%+$0.30)</div>
+          <div class="toggle-wrap"><input type="checkbox" id="fc-paid-stripe-auto" onchange="updateFcPaidPreview()"/>AUTO (2.9%+$0.30)</div>
         </div>
-        <input type="number" id="fc-paid-stripe" placeholder="0.00" step="0.01" class="stripe-auto" readonly oninput="updateFcPaidPreview()"/>
+        <input type="number" id="fc-paid-stripe" placeholder="0.00" step="0.01" oninput="updateFcPaidPreview()"/>
       </div>
       <div class="field"><label>Check # / Notes (optional)</label><input type="text" id="fc-paid-check" placeholder="e.g. pi_3Abc, check 79731"/></div>
     </div>
@@ -653,7 +653,7 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
       <div class="fc-paid-row"><span class="fc-paid-lbl" style="color:#40C0B0">&nbsp;&nbsp;Net this payment</span><span class="fc-paid-val" id="fcp-net" style="color:#40C0B0">$0</span></div>
       <div class="fc-paid-row" style="border-top:1px solid #2A4A6A;margin-top:4px;padding-top:6px;"><span class="fc-paid-lbl">Total received after this</span><span class="fc-paid-val" id="fcp-total">$0</span></div>
       <div class="fc-paid-row"><span class="fc-paid-lbl" id="fcp-rem-lbl">Remaining vs forecast</span><span class="fc-paid-val" id="fcp-remaining">$0</span></div>
-      <label class="fc-final-check"><input type="checkbox" id="fc-paid-final" onchange="updateFcPaidPreview()"/><span>Mark forecast fully paid (close it out)</span></label>
+      <label class="fc-final-check"><input type="checkbox" id="fc-paid-final"/><span>Mark forecast fully paid (close it out)</span></label>
       <div style="font-size:9px;color:#5A7A99;margin-top:8px;letter-spacing:1px;text-transform:uppercase;">Profit First allocation will be created automatically</div>
     </div>
     <div class="modal-actions">
@@ -685,9 +685,9 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
       <div class="field">
         <div class="stripe-label-row">
           <span>Stripe Fee ($)</span>
-          <div class="toggle-wrap"><input type="checkbox" id="qp-stripe-auto" checked onchange="updateQuickPaidPreview()"/>AUTO (2.9%+$0.30)</div>
+          <div class="toggle-wrap"><input type="checkbox" id="qp-stripe-auto" onchange="updateQuickPaidPreview()"/>AUTO (2.9%+$0.30)</div>
         </div>
-        <input type="number" id="qp-stripe" placeholder="0.00" step="0.01" class="stripe-auto" readonly oninput="updateQuickPaidPreview()"/>
+        <input type="number" id="qp-stripe" placeholder="0.00" step="0.01" oninput="updateQuickPaidPreview()"/>
       </div>
       <div class="field"><label>Check # / Notes (optional)</label><input type="text" id="qp-check" placeholder="e.g. pi_3Abc, check 79731"/></div>
     </div>
@@ -1532,12 +1532,17 @@ function openFcPaidModal(id) {
   var defaultGross = remaining > 0 ? remaining : f.forecastAmount;
   document.getElementById('fc-paid-date').value = todayStr();
   document.getElementById('fc-paid-gross').value = defaultGross.toFixed(2);
-  document.getElementById('fc-paid-stripe-auto').checked = true;
-  document.getElementById('fc-paid-stripe').readOnly = true;
-  document.getElementById('fc-paid-stripe').className = 'stripe-auto';
+  document.getElementById('fc-paid-stripe-auto').checked = false;
+  document.getElementById('fc-paid-stripe').readOnly = false;
+  document.getElementById('fc-paid-stripe').className = '';
   document.getElementById('fc-paid-stripe').value = '';
   document.getElementById('fc-paid-check').value = '';
-  document.getElementById('fc-paid-final').checked = true; // default: this closes out
+  // Smart default for "Mark fully paid":
+  //   - If there are prior payments and we're already at/over forecast,
+  //     this is almost certainly a follow-up draw — default UNCHECKED.
+  //   - Otherwise default CHECKED (normal closeout case).
+  var alreadyAtOrOver = hasPrior && remaining <= 0.005;
+  document.getElementById('fc-paid-final').checked = !alreadyAtOrOver;
   updateFcPaidPreview();
   document.getElementById('fc-paid-modal').classList.add('open');
   setTimeout(function(){ document.getElementById('fc-paid-gross').focus(); document.getElementById('fc-paid-gross').select(); }, 100);
@@ -1568,11 +1573,6 @@ function updateFcPaidPreview() {
   var preview = document.getElementById('fc-paid-preview');
   if (gross <= 0) { preview.style.display = 'none'; return; }
   preview.style.display = 'block';
-
-  // Auto-toggle "Final payment" when amount lands at or above remaining
-  // Only auto-toggle on the auto-stripe path; if user manually edits we leave their choice.
-  var finalEl = document.getElementById('fc-paid-final');
-  if (auto && remaining <= 0.005) finalEl.checked = true;
 
   document.getElementById('fcp-forecast').textContent = fmt(f.forecastAmount);
   document.getElementById('fcp-priorRow').style.display = prior > 0.005 ? 'flex' : 'none';
@@ -1661,9 +1661,9 @@ function openQuickPaidModal(prefill) {
   document.getElementById('qp-job').value = prefill.job || '';
   document.getElementById('qp-date').value = prefill.date || todayStr();
   document.getElementById('qp-gross').value = prefill.gross ? prefill.gross.toFixed(2) : '';
-  document.getElementById('qp-stripe-auto').checked = true;
-  document.getElementById('qp-stripe').readOnly = true;
-  document.getElementById('qp-stripe').className = 'stripe-auto';
+  document.getElementById('qp-stripe-auto').checked = !!prefill.stripeAuto;
+  document.getElementById('qp-stripe').readOnly = !!prefill.stripeAuto;
+  document.getElementById('qp-stripe').className = prefill.stripeAuto ? 'stripe-auto' : '';
   document.getElementById('qp-stripe').value = '';
   document.getElementById('qp-check').value = prefill.check || '';
   document.getElementById('qp-final').checked = true;
@@ -2355,19 +2355,21 @@ function fillFromScan() {
   if (match) {
     // Found a single matching open forecast — open Record Payment modal pre-filled
     openFcPaidModal(match.id);
-    // Override defaults with what the Stripe email gave us
+    // Override defaults with what the Stripe email gave us. Source is Stripe, so turn AUTO on.
     if (r.payment) document.getElementById('fc-paid-gross').value = r.payment.toFixed(2);
     if (r.date)    document.getElementById('fc-paid-date').value  = r.date;
     if (r.paymentId) document.getElementById('fc-paid-check').value = r.paymentId;
+    document.getElementById('fc-paid-stripe-auto').checked = true;
     updateFcPaidPreview();
   } else {
-    // No match — open Quick Record Payment pre-filled. User picks the right builder.
+    // No match — open Quick Record Payment pre-filled. Source is Stripe, so AUTO on.
     openQuickPaidModal({
       builder: r.client || '',
       invoice: r.invoice || '',
       date: r.date || todayStr(),
       gross: r.payment || 0,
-      check: r.paymentId || ''
+      check: r.paymentId || '',
+      stripeAuto: true
     });
   }
 }
