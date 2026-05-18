@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Bills v2 schedule+rollover · 2026-05-18 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -336,6 +337,7 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
 
 <div class="tab-bar">
   <div class="tab active" onclick="showTab('forecast',this)">Forecast</div>
+  <div class="tab" onclick="showTab('bills',this)">Bills</div>
   <div class="tab" onclick="showTab('expense',this)">Add Expense</div>
   <div class="tab" onclick="showTab('distribute',this)">Distribute</div>
   <div class="tab" onclick="showTab('ledger',this)">Ledger</div>
@@ -344,6 +346,83 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
   <div class="tab" onclick="showTab('reports',this)">Reports</div>
   <div class="tab xero-tab" onclick="showTab('xero',this)">&#8645; Xero Sync</div>
 </div>
+
+<!-- BILLS -->
+<div class="panel" id="panel-bills">
+  <div class="card">
+    <div class="card-title-row">
+      <div class="card-title">Outstanding Bills</div>
+      <button class="btn-primary" style="font-size:10px;padding:7px 14px" onclick="openBillModal()">+ Add Bill</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
+      <div style="background:#0E1E35;border:1px solid #2A4A6A;border-radius:6px;padding:12px;">
+        <div style="font-size:9px;color:#5A7A99;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Total Open</div>
+        <div style="font-size:20px;font-weight:600;color:#F5F5F5;font-family:'DM Mono',monospace;" id="billsTotalOpen">$0.00</div>
+      </div>
+      <div style="background:#0E1E35;border:1px solid #2A4A6A;border-radius:6px;padding:12px;border-left:3px solid #CC5555;">
+        <div style="font-size:9px;color:#5A7A99;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Due Now</div>
+        <div style="font-size:20px;font-weight:600;color:#CC5555;font-family:'DM Mono',monospace;" id="billsDueNow">$0.00</div>
+      </div>
+      <div style="background:#0E1E35;border:1px solid #2A4A6A;border-radius:6px;padding:12px;border-left:3px solid #CCAA55;">
+        <div style="font-size:9px;color:#5A7A99;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Open Count</div>
+        <div style="font-size:20px;font-weight:600;color:#CCAA55;font-family:'DM Mono',monospace;" id="billsOpenCount">0</div>
+      </div>
+      <div style="background:#0E1E35;border:1px solid #2A4A6A;border-radius:6px;padding:12px;border-left:3px solid #3CA83C;">
+        <div style="font-size:9px;color:#5A7A99;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Paid This Month</div>
+        <div style="font-size:20px;font-weight:600;color:#3CA83C;font-family:'DM Mono',monospace;" id="billsPaidThisMonth">$0.00</div>
+      </div>
+    </div>
+
+    <div style="background:#0A1728;border:1px solid #1E3A5A;border-radius:6px;overflow:hidden;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead>
+          <tr style="background:#0E1E35;border-bottom:1px solid #2A4A6A;">
+            <th style="text-align:left;padding:9px 12px;font-size:9px;font-weight:600;letter-spacing:2px;color:#5A7A99;text-transform:uppercase;">Name</th>
+            <th style="text-align:left;padding:9px 12px;font-size:9px;font-weight:600;letter-spacing:2px;color:#5A7A99;text-transform:uppercase;">Category</th>
+            <th style="text-align:left;padding:9px 12px;font-size:9px;font-weight:600;letter-spacing:2px;color:#5A7A99;text-transform:uppercase;">Bucket</th>
+            <th style="text-align:right;padding:9px 12px;font-size:9px;font-weight:600;letter-spacing:2px;color:#5A7A99;text-transform:uppercase;">Amount</th>
+            <th style="text-align:right;padding:9px 12px;font-size:9px;font-weight:600;letter-spacing:2px;color:#5A7A99;text-transform:uppercase;">Due Now</th>
+            <th style="text-align:left;padding:9px 12px;font-size:9px;font-weight:600;letter-spacing:2px;color:#5A7A99;text-transform:uppercase;">Due Date</th>
+            <th style="text-align:center;padding:9px 12px;font-size:9px;font-weight:600;letter-spacing:2px;color:#5A7A99;text-transform:uppercase;">Status</th>
+            <th style="text-align:center;padding:9px 12px;font-size:9px;font-weight:600;letter-spacing:2px;color:#5A7A99;text-transform:uppercase;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="billsTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- BILL MODAL -->
+<div id="billModalOverlay" onclick="closeBillModal(event)" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:#0E1E35;border:1px solid #2A4A6A;border-radius:8px;padding:24px;width:520px;max-width:92vw;" onclick="event.stopPropagation()">
+    <div style="font-size:11px;font-weight:600;letter-spacing:3px;color:#3CA83C;text-transform:uppercase;margin-bottom:6px;" id="billModalTitle">Add Bill</div>
+    <div style="font-size:11px;color:#5A7A99;margin-bottom:16px;">Track an outstanding bill — recurring or one-off.</div>
+    <div class="form-row r2">
+      <div class="field"><label>Name *</label><input id="bf_name" type="text" placeholder="e.g. Progressive" /></div>
+      <div class="field"><label>Category</label><select id="bf_category"><option>Sub installer</option><option>Vendor / supplier</option><option>Insurance</option><option>Vehicle / fleet</option><option>Property / utilities</option><option>Software / subs</option><option>Membership</option><option>Security</option><option>Health / medical</option><option>Other</option></select></div>
+    </div>
+    <div class="form-row r3">
+      <div class="field"><label>PF Bucket</label><select id="bf_bucket"><option value="opex">OPEX</option><option value="materials">Materials</option><option value="subs">Subs / Payroll</option><option value="owners">Owner's Comp</option><option value="tax">Tax Reserve</option><option value="profit">Profit</option></select></div>
+      <div class="field"><label>Amount *</label><input id="bf_amount" type="number" step="0.01" placeholder="0.00" /></div>
+      <div class="field"><label>Due Now (partial)</label><input id="bf_due_now" type="number" step="0.01" placeholder="0.00" /></div>
+    </div>
+    <div class="form-row r2">
+      <div class="field"><label>Due Date</label><input id="bf_due_date" type="date" /></div>
+      <div class="field"><label>Status</label><select id="bf_status"><option value="Open">Open</option><option value="Overdue">Overdue</option><option value="Paid">Paid</option></select></div>
+    </div>
+    <div class="form-row r1" style="grid-template-columns:1fr;">
+      <div class="field"><label>Notes</label><input id="bf_notes" type="text" placeholder="Anything to remember about this bill" /></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button class="btn-primary" onclick="saveBill()">Save Bill</button>
+      <button class="btn-secondary" id="bf_delete_btn" onclick="deleteBill()" style="display:none;color:#CC5555;border-color:#CC5555;">Delete</button>
+      <button class="btn-secondary" onclick="closeBillModal(null,true)" style="margin-left:auto;">Cancel</button>
+    </div>
+  </div>
+</div>
+
 
 <!-- ADD EXPENSE -->
 <div class="panel" id="panel-expense">
@@ -410,6 +489,10 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
         <option value="planned">Planned (start of month)</option>
         <option value="midmonth">Mid-month addition</option>
       </select></div>
+    </div>
+    <div class="form-row r2">
+      <div class="field"><label>Expected Pay Date (optional, used by Cash Flow)</label><input type="date" id="fc-payDate"/></div>
+      <div class="field" style="display:flex;align-items:flex-end;font-size:10px;color:#5A7A99;line-height:1.4;">Leave blank if unknown — you can set it later from the row.</div>
     </div>
     <div class="btn-row">
       <button class="btn-primary" onclick="addForecast()">Add to Forecast</button>
@@ -522,12 +605,29 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
 
 <!-- CASH FLOW -->
 <div class="panel" id="panel-cashflow">
-  <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;">
-    <select class="fsel" id="cf-month" onchange="renderCashFlow()"></select>
-    <span style="font-size:11px;color:#5A7A99;" id="cf-label"></span>
+  <div class="card">
+    <div class="card-title-row">
+      <div class="card-title">8-Week Cash Calendar</div>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <label style="font-size:9px;color:#5A7A99;letter-spacing:2px;text-transform:uppercase;">Starting Cash</label>
+          <input type="number" id="cf-cash-start" step="0.01" placeholder="36857" oninput="onCashFlowInput()" style="background:#0E1E35;border:1px solid #2A4A6A;border-radius:4px;padding:7px 10px;color:#5599CC;font-family:'DM Mono',monospace;font-size:12px;width:120px;outline:none;"/>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <label style="font-size:9px;color:#5A7A99;letter-spacing:2px;text-transform:uppercase;">Min Threshold</label>
+          <input type="number" id="cf-threshold" step="100" placeholder="25000" oninput="onCashFlowInput()" style="background:#0E1E35;border:1px solid #2A4A6A;border-radius:4px;padding:7px 10px;color:#CCAA55;font-family:'DM Mono',monospace;font-size:12px;width:120px;outline:none;"/>
+        </div>
+        <button class="btn-secondary" onclick="renderCashFlow()" style="font-size:10px;padding:7px 14px;">Refresh</button>
+      </div>
+    </div>
+    <div style="font-size:11px;color:#5A7A99;margin-bottom:14px;">
+      Joins <strong style="color:#5599CC">Forecast</strong> (receipts) + <strong style="color:#CC5555">Bills</strong> + <strong style="color:#CCAA55">Order Tracker materials</strong>. Click any cell to see the underlying items.
+    </div>
+    <div id="cf-grid" style="overflow-x:auto;"></div>
+    <div id="cf-drill" style="margin-top:14px;"></div>
   </div>
-  <div id="cf-content"></div>
 </div>
+
 
 <!-- REPORTS -->
 <div class="panel" id="panel-reports">
@@ -1433,6 +1533,7 @@ function addForecast() {
     job: document.getElementById('fc-job').value.trim(),
     invoice: document.getElementById('fc-invoice').value.trim(),
     forecastAmount: amount,
+    expectedPayDate: document.getElementById('fc-payDate').value || null,
     status: 'forecasted',
     origin: document.getElementById('fc-origin').value,
     payments: [],
@@ -1442,7 +1543,7 @@ function addForecast() {
 }
 
 function clearForecastForm() {
-  ['fc-builder','fc-address','fc-jobnum','fc-job','fc-invoice','fc-amount'].forEach(function(id){
+  ['fc-builder','fc-address','fc-jobnum','fc-job','fc-invoice','fc-amount','fc-payDate'].forEach(function(id){
     document.getElementById(id).value = '';
   });
   document.getElementById('fc-origin').value = 'planned';
@@ -1484,6 +1585,17 @@ function reopenForecast(id) {
   }
   f.status = 'forecasted';
   saveForecasts(); renderForecast();
+}
+
+function setForecastPayDate(id, dateStr) {
+  var f = forecasts.find(function(x){ return x.id === id; });
+  if (!f) return;
+  f.expectedPayDate = dateStr || null;
+  saveForecasts();
+  // Re-render Cash Flow if active so it picks up new pay-date data
+  if (typeof renderCashFlow === 'function' && document.getElementById('panel-cashflow') && document.getElementById('panel-cashflow').classList.contains('active')) {
+    renderCashFlow();
+  }
 }
 
 // ─── RECORD PAYMENT MODAL (works against an existing forecast) ────────
@@ -1914,7 +2026,12 @@ function renderForecast() {
     actions += '<button class="fc-act-btn" onclick="deleteForecast(' + f.id + ')" title="Delete forecast row (does NOT delete recorded payments)">&#x2715;</button>';
 
     var rowClass = f.status === 'cancelled' ? 'fc-cancelled' : (f.status === 'paid' ? 'fc-paid' : '');
-    var addressCell = '<div style="color:#F5F5F5">' + f.address + '</div>' + (f.job ? '<div style="font-size:9px;color:#7C9AB5">' + f.job + '</div>' : '');
+    var payDateVal = f.expectedPayDate || '';
+    var payDateDisplay = '<div style="font-size:9px;color:#5A7A99;margin-top:3px;display:flex;align-items:center;gap:4px;">' +
+      '<span style="color:#7C9AB5">Pay:</span>' +
+      '<input type="date" value="' + payDateVal + '" onchange="setForecastPayDate(' + f.id + ', this.value)" style="background:#0E1E35;border:1px solid #2A4A6A;border-radius:3px;color:' + (payDateVal ? '#5599CC' : '#5A7A99') + ';font-family:\'DM Mono\',monospace;font-size:10px;padding:1px 4px;outline:none;width:120px;" title="Click to set expected pay date — used by Cash Flow"/>' +
+      '</div>';
+    var addressCell = '<div style="color:#F5F5F5">' + f.address + '</div>' + (f.job ? '<div style="font-size:9px;color:#7C9AB5">' + f.job + '</div>' : '') + payDateDisplay;
     var refsCell = '';
     if (f.jobnum) refsCell += '<div style="font-size:10px;"><span style="color:#5A7A99">Job</span> <span class="jbadge">#' + f.jobnum + '</span></div>';
     if (f.invoice) refsCell += '<div style="font-size:10px;margin-top:2px;"><span style="color:#5A7A99">Inv</span> <span style="color:#7C9AB5">' + f.invoice + '</span></div>';
@@ -1974,6 +2091,7 @@ function showTab(name, el) {
   if (name==='cashflow')  renderCashFlow();
   if (name==='reports')   renderReports();
   if (name==='distribute') renderRecentDist();
+  if (name==='bills')      renderBills();
   if (name==='forecast')  { autorollForecasts(); renderForecast(); refreshBuilderDatalist(); }
   if (name==='xero') {
     if (_xeroPassphrase) {
@@ -2135,56 +2253,312 @@ function saveActual(bk, val) {
 }
 
 // ─── CASH FLOW ───────────────────────────────────────────────
-function renderCashFlow() {
-  var month = document.getElementById('cf-month').value;
-  document.getElementById('cf-label').textContent = month;
-  var parts = month.split(' ');
-  var mIdx = MONTHS.indexOf(parts[0]);
-  var yr   = parseInt(parts[1]);
-  var daysInMonth = new Date(yr, mIdx+1, 0).getDate();
-  var weekStarts = [1,8,15,22,29].filter(function(d){ return d<=daysInMonth; });
-  var html = '';
-  weekStarts.forEach(function(startDay, wi) {
-    var endDay = wi < weekStarts.length-1 ? weekStarts[wi+1]-1 : daysInMonth;
-    var sd = yr+'-'+String(mIdx+1).padStart(2,'0')+'-'+String(startDay).padStart(2,'0');
-    var ed = yr+'-'+String(mIdx+1).padStart(2,'0')+'-'+String(endDay).padStart(2,'0');
-    var inc  = incomes.filter(function(e){ return e.date>=sd&&e.date<=ed; });
-    var dist = distributions.filter(function(e){ return e.date>=sd&&e.date<=ed; });
-    var exp  = expenses.filter(function(e){ return e.date>=sd&&e.date<=ed&&e.status!=='opening'; });
-    var totalIn   = inc.reduce(function(a,e){ return a+e.payment; },0);
-    var totalDist = dist.reduce(function(a,e){ return a+e.amount; },0);
-    var paidOut   = exp.filter(function(e){ return e.status==='paid'; }).reduce(function(a,e){ return a+e.amount; },0);
-    var dueOut    = exp.filter(function(e){ return e.status!=='paid'; }).reduce(function(a,e){ return a+e.amount; },0);
-    var net = totalIn - paidOut - dueOut;
-    var hasDist = dist.length > 0;
-    html += '<div class="week-card"' + (hasDist?' style="border-color:rgba(155,125,216,0.4)"':'') + '>' +
-      '<div class="week-hdr">' +
-        '<div class="week-title">Week '+(wi+1)+': '+parts[0]+' '+startDay+'&ndash;'+endDay +
-          (hasDist?' <span style="color:#9B7DD8;font-size:10px;margin-left:8px;">&#9654; Distribution ran</span>':'') +
-        '</div>' +
-        '<div class="week-net '+(net>=0?'pos':'neg')+'">'+(net>=0?'+':'-')+fmt(Math.abs(net),0)+' net</div>' +
-      '</div>' +
-      '<div class="week-row"><span class="week-row-lbl" style="color:#3CA83C">&#8593; Payments received ('+inc.length+')</span><span class="week-row-amt" style="color:#3CA83C">+'+fmt(totalIn)+'</span></div>' +
-      (totalDist>0?'<div class="week-row"><span class="week-row-lbl" style="color:#9B7DD8">&#9654; Distributed to buckets</span><span class="week-row-amt" style="color:#9B7DD8">'+fmt(totalDist)+'</span></div>':'') +
-      '<div class="week-row"><span class="week-row-lbl" style="color:#E24B4A">&#8595; Expenses paid</span><span class="week-row-amt" style="color:#E24B4A">-'+fmt(paidOut)+'</span></div>' +
-      '<div class="week-row"><span class="week-row-lbl" style="color:#F0B05A">&#9651; Due / upcoming</span><span class="week-row-amt" style="color:#F0B05A">-'+fmt(dueOut)+'</span></div>' +
-    '</div>';
-  });
-  var mInc  = incomes.filter(function(e){ return e.month===month; });
-  var mExp  = expenses.filter(function(e){ return e.month===month&&e.status!=='opening'; });
-  var mIn   = mInc.reduce(function(a,e){ return a+e.payment; },0);
-  var mPaid = mExp.filter(function(e){ return e.status==='paid'; }).reduce(function(a,e){ return a+e.amount; },0);
-  var mDue  = mExp.filter(function(e){ return e.status!=='paid'; }).reduce(function(a,e){ return a+e.amount; },0);
-  var mNet  = mIn - mPaid - mDue;
-  html += '<div class="card" style="margin-top:4px;">' +
-    '<div class="card-title-row"><div class="card-title">'+month+' Summary</div></div>' +
-    '<div class="rrow"><span class="rrow-lbl" style="color:#3CA83C">Total payments received</span><span class="rrow-amt" style="color:#3CA83C">+'+fmt(mIn)+'</span></div>' +
-    '<div class="rrow"><span class="rrow-lbl" style="color:#E24B4A">Total expenses paid</span><span class="rrow-amt" style="color:#E24B4A">-'+fmt(mPaid)+'</span></div>' +
-    '<div class="rrow"><span class="rrow-lbl" style="color:#F0B05A">Total due / pending</span><span class="rrow-amt" style="color:#F0B05A">-'+fmt(mDue)+'</span></div>' +
-    '<div class="rtotal"><span class="rtotal-lbl">Month Net (projected)</span><span class="rtotal-amt" style="color:'+(mNet>=0?'#3CA83C':'#E24B4A')+'">'+(mNet>=0?'+':'-')+fmt(Math.abs(mNet))+'</span></div>' +
-  '</div>';
-  document.getElementById('cf-content').innerHTML = html;
+// =================================================================
+// 8-WEEK CASH CALENDAR
+// Joins Forecast (receipts), Bills schedule + bills[], Order Tracker
+// orders[], and historical income/expenses into a multi-week view.
+// =================================================================
+const CF_SETTINGS_KEY = 'eridion_cashflow_settings_v1';
+let cfWeeks = []; // computed per render
+
+function loadCashFlowSettings() {
+  try {
+    var s = JSON.parse(localStorage.getItem(CF_SETTINGS_KEY) || '{}');
+    if (document.getElementById('cf-cash-start')) document.getElementById('cf-cash-start').value = s.startCash != null ? s.startCash : '';
+    if (document.getElementById('cf-threshold'))  document.getElementById('cf-threshold').value  = s.threshold != null ? s.threshold : 25000;
+  } catch(e) {}
 }
+
+function saveCashFlowSettings() {
+  try {
+    localStorage.setItem(CF_SETTINGS_KEY, JSON.stringify({
+      startCash: parseFloat(document.getElementById('cf-cash-start').value) || 0,
+      threshold: parseFloat(document.getElementById('cf-threshold').value) || 25000,
+    }));
+  } catch(e) {}
+}
+
+function onCashFlowInput() { saveCashFlowSettings(); renderCashFlow(); }
+
+function cfFmt(n) {
+  var v = Number(n) || 0;
+  var s = '$' + Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  return v < 0 ? '-' + s : s;
+}
+
+function cfGetOrderTrackerOrders() {
+  try {
+    var raw = localStorage.getItem('eridion_orders_v2');
+    var arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr : [];
+  } catch(e) { return []; }
+}
+
+function cfComputeWeeks(n) {
+  // Returns n week-objects starting with current week (Monday-based)
+  var weeks = [];
+  var d = new Date();
+  // Find Monday of current week
+  var dow = d.getDay(); // 0=Sun, 1=Mon, ... 6=Sat
+  var diff = dow === 0 ? -6 : 1 - dow;
+  d.setDate(d.getDate() + diff);
+  d.setHours(0, 0, 0, 0);
+  for (var i = 0; i < n; i++) {
+    var start = new Date(d);
+    var end = new Date(d);
+    end.setDate(end.getDate() + 6);
+    weeks.push({
+      idx: i,
+      start: start,
+      end: end,
+      startStr: start.toISOString().slice(0, 10),
+      endStr: end.toISOString().slice(0, 10),
+      label: start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' – ' + end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      shortLabel: i === 0 ? 'This Week' : '+' + i + ' wk',
+      year: start.getFullYear(),
+      month: start.getMonth(),
+      weekOfMonth: Math.min(5, Math.ceil(start.getDate() / 7)),
+    });
+    d.setDate(d.getDate() + 7);
+  }
+  return weeks;
+}
+
+function cfInRange(dateStr, week) {
+  if (!dateStr) return false;
+  return dateStr >= week.startStr && dateStr <= week.endStr;
+}
+
+function cfCollectReceipts(week) {
+  // Forecasts with expectedPayDate in this week
+  var items = [];
+  (forecasts || []).forEach(function(f) {
+    if (f.status === 'cancelled' || f.status === 'paid') return;
+    if (!f.expectedPayDate) return;
+    if (!cfInRange(f.expectedPayDate, week)) return;
+    var remaining = (f.forecastAmount || 0) - (typeof fcReceived === 'function' ? fcReceived(f) : 0);
+    if (remaining <= 0) return;
+    items.push({
+      kind: 'forecast',
+      label: f.builder + (f.address ? ' · ' + f.address : ''),
+      amount: remaining,
+      meta: f.status + (f.expectedPayDate ? ' · pay ' + f.expectedPayDate : ''),
+    });
+  });
+  // Past weeks: include actually-received incomes
+  if (week.endStr < new Date().toISOString().slice(0, 10)) {
+    (typeof incomes !== 'undefined' ? incomes : []).forEach(function(inc) {
+      if (!cfInRange(inc.date, week)) return;
+      items.push({
+        kind: 'income_recorded',
+        label: (inc.builder || 'Payment') + (inc.address ? ' · ' + inc.address : ''),
+        amount: inc.payment || inc.amount || 0,
+        meta: 'recorded · ' + (inc.date || ''),
+      });
+    });
+  }
+  var total = items.reduce(function(s, x) { return s + (Number(x.amount) || 0); }, 0);
+  return { items: items, total: total };
+}
+
+function cfCollectPayments(week) {
+  var items = [];
+
+  // 1. Bills already generated in bills[] for this week
+  (typeof bills !== 'undefined' ? bills : []).forEach(function(b) {
+    if (b.status === 'Paid') return;
+    var inWeek = false;
+    if (b.year === week.year && b.month === week.month && b.week === week.weekOfMonth) inWeek = true;
+    else if (b.due_date && cfInRange(b.due_date, week)) inWeek = true;
+    if (!inWeek) return;
+    items.push({
+      kind: 'bill',
+      label: b.name,
+      amount: Number(b.amount) || 0,
+      meta: b.category + (b.variable ? ' · variable' : ''),
+    });
+  });
+
+  // 2. Bills NOT yet generated (future weeks 2+): synthesize from schedule
+  // Only do this if bills[] doesn't already have entries for this exact year/month/week
+  var alreadyHave = (typeof bills !== 'undefined' ? bills : []).some(function(b) {
+    return b.year === week.year && b.month === week.month && b.week === week.weekOfMonth;
+  });
+  if (!alreadyHave && typeof schedule !== 'undefined' && Array.isArray(schedule)) {
+    schedule.forEach(function(item) {
+      if (!item.weeks || !item.weeks.includes(week.weekOfMonth)) return;
+      items.push({
+        kind: 'projected_bill',
+        label: item.name + ' (projected)',
+        amount: Number(item.amount) || 0,
+        meta: item.category + ' · projected from schedule' + (item.variable ? ' · variable' : ''),
+      });
+    });
+  }
+
+  // 3. Order Tracker materials with due_date in this week range
+  var orders = cfGetOrderTrackerOrders();
+  orders.forEach(function(o) {
+    if (!o.due_date) return;
+    var status = (o.status || '').toLowerCase();
+    if (status === 'paid') return;
+    if (!cfInRange(o.due_date, week)) return;
+    items.push({
+      kind: 'material',
+      label: (o.vendor || 'Vendor') + ' · ' + (o.po || o.vendor_wo || o.customer || 'order'),
+      amount: Number(o.amount) || 0,
+      meta: 'Order Tracker · due ' + o.due_date + (o.address ? ' · ' + o.address : ''),
+    });
+  });
+
+  // 4. Past weeks: include actually-paid expenses
+  if (week.endStr < new Date().toISOString().slice(0, 10)) {
+    (typeof expenses !== 'undefined' ? expenses : []).forEach(function(e) {
+      if (e.status !== 'paid') return;
+      if (!cfInRange(e.date, week)) return;
+      // skip the ones that came from a bill we already counted via bills[]
+      if (e.notes && e.notes.indexOf('Auto-recorded from Bills') === 0) return;
+      items.push({
+        kind: 'expense_paid',
+        label: e.vendor || 'Expense',
+        amount: Number(e.amount) || 0,
+        meta: 'paid · ' + (e.date || '') + ' · ' + (e.category || ''),
+      });
+    });
+  }
+
+  var total = items.reduce(function(s, x) { return s + (Number(x.amount) || 0); }, 0);
+  return { items: items, total: total };
+}
+
+function renderCashFlow() {
+  if (!document.getElementById('cf-grid')) return;
+  cfWeeks = cfComputeWeeks(8);
+  var startCash = parseFloat(document.getElementById('cf-cash-start').value) || 0;
+  var threshold = parseFloat(document.getElementById('cf-threshold').value) || 25000;
+
+  var rowData = cfWeeks.map(function(w) {
+    return { week: w, receipts: cfCollectReceipts(w), payments: cfCollectPayments(w) };
+  });
+  var runningBal = startCash;
+  rowData.forEach(function(r) {
+    r.net = r.receipts.total - r.payments.total;
+    runningBal += r.net;
+    r.runningBal = runningBal;
+  });
+
+  // Build the table — week columns
+  var html = '<table style="width:100%;border-collapse:collapse;font-size:12px;min-width:1000px;">';
+  // Header row
+  html += '<thead><tr>';
+  html += '<th style="text-align:left;padding:10px 12px;background:#0E1E35;border-bottom:1px solid #2A4A6A;font-size:9px;color:#5A7A99;letter-spacing:2px;text-transform:uppercase;font-weight:600;">Week</th>';
+  rowData.forEach(function(r) {
+    var headerBg = r.week.idx === 0 ? '#0A1F1E' : '#0E1E35';
+    html += '<th style="text-align:right;padding:10px 12px;background:' + headerBg + ';border-bottom:1px solid #2A4A6A;font-size:9px;color:#5A7A99;letter-spacing:1px;text-transform:uppercase;font-weight:600;">' +
+      '<div style="color:#F5F5F5;font-size:11px;letter-spacing:1px;">' + r.week.shortLabel + '</div>' +
+      '<div style="color:#5A7A99;font-size:9px;margin-top:2px;font-weight:400;text-transform:none;">' + r.week.label + '</div>' +
+      '</th>';
+  });
+  html += '</tr></thead><tbody>';
+
+  // Receipts row
+  html += '<tr style="border-bottom:1px solid #1E3A5A;background:rgba(60,168,60,.04);">';
+  html += '<td style="padding:10px 12px;font-weight:600;color:#3CA83C;font-size:11px;letter-spacing:1px;text-transform:uppercase;">↑ Receipts</td>';
+  rowData.forEach(function(r) {
+    html += '<td style="padding:10px 12px;text-align:right;font-family:\'DM Mono\',monospace;color:' + (r.receipts.total > 0 ? '#3CA83C' : '#3A5A7A') + ';cursor:' + (r.receipts.items.length ? 'pointer' : 'default') + ';" onclick="cfDrill(' + r.week.idx + ', \'receipts\')">' +
+      (r.receipts.total > 0 ? '+' + cfFmt(r.receipts.total) : '—') +
+      (r.receipts.items.length ? '<div style="font-size:9px;color:#5A7A99;margin-top:2px;font-family:\'DM Sans\',sans-serif;">' + r.receipts.items.length + (r.receipts.items.length === 1 ? ' item' : ' items') + '</div>' : '') +
+      '</td>';
+  });
+  html += '</tr>';
+
+  // Payments row
+  html += '<tr style="border-bottom:1px solid #1E3A5A;background:rgba(204,85,85,.04);">';
+  html += '<td style="padding:10px 12px;font-weight:600;color:#CC5555;font-size:11px;letter-spacing:1px;text-transform:uppercase;">↓ Payments</td>';
+  rowData.forEach(function(r) {
+    html += '<td style="padding:10px 12px;text-align:right;font-family:\'DM Mono\',monospace;color:' + (r.payments.total > 0 ? '#CC5555' : '#3A5A7A') + ';cursor:' + (r.payments.items.length ? 'pointer' : 'default') + ';" onclick="cfDrill(' + r.week.idx + ', \'payments\')">' +
+      (r.payments.total > 0 ? '-' + cfFmt(r.payments.total) : '—') +
+      (r.payments.items.length ? '<div style="font-size:9px;color:#5A7A99;margin-top:2px;font-family:\'DM Sans\',sans-serif;">' + r.payments.items.length + (r.payments.items.length === 1 ? ' item' : ' items') + '</div>' : '') +
+      '</td>';
+  });
+  html += '</tr>';
+
+  // Net row
+  html += '<tr style="border-bottom:1px solid #2A4A6A;background:#0A1728;">';
+  html += '<td style="padding:12px 12px;font-weight:600;color:#F5F5F5;font-size:11px;letter-spacing:1px;text-transform:uppercase;">Net Week</td>';
+  rowData.forEach(function(r) {
+    var color = r.net >= 0 ? '#3CA83C' : '#CC5555';
+    html += '<td style="padding:12px 12px;text-align:right;font-family:\'DM Mono\',monospace;font-weight:600;color:' + color + ';">' +
+      (r.net >= 0 ? '+' : '') + cfFmt(r.net) + '</td>';
+  });
+  html += '</tr>';
+
+  // Running balance row
+  html += '<tr style="background:#0E1E35;">';
+  html += '<td style="padding:14px 12px;font-weight:700;color:#F5F5F5;font-size:11px;letter-spacing:1px;text-transform:uppercase;">Running Balance</td>';
+  rowData.forEach(function(r) {
+    var below = r.runningBal < threshold;
+    var negative = r.runningBal < 0;
+    var color = negative ? '#CC5555' : (below ? '#CCAA55' : '#F5F5F5');
+    var bg = negative ? 'rgba(204,85,85,.15)' : (below ? 'rgba(204,170,85,.12)' : 'transparent');
+    var icon = negative ? ' ⚠' : (below ? ' ⚠' : '');
+    html += '<td style="padding:14px 12px;text-align:right;font-family:\'DM Mono\',monospace;font-weight:700;color:' + color + ';background:' + bg + ';font-size:13px;">' +
+      cfFmt(r.runningBal) + '<span style="font-size:11px;">' + icon + '</span></td>';
+  });
+  html += '</tr>';
+  html += '</tbody></table>';
+
+  document.getElementById('cf-grid').innerHTML = html;
+
+  // Reset drill panel
+  document.getElementById('cf-drill').innerHTML = '<div style="font-size:11px;color:#5A7A99;text-align:center;padding:20px;">Click any receipts or payments cell above to see the line items.</div>';
+}
+
+function cfDrill(weekIdx, kind) {
+  if (!cfWeeks || !cfWeeks[weekIdx]) return;
+  var w = cfWeeks[weekIdx];
+  var data = kind === 'receipts' ? cfCollectReceipts(w) : cfCollectPayments(w);
+  var title = (kind === 'receipts' ? '↑ Receipts' : '↓ Payments') + ' — ' + w.label;
+  var color = kind === 'receipts' ? '#3CA83C' : '#CC5555';
+  var html = '<div class="card" style="border-left:3px solid ' + color + ';">' +
+    '<div class="card-title-row"><div class="card-title" style="color:' + color + ';">' + title + '</div>' +
+    '<button class="btn-secondary" onclick="document.getElementById(\'cf-drill\').innerHTML=\'\';" style="font-size:10px;padding:5px 10px;">Close</button></div>';
+  if (!data.items.length) {
+    html += '<div style="font-size:11px;color:#5A7A99;padding:14px;text-align:center;">No items for this week.</div>';
+  } else {
+    html += '<table style="width:100%;border-collapse:collapse;font-size:12px;">' +
+      '<thead><tr style="border-bottom:1px solid #2A4A6A;">' +
+        '<th style="text-align:left;padding:8px 12px;font-size:9px;color:#5A7A99;letter-spacing:2px;text-transform:uppercase;">Source</th>' +
+        '<th style="text-align:left;padding:8px 12px;font-size:9px;color:#5A7A99;letter-spacing:2px;text-transform:uppercase;">Item</th>' +
+        '<th style="text-align:left;padding:8px 12px;font-size:9px;color:#5A7A99;letter-spacing:2px;text-transform:uppercase;">Notes</th>' +
+        '<th style="text-align:right;padding:8px 12px;font-size:9px;color:#5A7A99;letter-spacing:2px;text-transform:uppercase;">Amount</th>' +
+      '</tr></thead><tbody>';
+    var kindLabel = {
+      forecast: 'Forecast', income_recorded: 'Recorded Income',
+      bill: 'Bill (scheduled)', projected_bill: 'Bill (projected)',
+      material: 'Material order', expense_paid: 'Expense (paid)',
+    };
+    var kindColor = {
+      forecast: '#5599CC', income_recorded: '#3CA83C',
+      bill: '#CC5555', projected_bill: '#CCAA55',
+      material: '#CC8855', expense_paid: '#9966CC',
+    };
+    data.items.forEach(function(it) {
+      html += '<tr style="border-bottom:1px solid #1E3A5A;">' +
+        '<td style="padding:8px 12px;color:' + (kindColor[it.kind] || '#5A7A99') + ';font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">' + (kindLabel[it.kind] || it.kind) + '</td>' +
+        '<td style="padding:8px 12px;color:#F5F5F5;">' + it.label + '</td>' +
+        '<td style="padding:8px 12px;color:#9BAFC0;font-size:11px;">' + (it.meta || '') + '</td>' +
+        '<td style="padding:8px 12px;text-align:right;font-family:\'DM Mono\',monospace;color:' + color + ';">' + (kind === 'receipts' ? '+' : '-') + cfFmt(it.amount) + '</td>' +
+      '</tr>';
+    });
+    html += '<tr style="background:#0A1728;border-top:2px solid #2A4A6A;"><td colspan="3" style="padding:10px 12px;font-weight:600;color:#F5F5F5;font-size:11px;letter-spacing:1px;text-transform:uppercase;">Total</td>' +
+      '<td style="padding:10px 12px;text-align:right;font-family:\'DM Mono\',monospace;font-weight:600;color:' + color + ';">' + (kind === 'receipts' ? '+' : '-') + cfFmt(data.total) + '</td></tr>';
+    html += '</tbody></table>';
+  }
+  html += '</div>';
+  document.getElementById('cf-drill').innerHTML = html;
+}
+
 
 // ─── REPORTS ─────────────────────────────────────────────────
 function renderReports() {
@@ -2407,11 +2781,447 @@ renderRecentDist();
 refreshBuilderDatalist();
 renderForecast(); // Forecast is the default active tab
 updateAlert();
+loadBills();
+loadCashFlowSettings();
 // Auto-connect Xero if passphrase is in session
 if (_xeroPassphrase) {
   document.getElementById('xero-passphrase-input').value = _xeroPassphrase;
   checkXeroStatus();
 }
+
+
+// =================================================================
+// BILLS — Weekly schedule + rollover (Ledger edition v2)
+// Schedule is the source of truth: list every recurring expense and
+// which week(s) of the month it falls on. Bills tab renders this
+// week and next, auto-rolls over anything still Open from prior weeks.
+// =================================================================
+const BILL_SCHED_KEY = 'eridion_bill_schedule_v1';
+const BILLS_KEY      = 'eridion_bills_v1';
+const BILLS_CASH_KEY = 'eridion_bills_cash_v1';
+
+let schedule = [];
+let bills = [];
+let billsView = 'this'; // 'this' or 'next'
+let editingBillId = null;
+
+const BILL_SCHEDULE_SEED = [
+  // ── Week 1: monthly fixed ────────────────────────────────────────
+  {id:'mortgage1',  name:'Mortgage 1',           category:'Property / utilities', bucket:'owners',    amount:2197.00, weeks:[1],         variable:false, notes:'Primary residence'},
+  {id:'mortgage2',  name:'Mortgage 2',           category:'Property / utilities', bucket:'owners',    amount:275.00,  weeks:[1],         variable:false, notes:''},
+  {id:'truck',      name:'Truck',                category:'Vehicle / fleet',      bucket:'opex',      amount:827.04,  weeks:[1],         variable:false, notes:'Work truck loan'},
+  {id:'hoa',        name:'HOA',                  category:'Property / utilities', bucket:'owners',    amount:278.00,  weeks:[1],         variable:false, notes:''},
+  {id:'brinks',     name:'Brinks',               category:'Security',             bucket:'opex',      amount:70.00,   weeks:[1],         variable:false, notes:'Home security'},
+  {id:'bookkeeper', name:'North Bay Bookkeeper', category:'Other',                bucket:'opex',      amount:575.00,  weeks:[1],         variable:false, notes:''},
+  {id:'xero',       name:'Xero',                 category:'Software / subs',      bucket:'opex',      amount:78.00,   weeks:[1],         variable:false, notes:''},
+  {id:'gl_ins',     name:'GL Insurance',         category:'Insurance',            bucket:'opex',      amount:691.99,  weeks:[1],         variable:false, notes:'General liability'},
+  {id:'storage',    name:'Public Storage',       category:'Property / utilities', bucket:'opex',      amount:356.00,  weeks:[1],         variable:false, notes:''},
+  {id:'health_ins', name:'Health Insurance',     category:'Insurance',            bucket:'owners',    amount:683.00,  weeks:[1],         variable:false, notes:'Family plan'},
+  {id:'apple',      name:'Apple',                category:'Software / subs',      bucket:'owners',    amount:90.00,   weeks:[1],         variable:false, notes:''},
+  {id:'hp',         name:'HP Ink Jet',           category:'Software / subs',      bucket:'opex',      amount:6.48,    weeks:[1],         variable:false, notes:''},
+  {id:'cadillac',   name:'Cadillac',             category:'Vehicle / fleet',      bucket:'owners',    amount:621.00,  weeks:[1],         variable:false, notes:'Personal car'},
+
+  // ── Biweekly (1 & 3) ─────────────────────────────────────────────
+  {id:'beyond',     name:'Beyond',               category:'Vehicle / fleet',      bucket:'opex',      amount:386.00,  weeks:[1,3],       variable:false, notes:'Biweekly loan payment'},
+
+  // ── Week 2 monthly ───────────────────────────────────────────────
+  {id:'adobe',      name:'Adobe',                category:'Software / subs',      bucket:'opex',      amount:21.64,   weeks:[2],         variable:false, notes:''},
+  {id:'fitness',    name:'ABC Fitness',          category:'Health / medical',     bucket:'owners',    amount:30.61,   weeks:[2],         variable:false, notes:''},
+  {id:'eye_ins',    name:'Eye Insurance',        category:'Insurance',            bucket:'owners',    amount:32.00,   weeks:[2],         variable:false, notes:''},
+  {id:'google',     name:'Google',               category:'Software / subs',      bucket:'opex',      amount:12.00,   weeks:[2],         variable:false, notes:'Workspace'},
+
+  // ── DBA (twice a month, weeks 2 & 3) ─────────────────────────────
+  {id:'dba',        name:'DBA',                  category:'Membership',           bucket:'opex',      amount:84.00,   weeks:[2,3],       variable:false, notes:'Dallas Builders Association'},
+
+  // ── Week 3 monthly ───────────────────────────────────────────────
+  {id:'att',        name:'ATT',                  category:'Software / subs',      bucket:'opex',      amount:284.27,  weeks:[3],         variable:false, notes:'Phone/internet'},
+  {id:'atmos',      name:'Atmos',                category:'Property / utilities', bucket:'opex',      amount:234.64,  weeks:[3],         variable:true,  notes:'Gas — varies seasonally'},
+  {id:'electric',   name:'Electricity',          category:'Property / utilities', bucket:'opex',      amount:148.97,  weeks:[3],         variable:true,  notes:'Electric — varies seasonally'},
+  {id:'water',      name:'Water',                category:'Property / utilities', bucket:'opex',      amount:97.35,   weeks:[3],         variable:true,  notes:'Water — varies'},
+  {id:'canva',      name:'Canva',                category:'Software / subs',      bucket:'opex',      amount:12.99,   weeks:[3],         variable:false, notes:'Used by Social Studio'},
+  {id:'dental_ins', name:'Dental Insurance',     category:'Insurance',            bucket:'owners',    amount:15.00,   weeks:[3],         variable:false, notes:''},
+  {id:'progressive',name:'Progressive',          category:'Insurance',            bucket:'opex',      amount:205.01,  weeks:[3],         variable:false, notes:'Auto insurance'},
+  {id:'tx_taxes',   name:'TX Taxes',             category:'Other',                bucket:'tax',       amount:0,       weeks:[3],         variable:true,  notes:'Due 20th of month — enter amount', specific_day:20},
+  {id:'ar_taxes',   name:'AR Taxes',             category:'Other',                bucket:'tax',       amount:0,       weeks:[3],         variable:true,  notes:'Due 20th of month — enter amount', specific_day:20},
+
+  // ── Week 4 monthly ───────────────────────────────────────────────
+  {id:'directv',    name:'DirecTV',              category:'Software / subs',      bucket:'owners',    amount:134.21,  weeks:[4],         variable:false, notes:''},
+  {id:'tolls',      name:'Tolls',                category:'Vehicle / fleet',      bucket:'opex',      amount:476.45,  weeks:[4],         variable:true,  notes:'Variable monthly'},
+  {id:'rescueair',  name:'Rescue Air',           category:'Property / utilities', bucket:'opex',      amount:71.85,   weeks:[4],         variable:false, notes:'HVAC service plan'},
+
+  // ── Weekly recurring (variable amounts) ──────────────────────────
+  {id:'groceries',  name:'Groceries',            category:'Other',                bucket:'owners',    amount:250.00,  weeks:[1,2,3,4,5], variable:true,  notes:'Weekly groceries'},
+  {id:'subcontractor', name:'Subcontractor',     category:'Sub installer',        bucket:'subs',      amount:2500.00, weeks:[1,2,3,4,5], variable:true,  notes:'Weekly sub payment — varies'},
+  {id:'other_materials', name:'Other Materials', category:'Vendor / supplier',    bucket:'materials', amount:375.00,  weeks:[1,2,3,4,5], variable:true,  notes:'$250–500/week typical'},
+  {id:'gas_petrol', name:'Gas / Petrol',         category:'Vehicle / fleet',      bucket:'opex',      amount:100.00,  weeks:[1,2,3,4,5], variable:true,  notes:'Weekly fuel — varies'},
+];
+
+const BILLS_BUCKET_LABEL = { opex: 'OPEX', materials: 'Materials', subs: 'Subs', owners: 'Owners', tax: 'Tax', profit: 'Profit' };
+const BILLS_BUCKET_COLOR = { opex: '#5599CC', materials: '#CCAA55', subs: '#CC8855', owners: '#9966CC', tax: '#CC5555', profit: '#3CA83C' };
+
+// ── Week math ────────────────────────────────────────────────────
+function getWeekOfMonth(d) { return Math.min(5, Math.ceil(d.getDate() / 7)); }
+function getWeekRange(year, month, weekNum) {
+  var startDay = (weekNum - 1) * 7 + 1;
+  var endDay = Math.min(startDay + 6, new Date(year, month + 1, 0).getDate());
+  return { start: new Date(year, month, startDay), end: new Date(year, month, endDay) };
+}
+function fmtWeekRange(year, month, weekNum) {
+  var r = getWeekRange(year, month, weekNum);
+  var opts = { month: 'short', day: 'numeric' };
+  return r.start.toLocaleDateString('en-US', opts) + ' – ' + r.end.toLocaleDateString('en-US', opts);
+}
+function getNextWeek(year, month, weekNum) {
+  // Returns {year, month, week} for the next week, handling month overflow
+  var lastWeek = Math.min(5, Math.ceil(new Date(year, month + 1, 0).getDate() / 7));
+  if (weekNum < lastWeek) return { year: year, month: month, week: weekNum + 1 };
+  var nm = month + 1, ny = year;
+  if (nm > 11) { nm = 0; ny = year + 1; }
+  return { year: ny, month: nm, week: 1 };
+}
+function isWeekBefore(a, b) {
+  // Returns true if (a.year, a.month, a.week) < (b.year, b.month, b.week)
+  if (a.year !== b.year) return a.year < b.year;
+  if (a.month !== b.month) return a.month < b.month;
+  return a.week < b.week;
+}
+
+// ── Storage ──────────────────────────────────────────────────────
+function loadBills() {
+  // Schedule
+  try {
+    var rawS = localStorage.getItem(BILL_SCHED_KEY);
+    schedule = rawS ? JSON.parse(rawS) : null;
+    if (!schedule || !Array.isArray(schedule) || !schedule.length) {
+      schedule = BILL_SCHEDULE_SEED.slice();
+      localStorage.setItem(BILL_SCHED_KEY, JSON.stringify(schedule));
+    }
+  } catch(e) { schedule = BILL_SCHEDULE_SEED.slice(); }
+
+  // Bills
+  try {
+    var rawB = localStorage.getItem(BILLS_KEY);
+    bills = rawB ? JSON.parse(rawB) : [];
+    if (!Array.isArray(bills)) bills = [];
+  } catch(e) { bills = []; }
+
+  // Cash on hand + expected receipts
+  try {
+    var rawC = localStorage.getItem(BILLS_CASH_KEY);
+    var c = rawC ? JSON.parse(rawC) : {};
+    if (document.getElementById('bills-cash-on-hand'))      document.getElementById('bills-cash-on-hand').value      = c.cash || '';
+    if (document.getElementById('bills-expected-receipts')) document.getElementById('bills-expected-receipts').value = c.receipts || '';
+  } catch(e) {}
+
+  // Generate this week + next week
+  var now = new Date();
+  var curW = { year: now.getFullYear(), month: now.getMonth(), week: getWeekOfMonth(now) };
+  var nxtW = getNextWeek(curW.year, curW.month, curW.week);
+  generateBillsForWeek(curW.year, curW.month, curW.week);
+  generateBillsForWeek(nxtW.year, nxtW.month, nxtW.week);
+
+  saveBillsRaw();
+  renderBills();
+}
+
+function saveBillsRaw() { try { localStorage.setItem(BILLS_KEY, JSON.stringify(bills)); } catch(e) {} }
+function saveCash() {
+  try {
+    localStorage.setItem(BILLS_CASH_KEY, JSON.stringify({
+      cash: parseFloat(document.getElementById('bills-cash-on-hand').value) || 0,
+      receipts: parseFloat(document.getElementById('bills-expected-receipts').value) || 0,
+    }));
+  } catch(e) {}
+}
+
+function generateBillsForWeek(year, month, weekNum) {
+  schedule.forEach(function(item) {
+    if (!item.weeks || !item.weeks.includes(weekNum)) return;
+    var key = item.id + '-' + year + '-' + (month + 1) + '-' + weekNum;
+    if (bills.find(function(b) { return b.scheduleKey === key; })) return;
+    // Compute due date — Thursday of the week, or specific_day if provided
+    var dueDay;
+    if (item.specific_day) {
+      dueDay = item.specific_day;
+    } else {
+      dueDay = Math.min((weekNum - 1) * 7 + 4, new Date(year, month + 1, 0).getDate());
+    }
+    var dueDate = new Date(year, month, dueDay).toISOString().slice(0, 10);
+    bills.push({
+      id: Date.now() + Math.floor(Math.random() * 100000),
+      scheduleKey: key,
+      scheduleId: item.id,
+      name: item.name,
+      category: item.category,
+      bucket: item.bucket,
+      amount: Number(item.amount) || 0,
+      variable: !!item.variable,
+      due_date: dueDate,
+      week: weekNum,
+      year: year,
+      month: month,
+      status: 'Open',
+      notes: item.notes || '',
+    });
+  });
+}
+
+// ── View toggle ──────────────────────────────────────────────────
+function setBillsView(v) {
+  billsView = v;
+  document.getElementById('bills-view-this').style.background = v === 'this' ? '#3CA83C' : 'transparent';
+  document.getElementById('bills-view-this').style.color      = v === 'this' ? '#0E1E35' : '#5A7A99';
+  document.getElementById('bills-view-next').style.background = v === 'next' ? '#3CA83C' : 'transparent';
+  document.getElementById('bills-view-next').style.color      = v === 'next' ? '#0E1E35' : '#5A7A99';
+  renderBills();
+}
+
+// ── Render ───────────────────────────────────────────────────────
+function fmtBillMoney(n) { var v = Number(n) || 0; return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function escBill(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+function renderBills() {
+  var body = document.getElementById('billsTableBody');
+  if (!body) return;
+
+  var now = new Date();
+  var cur = { year: now.getFullYear(), month: now.getMonth(), week: getWeekOfMonth(now) };
+  var target = billsView === 'next' ? getNextWeek(cur.year, cur.month, cur.week) : cur;
+
+  // Week label
+  document.getElementById('bills-week-label').textContent = fmtWeekRange(target.year, target.month, target.week);
+  document.getElementById('bills-table-context').textContent =
+    (billsView === 'next' ? 'Looking ahead — next week (' : 'This week (') +
+    fmtWeekRange(target.year, target.month, target.week) + ')' +
+    (billsView === 'this' ? ' + rolled-over from prior weeks' : '');
+
+  // Partition bills
+  var rolled = []; // Open, prior weeks (only shown in 'this' view)
+  var current = [];
+  bills.forEach(function(b) {
+    var bw = { year: b.year, month: b.month, week: b.week };
+    var inTarget = (b.year === target.year && b.month === target.month && b.week === target.week);
+    var inCur    = (b.year === cur.year && b.month === cur.month && b.week === cur.week);
+    if (billsView === 'this') {
+      if (b.status === 'Open' && b.year != null && isWeekBefore(bw, cur)) rolled.push(b);
+      else if (inCur) current.push(b);
+      // One-off bills with no week metadata: include in 'this' view if due_date is in current week
+      else if (b.year == null && b.due_date) {
+        var dd = new Date(b.due_date + 'T00:00:00');
+        var r = getWeekRange(cur.year, cur.month, cur.week);
+        if (dd >= r.start && dd <= new Date(r.end.getTime() + 86400000 - 1)) current.push(b);
+      }
+    } else {
+      if (inTarget) current.push(b);
+      else if (b.year == null && b.due_date) {
+        var dd2 = new Date(b.due_date + 'T00:00:00');
+        var r2 = getWeekRange(target.year, target.month, target.week);
+        if (dd2 >= r2.start && dd2 <= new Date(r2.end.getTime() + 86400000 - 1)) current.push(b);
+      }
+    }
+  });
+
+  // Sort: rolled first by due_date asc, then current by due_date asc with Paid at bottom
+  rolled.sort(function(a, b) { return (a.due_date || '').localeCompare(b.due_date || ''); });
+  current.sort(function(a, b) {
+    var sOrder = { 'Overdue': 0, 'Open': 1, 'Paid': 2 };
+    var oa = sOrder[a.status] != null ? sOrder[a.status] : 3;
+    var ob = sOrder[b.status] != null ? sOrder[b.status] : 3;
+    if (oa !== ob) return oa - ob;
+    return (a.due_date || '').localeCompare(b.due_date || '');
+  });
+
+  var rows = [];
+  if (rolled.length) {
+    rows.push('<tr style="background:#1F1418"><td colspan="7" style="padding:8px 12px;font-size:9px;font-weight:700;letter-spacing:2px;color:#CC8585;text-transform:uppercase;">⚠ Rolled over from prior weeks (' + rolled.length + ')</td></tr>');
+    rolled.forEach(function(b) { rows.push(renderBillRow(b, true)); });
+  }
+  if (current.length) {
+    if (rolled.length) rows.push('<tr style="background:#0E1E35"><td colspan="7" style="padding:8px 12px;font-size:9px;font-weight:700;letter-spacing:2px;color:#5A7A99;text-transform:uppercase;">Due this week (' + current.length + ')</td></tr>');
+    current.forEach(function(b) { rows.push(renderBillRow(b, false)); });
+  }
+  if (!rolled.length && !current.length) {
+    rows.push('<tr><td colspan="7" style="padding:32px;text-align:center;color:#5A7A99;font-size:11px;">Nothing scheduled — add a one-off bill or wait for next week\'s items to generate.</td></tr>');
+  }
+  body.innerHTML = rows.join('');
+
+  // Update header totals
+  var weekOpen = current.filter(function(b) { return b.status !== 'Paid'; });
+  var weekTotal = weekOpen.reduce(function(s, b) { return s + (Number(b.amount) || 0); }, 0);
+  var rolledTotal = rolled.reduce(function(s, b) { return s + (Number(b.amount) || 0); }, 0);
+  document.getElementById('bills-week-total').textContent = fmtBillMoney(weekTotal);
+  document.getElementById('bills-week-count').textContent = weekOpen.length + (weekOpen.length === 1 ? ' item' : ' items');
+  document.getElementById('bills-rolled-total').textContent = fmtBillMoney(rolledTotal);
+  document.getElementById('bills-rolled-count').textContent = rolled.length + (rolled.length === 1 ? ' item' : ' items');
+
+  updateCashCoverage();
+}
+
+function renderBillRow(b, isRolled) {
+  var statusBg = b.status === 'Paid' ? 'rgba(60,168,60,.15)' : (b.status === 'Overdue' || isRolled ? 'rgba(204,85,85,.18)' : 'rgba(85,153,204,.15)');
+  var statusFg = b.status === 'Paid' ? '#3CA83C' : (b.status === 'Overdue' || isRolled ? '#CC5555' : '#5599CC');
+  var statusLabel = isRolled && b.status === 'Open' ? 'ROLLED' : (b.status || 'Open');
+  var rowOpacity = b.status === 'Paid' ? '0.55' : '1';
+  var bucketLabel = BILLS_BUCKET_LABEL[b.bucket] || 'OPEX';
+  var bucketColor = BILLS_BUCKET_COLOR[b.bucket] || '#5599CC';
+  var nameDisplay = escBill(b.name) + (b.variable ? ' <span style="font-size:9px;color:#CCAA55;background:rgba(204,170,85,.12);padding:1px 5px;border-radius:3px;margin-left:4px;">VAR</span>' : '');
+
+  return '<tr style="border-bottom:1px solid #1E3A5A;opacity:' + rowOpacity + '">' +
+    '<td style="padding:10px 12px;font-weight:500;color:#F5F5F5">' + nameDisplay + '</td>' +
+    '<td style="padding:10px 12px;color:#9BAFC0;font-size:11px">' + escBill(b.category || 'Other') + '</td>' +
+    '<td style="padding:10px 12px"><span style="color:' + bucketColor + ';font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase">' + bucketLabel + '</span></td>' +
+    '<td style="padding:10px 12px;text-align:right;font-family:\'DM Mono\',monospace;color:#F5F5F5">' + (Number(b.amount) > 0 ? fmtBillMoney(b.amount) : '<span style="color:#5A7A99">enter</span>') + '</td>' +
+    '<td style="padding:10px 12px;font-family:\'DM Mono\',monospace;font-size:11px;color:#9BAFC0">' + (b.due_date || '-') + '</td>' +
+    '<td style="padding:10px 12px;text-align:center"><span style="background:' + statusBg + ';color:' + statusFg + ';font-size:10px;font-weight:600;padding:3px 9px;border-radius:3px;letter-spacing:1px;text-transform:uppercase">' + escBill(statusLabel) + '</span></td>' +
+    '<td style="padding:10px 12px;text-align:center;white-space:nowrap">' +
+      (b.status !== 'Paid' ? '<button onclick="quickMarkBillPaid(' + b.id + ')" class="btn-primary" style="font-size:10px;padding:5px 10px;margin-right:4px">Mark Paid</button>' : '') +
+      '<button onclick="openBillModal(' + b.id + ')" class="btn-secondary" style="font-size:10px;padding:5px 10px">Edit</button>' +
+    '</td></tr>';
+}
+
+// ── Coverage math ────────────────────────────────────────────────
+function updateCashCoverage() {
+  var cash = parseFloat(document.getElementById('bills-cash-on-hand').value) || 0;
+  var receipts = parseFloat(document.getElementById('bills-expected-receipts').value) || 0;
+  var weekTotal = 0, rolledTotal = 0;
+
+  var now = new Date();
+  var cur = { year: now.getFullYear(), month: now.getMonth(), week: getWeekOfMonth(now) };
+  var target = billsView === 'next' ? getNextWeek(cur.year, cur.month, cur.week) : cur;
+  bills.forEach(function(b) {
+    if (b.status === 'Paid') return;
+    if (b.year === target.year && b.month === target.month && b.week === target.week) {
+      weekTotal += Number(b.amount) || 0;
+    } else if (billsView === 'this' && b.year != null && isWeekBefore({year:b.year,month:b.month,week:b.week}, cur)) {
+      rolledTotal += Number(b.amount) || 0;
+    }
+  });
+  var totalNeed = weekTotal + rolledTotal;
+  var coverage = cash + receipts - totalNeed;
+  var coverageEl = document.getElementById('bills-coverage-value');
+  var labelEl = document.getElementById('bills-coverage-label');
+  var cardEl = document.getElementById('bills-coverage-card');
+  if (coverageEl) coverageEl.textContent = fmtBillMoney(coverage);
+  if (coverage >= 5000) {
+    if (coverageEl) coverageEl.style.color = '#3CA83C';
+    if (labelEl) labelEl.textContent = 'Comfortable surplus';
+    if (cardEl) cardEl.style.background = '#0A1F12';
+    if (cardEl) cardEl.style.borderColor = '#2A4A2A';
+  } else if (coverage >= 0) {
+    if (coverageEl) coverageEl.style.color = '#CCAA55';
+    if (labelEl) labelEl.textContent = 'Tight — under $5K cushion';
+    if (cardEl) cardEl.style.background = '#1F1A0A';
+    if (cardEl) cardEl.style.borderColor = '#4A3A2A';
+  } else {
+    if (coverageEl) coverageEl.style.color = '#CC5555';
+    if (labelEl) labelEl.textContent = 'Shortfall — bills will roll';
+    if (cardEl) cardEl.style.background = '#1F1418';
+    if (cardEl) cardEl.style.borderColor = '#4A2A2A';
+  }
+  saveCash();
+}
+
+// ── CRUD ─────────────────────────────────────────────────────────
+function openBillModal(id) {
+  editingBillId = id || null;
+  var b = id ? bills.find(function(x) { return x.id === id; }) : null;
+  document.getElementById('billModalTitle').textContent = b ? 'Edit Bill' : 'Add One-off Bill';
+  document.getElementById('billModalSub').textContent = b ? (b.scheduleId ? 'Bill from recurring schedule — edit amount or notes for this week.' : 'One-off bill.') : 'One-off bill that isn\'t in your recurring schedule.';
+  document.getElementById('bf_name').value = b ? (b.name || '') : '';
+  document.getElementById('bf_category').value = b ? (b.category || 'Other') : 'Other';
+  document.getElementById('bf_bucket').value = b ? (b.bucket || 'opex') : 'opex';
+  document.getElementById('bf_amount').value = b ? (b.amount || '') : '';
+  document.getElementById('bf_due_date').value = b ? (b.due_date || '') : '';
+  document.getElementById('bf_status').value = b ? (b.status || 'Open') : 'Open';
+  document.getElementById('bf_notes').value = b ? (b.notes || '') : '';
+  document.getElementById('bf_delete_btn').style.display = b ? 'inline-block' : 'none';
+  document.getElementById('billModalOverlay').style.display = 'flex';
+}
+
+function closeBillModal(e, force) {
+  if (force || (e && e.target === document.getElementById('billModalOverlay'))) {
+    document.getElementById('billModalOverlay').style.display = 'none';
+    editingBillId = null;
+  }
+}
+
+function saveBill() {
+  var name = (document.getElementById('bf_name').value || '').trim();
+  if (!name) { alert('Name is required'); return; }
+  var data = {
+    name: name,
+    category: document.getElementById('bf_category').value || 'Other',
+    bucket: document.getElementById('bf_bucket').value || 'opex',
+    amount: parseFloat(document.getElementById('bf_amount').value) || 0,
+    due_date: document.getElementById('bf_due_date').value || '',
+    status: document.getElementById('bf_status').value || 'Open',
+    notes: (document.getElementById('bf_notes').value || '').trim(),
+  };
+  if (editingBillId) {
+    var idx = bills.findIndex(function(x) { return x.id === editingBillId; });
+    if (idx >= 0) {
+      var prev = bills[idx].status;
+      bills[idx] = Object.assign({}, bills[idx], data);
+      if (data.status === 'Paid' && prev !== 'Paid') bills[idx].paid_date = new Date().toISOString().slice(0, 10);
+    }
+  } else {
+    bills.unshift(Object.assign({ id: Date.now(), added: new Date().toISOString() }, data));
+  }
+  saveBillsRaw();
+  closeBillModal(null, true);
+  renderBills();
+}
+
+function quickMarkBillPaid(id) {
+  var idx = bills.findIndex(function(x) { return x.id === id; });
+  if (idx < 0) return;
+  var b = bills[idx];
+  var amount = Number(b.amount) || 0;
+  // For variable items with $0, prompt for amount
+  if (b.variable && amount === 0) {
+    var entered = prompt('Enter amount paid for ' + b.name + ':');
+    if (entered === null) return;
+    amount = parseFloat(entered) || 0;
+    if (!amount) return;
+    bills[idx].amount = amount;
+  }
+  var alsoRecord = confirm('Mark ' + b.name + ' paid for ' + fmtBillMoney(amount) + '?\n\nAlso record as an expense in the ' + (BILLS_BUCKET_LABEL[b.bucket] || 'OPEX') + ' bucket?');
+  bills[idx].status = 'Paid';
+  bills[idx].paid_date = new Date().toISOString().slice(0, 10);
+  saveBillsRaw();
+  if (alsoRecord && typeof expenses !== 'undefined' && typeof saveExpenses === 'function') {
+    try {
+      var today = new Date();
+      var monthName = MONTHS[today.getMonth()] + ' ' + today.getFullYear();
+      expenses.unshift({
+        id: Date.now(),
+        type: 'expense',
+        date: bills[idx].paid_date,
+        month: monthName,
+        bucket: b.bucket || 'opex',
+        category: b.category || 'Other',
+        vendor: b.name,
+        amount: amount,
+        status: 'paid',
+        notes: 'Auto-recorded from Bills (week ' + b.week + '). ' + (b.notes || ''),
+      });
+      saveExpenses();
+      if (typeof renderRecentExpense === 'function') renderRecentExpense();
+      if (typeof updateAlert === 'function') updateAlert();
+    } catch(e) { console.error('Auto-expense failed', e); }
+  }
+  renderBills();
+}
+
+function deleteBill() {
+  if (!editingBillId) return;
+  if (!confirm('Delete this bill instance?\n\n(The schedule item still exists — this only removes the bill for this specific week.)')) return;
+  bills = bills.filter(function(x) { return x.id !== editingBillId; });
+  saveBillsRaw();
+  closeBillModal(null, true);
+  renderBills();
+}
+
 </script>
 </body>
 </html>
