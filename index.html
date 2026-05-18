@@ -349,29 +349,50 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
 
 <!-- BILLS -->
 <div class="panel" id="panel-bills">
+
+  <!-- ── Cash Coverage Header ─────────────────────────────────────── -->
+  <div class="card" style="background:#0A1F1E;border:1px solid #2A4A4A;">
+    <div class="card-title-row">
+      <div class="card-title">Week of <span id="bills-week-label">—</span> · Cash Coverage</div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn-secondary" id="bills-view-this" onclick="setBillsView('this')" style="font-size:10px;padding:6px 12px;">This Week</button>
+        <button class="btn-secondary" id="bills-view-next" onclick="setBillsView('next')" style="font-size:10px;padding:6px 12px;">Next Week</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:8px;">
+      <div style="background:#0E1E35;border:1px solid #2A4A6A;border-radius:6px;padding:12px;">
+        <div style="font-size:9px;color:#5A7A99;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;">Bills This Week</div>
+        <div style="font-size:18px;font-weight:600;color:#F5F5F5;font-family:'DM Mono',monospace;" id="bills-week-total">$0.00</div>
+        <div style="font-size:10px;color:#5A7A99;margin-top:3px;" id="bills-week-count">0 items</div>
+      </div>
+      <div style="background:#1F1418;border:1px solid #4A2A2A;border-radius:6px;padding:12px;">
+        <div style="font-size:9px;color:#CC8585;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;">Rolled Over</div>
+        <div style="font-size:18px;font-weight:600;color:#CC5555;font-family:'DM Mono',monospace;" id="bills-rolled-total">$0.00</div>
+        <div style="font-size:10px;color:#CC8585;margin-top:3px;" id="bills-rolled-count">0 items</div>
+      </div>
+      <div style="background:#0E1E35;border:1px solid #2A4A6A;border-radius:6px;padding:12px;">
+        <div style="font-size:9px;color:#5A7A99;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;">Cash On Hand</div>
+        <input type="number" id="bills-cash-on-hand" step="0.01" placeholder="0.00" oninput="updateCashCoverage()" style="background:transparent;border:none;color:#5599CC;font-family:'DM Mono',monospace;font-size:18px;font-weight:600;width:100%;padding:0;outline:none;" />
+        <div style="font-size:10px;color:#5A7A99;margin-top:3px;">From Xero / manual</div>
+      </div>
+      <div style="background:#0E1E35;border:1px solid #2A4A6A;border-radius:6px;padding:12px;">
+        <div style="font-size:9px;color:#5A7A99;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;">Expected Receipts</div>
+        <input type="number" id="bills-expected-receipts" step="0.01" placeholder="0.00" oninput="updateCashCoverage()" style="background:transparent;border:none;color:#CCAA55;font-family:'DM Mono',monospace;font-size:18px;font-weight:600;width:100%;padding:0;outline:none;" />
+        <div style="font-size:10px;color:#5A7A99;margin-top:3px;">This week — manual entry</div>
+      </div>
+      <div style="background:#0A1F12;border:1px solid #2A4A2A;border-radius:6px;padding:12px;" id="bills-coverage-card">
+        <div style="font-size:9px;color:#85CC85;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;">Coverage</div>
+        <div style="font-size:18px;font-weight:600;color:#3CA83C;font-family:'DM Mono',monospace;" id="bills-coverage-value">$0.00</div>
+        <div style="font-size:10px;color:#85CC85;margin-top:3px;" id="bills-coverage-label">Surplus / shortfall</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Bills Table ───────────────────────────────────────────────── -->
   <div class="card">
     <div class="card-title-row">
-      <div class="card-title">Outstanding Bills</div>
-      <button class="btn-primary" style="font-size:10px;padding:7px 14px" onclick="openBillModal()">+ Add Bill</button>
-    </div>
-
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
-      <div style="background:#0E1E35;border:1px solid #2A4A6A;border-radius:6px;padding:12px;">
-        <div style="font-size:9px;color:#5A7A99;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Total Open</div>
-        <div style="font-size:20px;font-weight:600;color:#F5F5F5;font-family:'DM Mono',monospace;" id="billsTotalOpen">$0.00</div>
-      </div>
-      <div style="background:#0E1E35;border:1px solid #2A4A6A;border-radius:6px;padding:12px;border-left:3px solid #CC5555;">
-        <div style="font-size:9px;color:#5A7A99;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Due Now</div>
-        <div style="font-size:20px;font-weight:600;color:#CC5555;font-family:'DM Mono',monospace;" id="billsDueNow">$0.00</div>
-      </div>
-      <div style="background:#0E1E35;border:1px solid #2A4A6A;border-radius:6px;padding:12px;border-left:3px solid #CCAA55;">
-        <div style="font-size:9px;color:#5A7A99;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Open Count</div>
-        <div style="font-size:20px;font-weight:600;color:#CCAA55;font-family:'DM Mono',monospace;" id="billsOpenCount">0</div>
-      </div>
-      <div style="background:#0E1E35;border:1px solid #2A4A6A;border-radius:6px;padding:12px;border-left:3px solid #3CA83C;">
-        <div style="font-size:9px;color:#5A7A99;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Paid This Month</div>
-        <div style="font-size:20px;font-weight:600;color:#3CA83C;font-family:'DM Mono',monospace;" id="billsPaidThisMonth">$0.00</div>
-      </div>
+      <div class="card-title">Bills <span id="bills-table-context" style="color:#5A7A99;font-weight:400;letter-spacing:1px;font-size:10px;text-transform:none;margin-left:8px;"></span></div>
+      <button class="btn-primary" style="font-size:10px;padding:7px 14px" onclick="openBillModal()">+ Add One-off Bill</button>
     </div>
 
     <div style="background:#0A1728;border:1px solid #1E3A5A;border-radius:6px;overflow:hidden;">
@@ -382,7 +403,6 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
             <th style="text-align:left;padding:9px 12px;font-size:9px;font-weight:600;letter-spacing:2px;color:#5A7A99;text-transform:uppercase;">Category</th>
             <th style="text-align:left;padding:9px 12px;font-size:9px;font-weight:600;letter-spacing:2px;color:#5A7A99;text-transform:uppercase;">Bucket</th>
             <th style="text-align:right;padding:9px 12px;font-size:9px;font-weight:600;letter-spacing:2px;color:#5A7A99;text-transform:uppercase;">Amount</th>
-            <th style="text-align:right;padding:9px 12px;font-size:9px;font-weight:600;letter-spacing:2px;color:#5A7A99;text-transform:uppercase;">Due Now</th>
             <th style="text-align:left;padding:9px 12px;font-size:9px;font-weight:600;letter-spacing:2px;color:#5A7A99;text-transform:uppercase;">Due Date</th>
             <th style="text-align:center;padding:9px 12px;font-size:9px;font-weight:600;letter-spacing:2px;color:#5A7A99;text-transform:uppercase;">Status</th>
             <th style="text-align:center;padding:9px 12px;font-size:9px;font-weight:600;letter-spacing:2px;color:#5A7A99;text-transform:uppercase;">Actions</th>
@@ -396,24 +416,21 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
 
 <!-- BILL MODAL -->
 <div id="billModalOverlay" onclick="closeBillModal(event)" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;">
-  <div style="background:#0E1E35;border:1px solid #2A4A6A;border-radius:8px;padding:24px;width:520px;max-width:92vw;" onclick="event.stopPropagation()">
+  <div style="background:#0E1E35;border:1px solid #2A4A6A;border-radius:8px;padding:24px;width:560px;max-width:92vw;" onclick="event.stopPropagation()">
     <div style="font-size:11px;font-weight:600;letter-spacing:3px;color:#3CA83C;text-transform:uppercase;margin-bottom:6px;" id="billModalTitle">Add Bill</div>
-    <div style="font-size:11px;color:#5A7A99;margin-bottom:16px;">Track an outstanding bill — recurring or one-off.</div>
+    <div style="font-size:11px;color:#5A7A99;margin-bottom:16px;" id="billModalSub">One-off bill that isn't in your recurring schedule.</div>
     <div class="form-row r2">
-      <div class="field"><label>Name *</label><input id="bf_name" type="text" placeholder="e.g. Progressive" /></div>
+      <div class="field"><label>Name *</label><input id="bf_name" type="text" placeholder="e.g. Surprise vendor charge" /></div>
       <div class="field"><label>Category</label><select id="bf_category"><option>Sub installer</option><option>Vendor / supplier</option><option>Insurance</option><option>Vehicle / fleet</option><option>Property / utilities</option><option>Software / subs</option><option>Membership</option><option>Security</option><option>Health / medical</option><option>Other</option></select></div>
     </div>
     <div class="form-row r3">
       <div class="field"><label>PF Bucket</label><select id="bf_bucket"><option value="opex">OPEX</option><option value="materials">Materials</option><option value="subs">Subs / Payroll</option><option value="owners">Owner's Comp</option><option value="tax">Tax Reserve</option><option value="profit">Profit</option></select></div>
       <div class="field"><label>Amount *</label><input id="bf_amount" type="number" step="0.01" placeholder="0.00" /></div>
-      <div class="field"><label>Due Now (partial)</label><input id="bf_due_now" type="number" step="0.01" placeholder="0.00" /></div>
+      <div class="field"><label>Due Date</label><input id="bf_due_date" type="date" /></div>
     </div>
     <div class="form-row r2">
-      <div class="field"><label>Due Date</label><input id="bf_due_date" type="date" /></div>
       <div class="field"><label>Status</label><select id="bf_status"><option value="Open">Open</option><option value="Overdue">Overdue</option><option value="Paid">Paid</option></select></div>
-    </div>
-    <div class="form-row r1" style="grid-template-columns:1fr;">
-      <div class="field"><label>Notes</label><input id="bf_notes" type="text" placeholder="Anything to remember about this bill" /></div>
+      <div class="field"><label>Notes</label><input id="bf_notes" type="text" placeholder="Anything to remember" /></div>
     </div>
     <div style="display:flex;gap:8px;margin-top:16px;">
       <button class="btn-primary" onclick="saveBill()">Save Bill</button>
@@ -422,7 +439,6 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
     </div>
   </div>
 </div>
-
 
 <!-- ADD EXPENSE -->
 <div class="panel" id="panel-expense">
@@ -2781,8 +2797,6 @@ renderRecentDist();
 refreshBuilderDatalist();
 renderForecast(); // Forecast is the default active tab
 updateAlert();
-loadBills();
-loadCashFlowSettings();
 // Auto-connect Xero if passphrase is in session
 if (_xeroPassphrase) {
   document.getElementById('xero-passphrase-input').value = _xeroPassphrase;
@@ -3222,6 +3236,10 @@ function deleteBill() {
   renderBills();
 }
 
+
+// ── Late init — must run after BILLS v2 + CASH FLOW v2 blocks above ──
+if (typeof loadBills === 'function')           loadBills();
+if (typeof loadCashFlowSettings === 'function') loadCashFlowSettings();
 </script>
 </body>
 </html>
