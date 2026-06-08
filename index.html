@@ -623,7 +623,7 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
 <div class="panel" id="panel-cashflow">
   <div class="card">
     <div class="card-title-row">
-      <div class="card-title">8-Week Cash Calendar</div>
+      <div class="card-title">Cash Calendar <span id="cf-span" style="font-size:11px;color:#5A7A99;font-weight:400;letter-spacing:1px;"></span></div>
       <div style="display:flex;gap:12px;align-items:center;">
         <div style="display:flex;align-items:center;gap:8px;">
           <label style="font-size:9px;color:#5A7A99;letter-spacing:2px;text-transform:uppercase;">Starting Cash</label>
@@ -637,7 +637,7 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
       </div>
     </div>
     <div style="font-size:11px;color:#5A7A99;margin-bottom:14px;">
-      Joins <strong style="color:#5599CC">Forecast</strong> (receipts) + <strong style="color:#CC5555">Bills</strong> + <strong style="color:#CCAA55">Order Tracker materials</strong>. Click any cell to see the underlying items.
+      Joins <strong style="color:#5599CC">Forecast</strong> (receipts) + <strong style="color:#CC5555">Bills</strong> + <strong style="color:#CCAA55">Order Tracker materials</strong> across the current month plus 2 weeks. Click any cell to see the underlying items.
     </div>
     <div id="cf-grid" style="overflow-x:auto;"></div>
     <div id="cf-drill" style="margin-top:14px;"></div>
@@ -2271,7 +2271,7 @@ function saveActual(bk, val) {
 
 // ─── CASH FLOW ───────────────────────────────────────────────
 // =================================================================
-// 8-WEEK CASH CALENDAR
+// CASH CALENDAR (current month + 2 weeks)
 // Joins Forecast (receipts), Bills schedule + bills[], Order Tracker
 // orders[], and historical income/expenses into a multi-week view.
 // =================================================================
@@ -2346,6 +2346,29 @@ function cfInRange(dateStr, week) {
   return dateStr >= week.startStr && dateStr <= week.endStr;
 }
 
+function cfWeekCount() {
+  // Number of weeks spanning the current week through the last week that
+  // touches the end of the current month, plus 2 extra weeks.
+  var today = new Date();
+  // Monday of current week
+  var dow = today.getDay();
+  var diff = dow === 0 ? -6 : 1 - dow;
+  var startMon = new Date(today);
+  startMon.setDate(startMon.getDate() + diff);
+  startMon.setHours(0, 0, 0, 0);
+  // Last calendar day of the current month
+  var lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  // Monday of the week containing the last day of the month
+  var ldow = lastDay.getDay();
+  var ldiff = ldow === 0 ? -6 : 1 - ldow;
+  var lastWeekMon = new Date(lastDay);
+  lastWeekMon.setDate(lastWeekMon.getDate() + ldiff);
+  lastWeekMon.setHours(0, 0, 0, 0);
+  // Inclusive count of weeks from this week's Monday to the month-end week's Monday
+  var weeksToMonthEnd = Math.round((lastWeekMon - startMon) / (7 * 24 * 3600 * 1000)) + 1;
+  return Math.max(1, weeksToMonthEnd) + 2;
+}
+
 function cfCollectReceipts(week) {
   // Forecasts with expectedPayDate in this week
   var items = [];
@@ -2362,8 +2385,11 @@ function cfCollectReceipts(week) {
       meta: f.status + (f.expectedPayDate ? ' · pay ' + f.expectedPayDate : ''),
     });
   });
-  // Past weeks: include actually-received incomes
-  if (week.endStr < new Date().toISOString().slice(0, 10)) {
+  // Started weeks (current + past): include actually-received incomes.
+  // A forecast's unpaid portion shows above via `remaining`; its received
+  // portion lives in incomes[] (every recorded payment unshifts one), so the
+  // two are mutually exclusive amounts — no double counting.
+  if (week.startStr <= new Date().toISOString().slice(0, 10)) {
     (typeof incomes !== 'undefined' ? incomes : []).forEach(function(inc) {
       if (!cfInRange(inc.date, week)) return;
       items.push({
@@ -2428,8 +2454,8 @@ function cfCollectPayments(week) {
     });
   });
 
-  // 4. Past weeks: include actually-paid expenses
-  if (week.endStr < new Date().toISOString().slice(0, 10)) {
+  // 4. Started weeks (current + past): include actually-paid expenses
+  if (week.startStr <= new Date().toISOString().slice(0, 10)) {
     (typeof expenses !== 'undefined' ? expenses : []).forEach(function(e) {
       if (e.status !== 'paid') return;
       if (!cfInRange(e.date, week)) return;
@@ -2450,7 +2476,10 @@ function cfCollectPayments(week) {
 
 function renderCashFlow() {
   if (!document.getElementById('cf-grid')) return;
-  cfWeeks = cfComputeWeeks(8);
+  cfWeeks = cfComputeWeeks(cfWeekCount());
+  if (document.getElementById('cf-span') && cfWeeks.length) {
+    document.getElementById('cf-span').textContent = '· ' + cfWeeks[0].start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' – ' + cfWeeks[cfWeeks.length - 1].end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
   var startCash = parseFloat(document.getElementById('cf-cash-start').value) || 0;
   var threshold = parseFloat(document.getElementById('cf-threshold').value) || 25000;
 
