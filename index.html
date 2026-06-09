@@ -2311,32 +2311,59 @@ function cfGetOrderTrackerOrders() {
   } catch(e) { return []; }
 }
 
-function cfComputeWeeks(n) {
-  // Returns n week-objects starting with current week (Monday-based)
+function cfComputeWeeks() {
+  // Spans the current calendar month plus 2 weeks (Monday-based weeks).
+  // Starts at the Monday of the week containing the 1st of the month, and
+  // ends with the 2 weeks following the week that contains the month's last day.
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Monday of the week containing the 1st of the current month
+  var first = new Date(today.getFullYear(), today.getMonth(), 1);
+  var fdow = first.getDay();
+  var startMon = new Date(first);
+  startMon.setDate(startMon.getDate() + (fdow === 0 ? -6 : 1 - fdow));
+  startMon.setHours(0, 0, 0, 0);
+
+  // Monday of the week containing the last day of the month, then +2 weeks
+  var lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  var ldow = lastDay.getDay();
+  var endMon = new Date(lastDay);
+  endMon.setDate(endMon.getDate() + (ldow === 0 ? -6 : 1 - ldow) + 14);
+  endMon.setHours(0, 0, 0, 0);
+
+  // Monday of the current week, for relative "This Week / +N wk" labels
+  var cdow = today.getDay();
+  var curMon = new Date(today);
+  curMon.setDate(curMon.getDate() + (cdow === 0 ? -6 : 1 - cdow));
+  curMon.setHours(0, 0, 0, 0);
+
+  var WEEK_MS = 7 * 24 * 3600 * 1000;
   var weeks = [];
-  var d = new Date();
-  // Find Monday of current week
-  var dow = d.getDay(); // 0=Sun, 1=Mon, ... 6=Sat
-  var diff = dow === 0 ? -6 : 1 - dow;
-  d.setDate(d.getDate() + diff);
-  d.setHours(0, 0, 0, 0);
-  for (var i = 0; i < n; i++) {
+  var d = new Date(startMon);
+  var i = 0;
+  while (d <= endMon) {
     var start = new Date(d);
     var end = new Date(d);
     end.setDate(end.getDate() + 6);
+    var rel = Math.round((start - curMon) / WEEK_MS);
+    var shortLabel = rel === 0 ? 'This Week' : (rel > 0 ? '+' + rel + ' wk' : rel + ' wk');
     weeks.push({
       idx: i,
+      rel: rel,
+      isCurrent: rel === 0,
       start: start,
       end: end,
       startStr: start.toISOString().slice(0, 10),
       endStr: end.toISOString().slice(0, 10),
       label: start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' – ' + end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      shortLabel: i === 0 ? 'This Week' : '+' + i + ' wk',
+      shortLabel: shortLabel,
       year: start.getFullYear(),
       month: start.getMonth(),
       weekOfMonth: Math.min(5, Math.ceil(start.getDate() / 7)),
     });
     d.setDate(d.getDate() + 7);
+    i++;
   }
   return weeks;
 }
@@ -2344,29 +2371,6 @@ function cfComputeWeeks(n) {
 function cfInRange(dateStr, week) {
   if (!dateStr) return false;
   return dateStr >= week.startStr && dateStr <= week.endStr;
-}
-
-function cfWeekCount() {
-  // Number of weeks spanning the current week through the last week that
-  // touches the end of the current month, plus 2 extra weeks.
-  var today = new Date();
-  // Monday of current week
-  var dow = today.getDay();
-  var diff = dow === 0 ? -6 : 1 - dow;
-  var startMon = new Date(today);
-  startMon.setDate(startMon.getDate() + diff);
-  startMon.setHours(0, 0, 0, 0);
-  // Last calendar day of the current month
-  var lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-  // Monday of the week containing the last day of the month
-  var ldow = lastDay.getDay();
-  var ldiff = ldow === 0 ? -6 : 1 - ldow;
-  var lastWeekMon = new Date(lastDay);
-  lastWeekMon.setDate(lastWeekMon.getDate() + ldiff);
-  lastWeekMon.setHours(0, 0, 0, 0);
-  // Inclusive count of weeks from this week's Monday to the month-end week's Monday
-  var weeksToMonthEnd = Math.round((lastWeekMon - startMon) / (7 * 24 * 3600 * 1000)) + 1;
-  return Math.max(1, weeksToMonthEnd) + 2;
 }
 
 function cfCollectReceipts(week) {
@@ -2476,7 +2480,7 @@ function cfCollectPayments(week) {
 
 function renderCashFlow() {
   if (!document.getElementById('cf-grid')) return;
-  cfWeeks = cfComputeWeeks(cfWeekCount());
+  cfWeeks = cfComputeWeeks();
   if (document.getElementById('cf-span') && cfWeeks.length) {
     document.getElementById('cf-span').textContent = '· ' + cfWeeks[0].start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' – ' + cfWeeks[cfWeeks.length - 1].end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
@@ -2499,7 +2503,7 @@ function renderCashFlow() {
   html += '<thead><tr>';
   html += '<th style="text-align:left;padding:10px 12px;background:#0E1E35;border-bottom:1px solid #2A4A6A;font-size:9px;color:#5A7A99;letter-spacing:2px;text-transform:uppercase;font-weight:600;">Week</th>';
   rowData.forEach(function(r) {
-    var headerBg = r.week.idx === 0 ? '#0A1F1E' : '#0E1E35';
+    var headerBg = r.week.isCurrent ? '#0A1F1E' : '#0E1E35';
     html += '<th style="text-align:right;padding:10px 12px;background:' + headerBg + ';border-bottom:1px solid #2A4A6A;font-size:9px;color:#5A7A99;letter-spacing:1px;text-transform:uppercase;font-weight:600;">' +
       '<div style="color:#F5F5F5;font-size:11px;letter-spacing:1px;">' + r.week.shortLabel + '</div>' +
       '<div style="color:#5A7A99;font-size:9px;margin-top:2px;font-weight:400;text-transform:none;">' + r.week.label + '</div>' +
