@@ -14,6 +14,14 @@ body{font-family:'DM Sans',sans-serif;background:#0E1E35;color:#F5F5F5;min-heigh
 .hdr-title{font-family:'DM Serif Display',serif;font-size:17px;letter-spacing:1px;}
 .hdr-sub{font-size:9px;color:#3CA83C;letter-spacing:3px;text-transform:uppercase;margin-top:2px;}
 .hdr-right{display:flex;align-items:center;gap:14px;}
+/* CLOUD SYNC BADGE + BACKUP BUTTONS */
+.sync-badge{font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;border-radius:20px;padding:5px 12px;border:1px solid #2A4A6A;color:#5A7A99;background:#0A1728;white-space:nowrap;}
+.sync-badge.sync-ok{border-color:#3CA83C;color:#3CA83C;}
+.sync-badge.sync-syncing{border-color:#F0B05A;color:#F0B05A;animation:pulse 1s infinite;}
+.sync-badge.sync-offline{border-color:#E24B4A;color:#E24B4A;}
+.sync-badge.sync-local{border-color:#2A4A6A;color:#5A7A99;}
+.hdr-btn{font-family:inherit;font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;background:#0A1728;border:1px solid #2A4A6A;border-radius:20px;padding:5px 12px;color:#5A7A99;cursor:pointer;transition:border-color .2s,color .2s;}
+.hdr-btn:hover{border-color:#3CA83C;color:#3CA83C;}
 /* XERO STATUS BADGE */
 .xero-badge{display:flex;align-items:center;gap:6px;background:#0A1728;border:1px solid #2A4A6A;border-radius:20px;padding:5px 12px;cursor:pointer;transition:border-color .2s;}
 .xero-badge:hover{border-color:#3CA83C;}
@@ -322,6 +330,10 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
     <div><div class="hdr-title">ERIDION GLASS &mdash; PROFIT FIRST</div><div class="hdr-sub">Revenue Allocation Ledger</div></div>
   </div>
   <div class="hdr-right">
+    <div class="sync-badge sync-local" id="sync-badge" title="Cloud sync status">Local only</div>
+    <button class="hdr-btn" onclick="exportLedgerBackup()" title="Download a full backup of all ledger data as a JSON file">&#8595; Backup</button>
+    <button class="hdr-btn" onclick="document.getElementById('backup-file-input').click()" title="Restore ledger data from a backup file">&#8593; Restore</button>
+    <input type="file" id="backup-file-input" accept=".json,application/json" style="display:none" onchange="importLedgerBackup(this)">
     <div class="xero-badge" onclick="showTab('xero',document.querySelector('.xero-tab'))" title="Xero Sync">
       <div class="xero-dot" id="xero-dot"></div>
       <span class="xero-label" id="xero-label">Xero</span>
@@ -665,9 +677,8 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
       <div style="font-size:10px;color:#5A7A99;" id="xero-last-sync"></div>
     </div>
     <div id="xero-passphrase-section">
-      <div style="font-size:11px;color:#7C9AB5;margin-bottom:10px;">Enter your ledger passphrase to connect to Xero. This is stored only for this browser session.</div>
+      <div style="font-size:11px;color:#7C9AB5;margin-bottom:10px;">Xero connects through the shared Eridion worker &mdash; no passphrase needed.</div>
       <div class="xero-passphrase-row">
-        <input type="password" id="xero-passphrase-input" placeholder="Enter passphrase..." onkeydown="if(event.key==='Enter')checkXeroStatus()"/>
         <button class="btn-xero" onclick="checkXeroStatus()">Connect</button>
       </div>
       <div id="xero-auth-error" style="font-size:11px;color:#E24B4A;display:none;margin-top:6px;"></div>
@@ -887,13 +898,15 @@ var RECURRING = [
 var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 // ─── XERO CONFIG ─────────────────────────────────────────────
-var WORKER_URL = 'https://eridion-xero-worker.erikagonzalez103.workers.dev';
-var _xeroPassphrase = sessionStorage.getItem('eg_xero_pp') || '';
+// Phase 0: Xero now comes from the shared Eridion worker (frosty-base),
+// which already holds the OAuth connection — no passphrase needed.
+// eridion-xero-worker is retired.
+var WORKER_URL = 'https://frosty-base-f01e.erikagonzalez103.workers.dev';
 var _xeroTransactions = []; // raw fetched transactions pending review
 var _importedXeroIds = {}; // track which Xero tx IDs we've already imported
 
 function getXeroHeaders() {
-  return { 'Content-Type': 'application/json', 'X-Passphrase': _xeroPassphrase };
+  return { 'Content-Type': 'application/json' };
 }
 
 // ─── BUCKET AUTO-MAPPER ──────────────────────────────────────
@@ -961,17 +974,9 @@ function getDateRange(rangeKey) {
 
 // ─── XERO STATUS CHECK ───────────────────────────────────────
 async function checkXeroStatus() {
-  var input = document.getElementById('xero-passphrase-input');
-  var pp = input.value.trim() || _xeroPassphrase;
-  if (!pp) { showXeroError('Please enter your passphrase.'); return; }
-
-  _xeroPassphrase = pp;
-  sessionStorage.setItem('eg_xero_pp', pp);
   setXeroDot('syncing', 'Checking...');
-
   try {
-    var res = await fetch(WORKER_URL + '/api/status', { headers: { 'X-Passphrase': pp } });
-    if (res.status === 401) { setXeroDot('error', 'Xero'); showXeroError('Wrong passphrase.'); _xeroPassphrase=''; sessionStorage.removeItem('eg_xero_pp'); return; }
+    var res = await fetch(WORKER_URL + '/xero/status');
     var data = await res.json();
     if (data.connected) {
       setXeroDot('connected', 'Connected');
@@ -982,7 +987,7 @@ async function checkXeroStatus() {
       document.getElementById('xero-last-sync').textContent = syncedAt ? 'Last synced ' + syncedAt : 'Never synced';
     } else {
       setXeroDot('error', 'Xero');
-      showXeroError('Xero not connected. Visit the Worker /auth/xero URL to reconnect.');
+      showXeroError('Xero not connected' + (data.reason ? ' — ' + data.reason : '') + '. Re-authorize at ' + WORKER_URL + '/xero/auth');
     }
   } catch(e) {
     setXeroDot('error', 'Error');
@@ -1014,7 +1019,7 @@ async function syncFromXero() {
 
   try {
     var res = await fetch(
-      WORKER_URL + '/api/transactions?fromDate=' + range.fromDate + '&toDate=' + range.toDate,
+      WORKER_URL + '/xero/transactions?fromDate=' + range.fromDate + '&toDate=' + range.toDate,
       { headers: getXeroHeaders() }
     );
     if (!res.ok) { var e = await res.json(); throw new Error(e.error || 'Sync failed'); }
@@ -1226,11 +1231,156 @@ function loadData() {
   forecasts     = parse(FCT_KEY);
   try { var r = localStorage.getItem(ACT_KEY); actualBalances = r ? JSON.parse(r) : {}; } catch(e) { actualBalances = {}; }
 }
-function saveIncomes()       { try { localStorage.setItem(INC_KEY,  JSON.stringify(incomes));       } catch(e) {} }
-function saveExpenses()      { try { localStorage.setItem(EXP_KEY,  JSON.stringify(expenses));      } catch(e) {} }
-function saveDistributions() { try { localStorage.setItem(DIST_KEY, JSON.stringify(distributions)); } catch(e) {} }
-function saveActuals()       { try { localStorage.setItem(ACT_KEY,  JSON.stringify(actualBalances));} catch(e) {} }
-function saveForecasts()     { try { localStorage.setItem(FCT_KEY,  JSON.stringify(forecasts));     } catch(e) {} }
+function saveIncomes()       { try { localStorage.setItem(INC_KEY,  JSON.stringify(incomes));       } catch(e) {} scheduleCloudSync(); }
+function saveExpenses()      { try { localStorage.setItem(EXP_KEY,  JSON.stringify(expenses));      } catch(e) {} scheduleCloudSync(); }
+function saveDistributions() { try { localStorage.setItem(DIST_KEY, JSON.stringify(distributions)); } catch(e) {} scheduleCloudSync(); }
+function saveActuals()       { try { localStorage.setItem(ACT_KEY,  JSON.stringify(actualBalances));} catch(e) {} scheduleCloudSync(); }
+function saveForecasts()     { try { localStorage.setItem(FCT_KEY,  JSON.stringify(forecasts));     } catch(e) {} scheduleCloudSync(); }
+
+// ─── CLOUD SYNC + BACKUP (Phase 0) ───────────────────────────
+// Ledger data now lives in Worker KV (ledger:data) with localStorage as the
+// offline cache. Last-write-wins by ISO timestamp; single-operator model.
+var HQ_WORKER = 'https://frosty-base-f01e.erikagonzalez103.workers.dev';
+var LEDGER_SYNC_KEYS = [
+  'eg_income_v1','eg_expense_v1','eg_dist_v1','eg_actual_v1','eg_forecast_v1',
+  'eridion_bill_schedule_v1','eridion_bills_v1','eridion_bills_cash_v1',
+  'eridion_cashflow_settings_v1'
+];
+var LEDGER_META_KEY = 'eg_ledger_synced_at';
+
+function ledgerSnapshot() {
+  var stores = {};
+  LEDGER_SYNC_KEYS.forEach(function(k){
+    try { var r = localStorage.getItem(k); if (r != null) stores[k] = JSON.parse(r); } catch(e) {}
+  });
+  return stores;
+}
+
+// True if a snapshot contains any real ledger records. Guards both directions
+// of sync so an empty browser can never wipe real data (cloud or local).
+function snapshotHasData(stores) {
+  if (!stores) return false;
+  // Bills are excluded: a brand-new browser auto-generates them from the seed
+  // schedule, so they don't prove the snapshot holds real ledger history.
+  return ['eg_income_v1','eg_expense_v1','eg_dist_v1','eg_forecast_v1'].some(function(k){
+    var v = stores[k]; return Array.isArray(v) && v.length > 0;
+  });
+}
+var _cloudHadData = false;
+
+function setSyncStatus(state, detail) {
+  var el = document.getElementById('sync-badge'); if (!el) return;
+  el.className = 'sync-badge sync-' + state;
+  el.title = detail || '';
+  el.textContent = state === 'ok' ? 'Cloud ✓' : state === 'syncing' ? 'Saving…' : state === 'offline' ? 'Offline — local only' : 'Local only';
+}
+
+var _syncTimer = null, _syncInFlight = false, _syncQueued = false, _syncReady = false, _syncDirty = false;
+
+function scheduleCloudSync() {
+  if (!_syncReady) { _syncDirty = true; return; } // hold pushes until the initial pull has settled
+  clearTimeout(_syncTimer);
+  _syncTimer = setTimeout(pushCloudSync, 1500);
+  setSyncStatus('syncing');
+}
+
+function pushCloudSync() {
+  if (_syncInFlight) { _syncQueued = true; return; }
+  _syncInFlight = true;
+  var payload = { updatedAt: new Date().toISOString(), stores: ledgerSnapshot() };
+  if (_cloudHadData && !snapshotHasData(payload.stores)) {
+    // This browser is empty but the cloud has real data — never push emptiness
+    // over it. (Restore from cloud happens on next load, or via ⬆ Restore.)
+    _syncInFlight = false;
+    setSyncStatus('local', 'This browser has no ledger data; cloud copy left untouched.');
+    return;
+  }
+  fetch(HQ_WORKER + '/ledger/data', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) })
+    .then(function(r){
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      try { localStorage.setItem(LEDGER_META_KEY, payload.updatedAt); } catch(e) {}
+      setSyncStatus('ok', 'Last saved to cloud ' + new Date().toLocaleTimeString());
+    })
+    .catch(function(e){ setSyncStatus('offline', 'Cloud save failed: ' + e.message + ' — data is safe in this browser; it will retry on your next change.'); })
+    .then(function(){
+      _syncInFlight = false;
+      if (_syncQueued) { _syncQueued = false; scheduleCloudSync(); }
+    });
+}
+
+function pullCloudSync() {
+  fetch(HQ_WORKER + '/ledger/data')
+    .then(function(r){
+      if (r.status === 404) return null;          // nothing in the cloud yet
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(data){
+      var localAt = '';
+      try { localAt = localStorage.getItem(LEDGER_META_KEY) || ''; } catch(e) {}
+      _cloudHadData = !!(data && snapshotHasData(data.stores));
+      // Adopt the cloud copy only when it's newer AND won't replace real local
+      // records with an empty snapshot.
+      if (data && data.stores && data.updatedAt && data.updatedAt > localAt &&
+          (_cloudHadData || !snapshotHasData(ledgerSnapshot()))) {
+        // Cloud copy is newer (edited elsewhere, or this browser was wiped) — adopt it.
+        Object.keys(data.stores).forEach(function(k){
+          if (LEDGER_SYNC_KEYS.indexOf(k) === -1) return;
+          try { localStorage.setItem(k, JSON.stringify(data.stores[k])); } catch(e) {}
+        });
+        try { localStorage.setItem(LEDGER_META_KEY, data.updatedAt); } catch(e) {}
+        location.reload(); // re-init everything from the adopted data (no loop: timestamps now equal)
+        return;
+      }
+      // Local is current (or cloud empty) — enable pushes and upload local state.
+      _syncReady = true;
+      setSyncStatus(data ? 'ok' : 'local', data ? 'In sync with cloud' : 'First sync pending');
+      scheduleCloudSync();
+    })
+    .catch(function(e){
+      _syncReady = true; // stay usable offline; pushes will surface the failure
+      setSyncStatus('offline', 'Could not reach cloud: ' + e.message);
+      if (_syncDirty) scheduleCloudSync();
+    });
+}
+
+function exportLedgerBackup() {
+  var payload = { app:'eridion-ledger', version:1, exportedAt:new Date().toISOString(), stores: ledgerSnapshot() };
+  var blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'eridion-ledger-backup-' + todayStr() + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(a.href);
+}
+
+function importLedgerBackup(input) {
+  var f = input.files && input.files[0];
+  input.value = '';
+  if (!f) return;
+  var reader = new FileReader();
+  reader.onload = function() {
+    try {
+      var data = JSON.parse(reader.result);
+      if (!data || data.app !== 'eridion-ledger' || !data.stores) { alert('That file is not an Eridion Ledger backup.'); return; }
+      var inc = (data.stores['eg_income_v1'] || []).length,
+          exp = (data.stores['eg_expense_v1'] || []).length,
+          fct = (data.stores['eg_forecast_v1'] || []).length;
+      if (!confirm('Restore backup from ' + (data.exportedAt || 'unknown date') + '?\n\n' +
+                   inc + ' income entries, ' + exp + ' expenses, ' + fct + ' forecasts.\n\n' +
+                   'This REPLACES the ledger data in this browser and in the cloud.')) return;
+      Object.keys(data.stores).forEach(function(k){
+        if (LEDGER_SYNC_KEYS.indexOf(k) === -1) return;
+        try { localStorage.setItem(k, JSON.stringify(data.stores[k])); } catch(e) {}
+      });
+      try { localStorage.setItem(LEDGER_META_KEY, new Date().toISOString()); } catch(e) {}
+      location.reload();
+    } catch(e) { alert('Could not read backup: ' + e.message); }
+  };
+  reader.readAsText(f);
+}
+
+window.addEventListener('load', pullCloudSync);
 
 // Migrate any old-format forecasts to the new payments[] array shape.
 function migrateForecasts() {
@@ -2111,10 +2261,7 @@ function showTab(name, el) {
   if (name==='bills')      renderBills();
   if (name==='forecast')  { autorollForecasts(); renderForecast(); refreshBuilderDatalist(); }
   if (name==='xero') {
-    if (_xeroPassphrase) {
-      document.getElementById('xero-passphrase-input').value = _xeroPassphrase;
-      checkXeroStatus();
-    }
+    checkXeroStatus();
   }
 }
 
@@ -2293,6 +2440,7 @@ function saveCashFlowSettings() {
       threshold: parseFloat(document.getElementById('cf-threshold').value) || 25000,
     }));
   } catch(e) {}
+  scheduleCloudSync();
 }
 
 function onCashFlowInput() { saveCashFlowSettings(); renderCashFlow(); }
@@ -2831,11 +2979,8 @@ renderRecentDist();
 refreshBuilderDatalist();
 renderForecast(); // Forecast is the default active tab
 updateAlert();
-// Auto-connect Xero if passphrase is in session
-if (_xeroPassphrase) {
-  document.getElementById('xero-passphrase-input').value = _xeroPassphrase;
-  checkXeroStatus();
-}
+// Auto-connect Xero via the shared worker (OAuth lives server-side now)
+checkXeroStatus();
 
 
 // =================================================================
@@ -2972,7 +3117,7 @@ function loadBills() {
   renderBills();
 }
 
-function saveBillsRaw() { try { localStorage.setItem(BILLS_KEY, JSON.stringify(bills)); } catch(e) {} }
+function saveBillsRaw() { try { localStorage.setItem(BILLS_KEY, JSON.stringify(bills)); } catch(e) {} scheduleCloudSync(); }
 function saveCash() {
   try {
     localStorage.setItem(BILLS_CASH_KEY, JSON.stringify({
@@ -2980,6 +3125,7 @@ function saveCash() {
       receipts: parseFloat(document.getElementById('bills-expected-receipts').value) || 0,
     }));
   } catch(e) {}
+  scheduleCloudSync();
 }
 
 function generateBillsForWeek(year, month, weekNum) {
