@@ -324,6 +324,25 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
 </head>
 <body>
 
+<!-- ═══ ERIDION HQ NAV (Phase 1 shell — same strip on every Eridion app) ═══ -->
+<style>
+.hq-nav{background:#0D1B2A;border-bottom:1px solid rgba(255,255,255,.1);padding:0 1.5rem;display:flex;align-items:center;height:40px;gap:2px;overflow-x:auto;font-family:'DM Sans',system-ui,sans-serif;}
+.hq-nav-brand{font-size:11px;font-weight:700;letter-spacing:2px;color:#C8963E;margin-right:12px;white-space:nowrap;}
+.hq-nav-link{font-size:12px;font-weight:500;padding:5px 14px;border-radius:6px;color:rgba(255,255,255,.45);text-decoration:none;transition:all .2s;white-space:nowrap;}
+.hq-nav-link:hover{color:rgba(255,255,255,.8);background:rgba(255,255,255,.07);}
+.hq-nav-link.active{color:#fff;background:rgba(255,255,255,.13);}
+</style>
+<nav class="hq-nav">
+  <span class="hq-nav-brand">ERIDION HQ</span>
+  <a class="hq-nav-link" href="https://erikagonzalez103-hash.github.io/morning-brief/">☀ Today</a>
+  <a class="hq-nav-link" href="https://erikagonzalez103-hash.github.io/order-tracker/">💼 Jobs</a>
+  <a class="hq-nav-link active" href="./index.html">💰 Money</a>
+  <a class="hq-nav-link" href="https://erikagonzalez103-hash.github.io/crm/">📈 Grow</a>
+  <a class="hq-nav-link" href="https://erikagonzalez103-hash.github.io/eridion-snapshot/">📊 Snapshot</a>
+  <a class="hq-nav-link" href="https://erikagonzalez103-hash.github.io/morning-brief/processes.html">Processes</a>
+  <a class="hq-nav-link" href="https://erikagonzalez103-hash.github.io/morning-brief/francisco.html">💬 Francisco</a>
+</nav>
+
 <div class="hdr">
   <div class="hdr-left">
     <svg width="30" height="30" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="#3CA83C" stroke-width="2.5"/><polygon points="8,12 26,17 26,21 8,16" fill="#3CA83C"/><polygon points="8,19 22,23 22,27 8,23" fill="#3CA83C"/><polygon points="8,12 10,12 10,23 8,23" fill="#3CA83C"/><polygon points="18,12 26,17 24,20 16,15" fill="#0E1E35"/></svg>
@@ -1715,12 +1734,18 @@ function clearForecastForm() {
   document.getElementById('fc-origin').value = 'planned';
 }
 
+var _regBuilders = null; // shared builder registry (Phase 1)
 function refreshBuilderDatalist() {
   var seen = {};
+  if (_regBuilders) _regBuilders.forEach(function(b){ if (b.name) seen[b.name] = true; });
   forecasts.forEach(function(f){ if (f.builder) seen[f.builder] = true; });
   var dl = document.getElementById('fc-builder-list');
   if (dl) dl.innerHTML = Object.keys(seen).map(function(b){ return '<option value="'+b+'">'; }).join('');
 }
+// Pull the canonical builder list from the shared worker once per load.
+fetch(HQ_WORKER + '/registry/builders').then(function(r){ return r.json(); }).then(function(d){
+  if (d && Array.isArray(d.entries)) { _regBuilders = d.entries; refreshBuilderDatalist(); }
+}).catch(function(){ /* offline — forecast-derived names still work */ });
 
 function deleteForecast(id) {
   if (!confirm('Delete this forecast? (If it was paid, the recorded payment will NOT be deleted.)')) return;
