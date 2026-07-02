@@ -4,19 +4,21 @@ A free, self-contained, single-file HTML lookbook (`index.html`) for showcasing
 Eridion's glazing work to GCs, builders, and architects. No frameworks, no build
 step, no hosting cost.
 
-> **⚠️ Everything in it right now is SAMPLE data.** Every project, number, GC
-> name, quote, and "photo" is a fictional placeholder. Replace all of it with
-> real Eridion projects before publishing anything publicly.
+> **⚠️ Mostly SAMPLE data.** The featured wet-room case study ("The Tile Look,
+> Without the Grout") is real — adapted from the eridionglass.com blog post on
+> colorback glass — but it still needs real photos. Every other project,
+> number, client name, and quote is a fictional placeholder marked `[like
+> this]` or tagged "Sample". Replace before publishing anything publicly.
 
 ## What's inside
 
 - **Hero + stats bar** — headline, positioning line, and four headline numbers.
 - **3 featured case studies** — "Benchmark" style: stat grid (scope, systems,
   GC partner, timeline) + Challenge → Approach → Result narrative + client quote.
-- **Filterable project grid** — 12 sample projects, filter chips by type
-  (Curtain Wall, Storefront, Interior Glazing, Glass Railings, Shower
-  Enclosures, Custom Glass). Tiles open a detail modal; flagship tiles jump to
-  their case study.
+- **Filterable project grid** — 12 projects (1 real, 11 sample), filter chips
+  by Eridion's actual service lines (Colorback Glass, Showers & Wet Rooms,
+  Mirrors, Elevators & Lobbies, Storefronts, Specialty). Tiles open a detail
+  modal; flagship tiles jump to their case study.
 - **Capabilities strip** and a **request-a-quote footer**.
 - Scroll-reveal animation (respects reduced-motion settings), fully responsive.
 
@@ -34,8 +36,9 @@ step, no hosting cost.
    (create an `images/` folder next to `index.html`). For grid tiles, set the
    `photo` field logic aside and swap the `.ph` div in the tile template for an
    `<img>` using a new `img` field.
-4. **Links** — two `https://www.example.com` placeholders (header "Main Site"
-   button and footer "Request a Quote") need your real Wix site URLs.
+4. **Links** — the header "Main Site" button and footer "Discuss Your Project"
+   button currently point at `https://www.eridionglass.com`; point the footer
+   one at your contact page's exact URL.
 5. **Notice bar** — delete the `<div class="notice">` block once real content
    is in.
 
