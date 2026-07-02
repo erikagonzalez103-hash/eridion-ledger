@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<!-- Eridion Glass — Project Lookbook (template with SAMPLE placeholder projects; see lookbook/README.md) -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eridion Glass — Project Lookbook</title>
+<meta name="description" content="Selected glazing work by Eridion Glass, LLC — curtain wall, storefront, interior glazing, railings, and custom glass.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F8F7F4;
+  --card:#FFFFFF;
+  --ink:#10233D;
+  --ink-soft:#44566E;
+  --ink-faint:#7A8899;
+  --hairline:#E4E1D8;
+  --green:#3CA83C;
+  --green-dark:#2E8A2E;
+  --navy:#0E1E35;
+  --serif:'DM Serif Display',Georgia,serif;
+  --sans:'DM Sans',-apple-system,Segoe UI,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);line-height:1.6;}
+img{max-width:100%;}
+a{color:inherit;}
+
+/* ── TEMPLATE NOTICE ─────────────────────────────── */
+.notice{background:#FFF3D6;border-bottom:1px solid #E8D9A8;color:#6B5A1E;font-size:12px;padding:8px 24px;text-align:center;}
+.notice strong{font-weight:600;}
+.notice button{background:none;border:none;color:#6B5A1E;font-weight:600;font-size:12px;cursor:pointer;text-decoration:underline;margin-left:10px;}
+
+/* ── HEADER ──────────────────────────────────────── */
+.hdr{position:sticky;top:0;z-index:50;background:rgba(248,247,244,0.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--hairline);display:flex;align-items:center;justify-content:space-between;padding:16px 5vw;}
+.wordmark{display:flex;flex-direction:column;line-height:1.15;text-decoration:none;}
+.wordmark .name{font-family:var(--serif);font-size:19px;letter-spacing:1px;}
+.wordmark .tag{font-size:9px;letter-spacing:3.5px;text-transform:uppercase;color:var(--green-dark);}
+.hdr nav{display:flex;gap:26px;align-items:center;}
+.hdr nav a{font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;color:var(--ink-soft);transition:color .2s;}
+.hdr nav a:hover{color:var(--green-dark);}
+.hdr nav a.cta{background:var(--navy);color:#fff;padding:9px 18px;border-radius:2px;}
+.hdr nav a.cta:hover{background:var(--green-dark);color:#fff;}
+@media(max-width:720px){.hdr nav a:not(.cta){display:none;}}
+
+/* ── HERO ────────────────────────────────────────── */
+.hero{padding:11vh 5vw 9vh;max-width:1200px;margin:0 auto;}
+.hero .overline{font-size:11px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--green-dark);margin-bottom:22px;}
+.hero h1{font-family:var(--serif);font-size:clamp(38px,6vw,72px);line-height:1.06;font-weight:400;max-width:14ch;}
+.hero p{margin-top:26px;max-width:52ch;font-size:17px;font-weight:300;color:var(--ink-soft);}
+.hero .hero-cta{display:inline-block;margin-top:34px;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--ink);text-decoration:none;border-bottom:2px solid var(--green);padding-bottom:6px;transition:color .2s;}
+.hero .hero-cta:hover{color:var(--green-dark);}
+.hero-stats{display:flex;gap:0;margin:9vh auto 0;max-width:1200px;border-top:1px solid var(--hairline);}
+.hero-stats .stat{flex:1;padding:26px 18px 4px;border-right:1px solid var(--hairline);}
+.hero-stats .stat:last-child{border-right:none;}
+.hero-stats .num{font-family:var(--serif);font-size:clamp(26px,3.4vw,40px);}
+.hero-stats .lbl{font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--ink-faint);margin-top:2px;}
+@media(max-width:720px){.hero-stats{flex-wrap:wrap;}.hero-stats .stat{flex:1 1 45%;border-right:none;}}
+
+/* ── PLACEHOLDER "PHOTOGRAPHY" ───────────────────── */
+.ph{position:relative;overflow:hidden;background:#1B3350;}
+.ph::before{content:"";position:absolute;inset:0;}
+.ph::after{content:"";position:absolute;top:-30%;bottom:-30%;left:18%;width:26%;transform:skewX(-18deg);background:linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.14) 45%,rgba(255,255,255,.02) 100%);}
+.ph .ph-tag{position:absolute;right:10px;bottom:10px;z-index:2;font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.85);background:rgba(14,30,53,.55);padding:4px 9px;border-radius:2px;backdrop-filter:blur(2px);}
+.ph-a::before{background:linear-gradient(160deg,#28486E 0%,#16293F 55%,#0C1828 100%),0 0;}
+.ph-b::before{background:linear-gradient(150deg,#3E6E82 0%,#1E4152 60%,#122B38 100%);}
+.ph-c::before{background:linear-gradient(155deg,#8FA8B8 0%,#54718A 50%,#2C4258 100%);}
+.ph-d::before{background:linear-gradient(160deg,#B99B6B 0%,#6E6046 55%,#33405C 100%);}
+.ph-e::before{background:linear-gradient(150deg,#4E7E5E 0%,#2C5140 60%,#15342C 100%);}
+.ph-f::before{background:linear-gradient(160deg,#5E5E80 0%,#333F5E 55%,#161F33 100%);}
+.ph .mullions{position:absolute;inset:0;background:
+  repeating-linear-gradient(90deg,rgba(10,20,35,.55) 0 2px,transparent 2px 25%),
+  repeating-linear-gradient(0deg,rgba(10,20,35,.4) 0 2px,transparent 2px 33.4%);}
+
+/* ── SECTION SHELL ───────────────────────────────── */
+.section{max-width:1200px;margin:0 auto;padding:8vh 5vw;}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:20px;border-bottom:1px solid var(--hairline);padding-bottom:18px;margin-bottom:44px;}
+.sec-head h2{font-family:var(--serif);font-size:clamp(26px,3.4vw,38px);font-weight:400;}
+.sec-head .kicker{font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--green-dark);}
+
+/* ── FEATURED CASE STUDIES ───────────────────────── */
+.case{display:grid;grid-template-columns:1.15fr .85fr;gap:0;margin-bottom:9vh;background:var(--card);border:1px solid var(--hairline);}
+.case:nth-of-type(even){grid-template-columns:.85fr 1.15fr;}
+.case:nth-of-type(even) .case-media{order:2;}
+.case-media{min-height:420px;}
+.case-body{padding:46px 44px;display:flex;flex-direction:column;}
+.case-body .overline{font-size:10px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--green-dark);}
+.case-body h3{font-family:var(--serif);font-size:clamp(24px,2.6vw,32px);font-weight:400;margin:10px 0 2px;}
+.case-body .loc{font-size:13px;color:var(--ink-faint);margin-bottom:22px;}
+.case-facts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--hairline);border:1px solid var(--hairline);margin-bottom:24px;}
+.case-facts div{background:var(--card);padding:10px 14px;}
+.case-facts .k{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--ink-faint);}
+.case-facts .v{font-size:13px;font-weight:500;margin-top:1px;}
+.case-story p{font-size:13.5px;color:var(--ink-soft);margin-bottom:12px;}
+.case-story strong{display:block;font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--ink);margin-bottom:3px;}
+.case-quote{margin-top:auto;padding-top:20px;border-top:1px solid var(--hairline);}
+.case-quote p{font-family:var(--serif);font-size:16px;line-height:1.45;}
+.case-quote .who{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-faint);margin-top:8px;}
+@media(max-width:860px){.case,.case:nth-of-type(even){grid-template-columns:1fr;}.case:nth-of-type(even) .case-media{order:0;}.case-media{min-height:260px;}.case-body{padding:30px 24px;}}
+
+/* ── FILTER + GRID ───────────────────────────────── */
+.filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:36px;}
+.chip{font-family:inherit;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;background:transparent;border:1px solid var(--hairline);border-radius:20px;color:var(--ink-soft);padding:8px 18px;cursor:pointer;transition:all .2s;}
+.chip:hover{border-color:var(--green);color:var(--green-dark);}
+.chip.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;}
+@media(max-width:960px){.grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.grid{grid-template-columns:1fr;}}
+.tile{background:var(--card);border:1px solid var(--hairline);cursor:pointer;transition:transform .25s,box-shadow .25s;display:flex;flex-direction:column;text-align:left;font-family:inherit;padding:0;}
+.tile:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(16,35,61,.10);}
+.tile .ph{height:200px;}
+.tile-body{padding:16px 18px 18px;}
+.tile-body .type{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--green-dark);}
+.tile-body h4{font-family:var(--serif);font-size:19px;font-weight:400;margin:5px 0 2px;color:var(--ink);}
+.tile-body .meta{font-size:12px;color:var(--ink-faint);}
+.tile-body .scope{font-size:12.5px;color:var(--ink-soft);margin-top:8px;}
+.tile.hidden{display:none;}
+
+/* ── CAPABILITIES STRIP ──────────────────────────── */
+.caps{background:var(--navy);color:#EDF1F5;}
+.caps .section{padding:9vh 5vw;}
+.caps h2{font-family:var(--serif);font-size:clamp(24px,3vw,34px);font-weight:400;max-width:24ch;}
+.caps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.12);margin-top:40px;}
+.caps-grid div{background:var(--navy);padding:22px 22px 24px;}
+.caps-grid .c-name{font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#7DD87D;}
+.caps-grid p{font-size:13px;color:#9BAFC0;margin-top:8px;font-weight:300;}
+@media(max-width:860px){.caps-grid{grid-template-columns:1fr;}}
+
+/* ── FOOTER CTA ──────────────────────────────────── */
+.foot{max-width:1200px;margin:0 auto;padding:10vh 5vw 8vh;text-align:center;}
+.foot h2{font-family:var(--serif);font-size:clamp(28px,4vw,48px);font-weight:400;}
+.foot p{color:var(--ink-soft);margin:18px auto 0;max-width:46ch;font-weight:300;}
+.foot .btn{display:inline-block;margin-top:32px;background:var(--navy);color:#fff;text-decoration:none;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:15px 34px;border-radius:2px;transition:background .2s;}
+.foot .btn:hover{background:var(--green-dark);}
+.foot .fine{margin-top:60px;padding-top:24px;border-top:1px solid var(--hairline);font-size:11px;color:var(--ink-faint);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+
+/* ── MODAL ───────────────────────────────────────── */
+.modal-back{position:fixed;inset:0;z-index:100;background:rgba(14,30,53,.55);display:none;align-items:center;justify-content:center;padding:5vw;}
+.modal-back.open{display:flex;}
+.modal{background:var(--card);max-width:640px;width:100%;max-height:86vh;overflow-y:auto;border:1px solid var(--hairline);}
+.modal .ph{height:240px;}
+.modal-body{padding:30px 32px 34px;}
+.modal-body .type{font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--green-dark);}
+.modal-body h3{font-family:var(--serif);font-size:26px;font-weight:400;margin:6px 0 0;}
+.modal-body .loc{font-size:13px;color:var(--ink-faint);margin-bottom:20px;}
+.modal-body .desc{font-size:14px;color:var(--ink-soft);margin-top:18px;}
+.modal-close{position:sticky;top:0;float:right;margin:12px;background:var(--navy);color:#fff;border:none;width:32px;height:32px;border-radius:50%;font-size:15px;cursor:pointer;z-index:2;}
+
+/* ── REVEAL ANIMATION ────────────────────────────── */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease;}
+.rv.in{opacity:1;transform:none;}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto;}.rv{opacity:1;transform:none;transition:none;}}
+</style>
+</head>
+<body>
+
+<div class="notice" id="notice">
+  <strong>Template preview.</strong> All projects below are sample data — replace with real Eridion projects and photography before publishing.
+  <button onclick="document.getElementById('notice').style.display='none'">Dismiss</button>
+</div>
+
+<header class="hdr">
+  <a class="wordmark" href="#top">
+    <span class="name">ERIDION GLASS</span>
+    <span class="tag">Project Lookbook</span>
+  </a>
+  <nav>
+    <a href="#featured">Case Studies</a>
+    <a href="#portfolio">All Projects</a>
+    <a href="#capabilities">Capabilities</a>
+    <a class="cta" href="https://www.example.com" title="Replace with your main Wix site URL">Main Site</a>
+  </nav>
+</header>
+
+<section class="hero" id="top">
+  <div class="overline rv">Commercial &amp; Residential Glazing · Licensed &amp; Insured</div>
+  <h1 class="rv">Glass work that holds up to the drawings.</h1>
+  <p class="rv">Eridion Glass, LLC is a full-service glazing subcontractor. From curtain wall and storefront to interior glazing, railings, and custom glass, we deliver on spec, on schedule, and to the millimeter — a selection of that work follows.</p>
+  <a class="hero-cta rv" href="#featured">View selected projects ↓</a>
+</section>
+<div class="hero-stats rv">
+  <div class="stat"><div class="num">120+</div><div class="lbl">Projects Completed</div></div>
+  <div class="stat"><div class="num">450k</div><div class="lbl">Sq Ft of Glass Installed</div></div>
+  <div class="stat"><div class="num">30+</div><div class="lbl">GC &amp; Builder Partners</div></div>
+  <div class="stat"><div class="num">0</div><div class="lbl">Lost-Time Incidents</div></div>
+</div>
+
+<!-- ═══ FEATURED CASE STUDIES ═══ -->
+<section class="section" id="featured">
+  <div class="sec-head rv">
+    <h2>Featured case studies</h2>
+    <span class="kicker">Selected Work</span>
+  </div>
+
+  <article class="case rv" id="case-meridian">
+    <div class="case-media ph ph-a"><div class="mullions"></div><span class="ph-tag">Sample image — replace</span></div>
+    <div class="case-body">
+      <div class="overline">Class A Office · Curtain Wall</div>
+      <h3>Meridian Tower</h3>
+      <div class="loc">Downtown — City, ST</div>
+      <div class="case-facts">
+        <div><div class="k">Scope</div><div class="v">68,000 sq ft unitized curtain wall</div></div>
+        <div><div class="k">Systems</div><div class="v">Unitized CW · low-E IGUs · shadow boxes</div></div>
+        <div><div class="k">GC Partner</div><div class="v">[GC Name]</div></div>
+        <div><div class="k">Timeline</div><div class="v">11 months · on schedule</div></div>
+      </div>
+      <div class="case-story">
+        <p><strong>Challenge</strong>Fourteen stories on a zero-lot-line downtown site with a single crane pick zone and a hard weather-tight deadline ahead of interior trades.</p>
+        <p><strong>Approach</strong>Pre-glazed unitized panels sequenced floor-by-floor with just-in-time delivery, eliminating on-site glazing at height and cutting hoisting time per panel.</p>
+        <p><strong>Result</strong>Weather-tight two weeks early; zero panel rejections at water testing.</p>
+      </div>
+      <div class="case-quote">
+        <p>“Eridion's sequencing kept our critical path intact. They were the sub we never had to chase.”</p>
+        <div class="who">Project Executive, [GC Name]</div>
+      </div>
+    </div>
+  </article>
+
+  <article class="case rv" id="case-harborview">
+    <div class="case-media ph ph-c"><div class="mullions"></div><span class="ph-tag">Sample image — replace</span></div>
+    <div class="case-body">
+      <div class="overline">Healthcare · Interior Glazing</div>
+      <h3>Harborview Medical Pavilion</h3>
+      <div class="loc">Medical District — City, ST</div>
+      <div class="case-facts">
+        <div><div class="k">Scope</div><div class="v">24,000 sq ft interior fit-out</div></div>
+        <div><div class="k">Systems</div><div class="v">62 exam rooms · glass partitions · privacy film</div></div>
+        <div><div class="k">GC Partner</div><div class="v">[GC Name]</div></div>
+        <div><div class="k">Timeline</div><div class="v">6 months · phased occupancy</div></div>
+      </div>
+      <div class="case-story">
+        <p><strong>Challenge</strong>Acoustic and privacy requirements for exam rooms, installed in phases while adjacent wings remained in active clinical use.</p>
+        <p><strong>Approach</strong>STC-rated glazed partitions with integral privacy interlayers; after-hours installation windows coordinated weekly with facility staff.</p>
+        <p><strong>Result</strong>All 62 rooms passed acoustic commissioning on first test; zero clinical-day disruptions logged.</p>
+      </div>
+      <div class="case-quote">
+        <p>“The install crews treated an operating clinic with the care it required. Flawless coordination.”</p>
+        <div class="who">Director of Facilities, [Client Name]</div>
+      </div>
+    </div>
+  </article>
+
+  <article class="case rv" id="case-foundry">
+    <div class="case-media ph ph-d"><div class="mullions"></div><span class="ph-tag">Sample image — replace</span></div>
+    <div class="case-body">
+      <div class="overline">Multifamily · Railings &amp; Enclosures</div>
+      <h3>The Foundry Residences</h3>
+      <div class="loc">Riverfront — City, ST</div>
+      <div class="case-facts">
+        <div><div class="k">Scope</div><div class="v">120 units + rooftop amenity deck</div></div>
+        <div><div class="k">Systems</div><div class="v">Frameless showers · laminated glass railings</div></div>
+        <div><div class="k">GC Partner</div><div class="v">[Builder Name]</div></div>
+        <div><div class="k">Timeline</div><div class="v">9 months · rolling turnover</div></div>
+      </div>
+      <div class="case-story">
+        <p><strong>Challenge</strong>120 identical-on-paper units that were anything but identical in the field, plus a wind-exposed rooftop railing run requiring engineered laminated glass.</p>
+        <p><strong>Approach</strong>Unit-by-unit field measurement with digital templating; railing glass engineered, stamped, and mocked up for GC approval before fabrication.</p>
+        <p><strong>Result</strong>Turnover schedule met across all phases; punch-list glass items under 1% of units.</p>
+      </div>
+      <div class="case-quote">
+        <p>“Measured twice, installed once — across 120 units. That's rare.”</p>
+        <div class="who">Superintendent, [Builder Name]</div>
+      </div>
+    </div>
+  </article>
+</section>
+
+<!-- ═══ FULL PORTFOLIO GRID ═══ -->
+<section class="section" id="portfolio">
+  <div class="sec-head rv">
+    <h2>All projects</h2>
+    <span class="kicker">Filter by type</span>
+  </div>
+  <div class="filters rv" id="filters"></div>
+  <div class="grid" id="grid"></div>
+</section>
+
+<!-- ═══ CAPABILITIES ═══ -->
+<div class="caps" id="capabilities">
+  <section class="section">
+    <div class="kicker rv" style="color:#7DD87D;font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;">Capabilities</div>
+    <h2 class="rv" style="margin-top:14px;">Design consultation through fabrication and installation.</h2>
+    <div class="caps-grid rv">
+      <div><div class="c-name">Curtain Wall</div><p>Unitized and stick-built systems, re-clads, shadow boxes, and spandrel glazing for mid- and high-rise construction.</p></div>
+      <div><div class="c-name">Storefront &amp; Entrances</div><p>Aluminum storefront framing, all-glass entrances, automatic and touchless entry systems.</p></div>
+      <div><div class="c-name">Interior Glazing</div><p>Glazed office fronts, conference rooms, demountable partitions, and acoustic-rated assemblies.</p></div>
+      <div><div class="c-name">Glass Railings</div><p>Engineered laminated glass guardrails and windscreens for balconies, stairs, and amenity decks.</p></div>
+      <div><div class="c-name">Shower Enclosures</div><p>Frameless and semi-frameless enclosures, field-measured and templated per unit.</p></div>
+      <div><div class="c-name">Custom &amp; Specialty</div><p>Mirrors, back-painted glass, smart/switchable glass, and replacement glazing.</p></div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══ FOOTER CTA ═══ -->
+<footer class="foot">
+  <h2 class="rv">Have a project in mind?</h2>
+  <p class="rv">We bid promptly and build reliably. Send drawings for a quote, or ask us for a constructability review before your glazing package goes out.</p>
+  <a class="btn rv" href="https://www.example.com/contact" title="Replace with your contact page URL">Request a Quote</a>
+  <div class="fine">
+    <span>© Eridion Glass, LLC · Licensed &amp; Insured</span>
+    <span>Curtain Wall · Storefront · Interior Glazing · Railings · Custom Glass</span>
+  </div>
+</footer>
+
+<!-- ═══ PROJECT MODAL ═══ -->
+<div class="modal-back" id="modalBack">
+  <div class="modal" role="dialog" aria-modal="true">
+    <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+    <div class="ph" id="modalPh"><div class="mullions"></div><span class="ph-tag">Sample image — replace</span></div>
+    <div class="modal-body">
+      <div class="type" id="modalType"></div>
+      <h3 id="modalTitle"></h3>
+      <div class="loc" id="modalLoc"></div>
+      <div class="case-facts" id="modalFacts"></div>
+      <div class="desc" id="modalDesc"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   PROJECT DATA — edit this array to update the lookbook.
+   Every project below is SAMPLE DATA. Replace with real Eridion
+   projects. Fields:
+     name, type (must match a FILTER value), sector, location,
+     scope (one quantified line), systems, gc, timeline, desc,
+     photo (ph-a … ph-f placeholder style — swap for real
+     images by replacing the .ph divs with <img> tags),
+     caseId (optional — links tile to a featured case study)
+   ══════════════════════════════════════════════════════════════ */
+const FILTERS = ["All","Curtain Wall","Storefront","Interior Glazing","Glass Railings","Shower Enclosures","Custom Glass"];
+
+const PROJECTS = [
+  {name:"Meridian Tower", type:"Curtain Wall", sector:"Class A Office", location:"City, ST",
+   scope:"68,000 sq ft unitized curtain wall, 14 stories", systems:"Unitized CW · low-E IGUs · shadow boxes",
+   gc:"[GC Name]", timeline:"11 months", photo:"ph-a", caseId:"case-meridian",
+   desc:"Full-height unitized curtain wall for a 14-story office tower on a zero-lot-line site."},
+  {name:"Harborview Medical Pavilion", type:"Interior Glazing", sector:"Healthcare", location:"City, ST",
+   scope:"24,000 sq ft interior fit-out · 62 exam rooms", systems:"Acoustic partitions · privacy interlayers",
+   gc:"[GC Name]", timeline:"6 months", photo:"ph-c", caseId:"case-harborview",
+   desc:"Phased interior glazing package for an operating medical clinic, acoustic-commissioned on first test."},
+  {name:"The Foundry Residences", type:"Shower Enclosures", sector:"Multifamily", location:"City, ST",
+   scope:"120 units + rooftop amenity deck", systems:"Frameless showers · laminated railings",
+   gc:"[Builder Name]", timeline:"9 months", photo:"ph-d", caseId:"case-foundry",
+   desc:"Unit glass package across 120 residences with engineered rooftop glass railings."},
+  {name:"First Meridian Bank — Branch Rollout", type:"Storefront", sector:"Retail Banking", location:"3 locations, ST",
+   scope:"3 branches · 4,800 sq ft total storefront", systems:"Aluminum storefront · all-glass entrances",
+   gc:"[GC Name]", timeline:"4 months", photo:"ph-b",
+   desc:"Repeatable storefront and entrance package delivered across three branch renovations on a shared schedule."},
+  {name:"Lakeside STEM Academy", type:"Interior Glazing", sector:"Education", location:"City, ST",
+   scope:"9,500 sq ft of glazed classroom fronts", systems:"Impact-rated interior storefront",
+   gc:"[GC Name]", timeline:"Summer break — 10 weeks", photo:"ph-e",
+   desc:"Classroom and corridor glazing installed entirely within a summer-break window."},
+  {name:"Vetro Ristorante", type:"Storefront", sector:"Restaurant", location:"City, ST",
+   scope:"1,900 sq ft storefront + operable wall", systems:"Folding glass wall · custom entrance",
+   gc:"[GC Name]", timeline:"7 weeks", photo:"ph-d",
+   desc:"Operable folding glass wall opening the dining room to the street, with a custom pivot entrance."},
+  {name:"Summit Fitness Collective", type:"Custom Glass", sector:"Fitness", location:"City, ST",
+   scope:"2,600 sq ft of wall mirrors", systems:"Polished-edge mirror · standoff mounting",
+   gc:"Direct to owner", timeline:"3 weeks", photo:"ph-f",
+   desc:"Full-height studio mirror package with concealed standoff mounting and beveled sightlines."},
+  {name:"The Wren Boutique Hotel", type:"Shower Enclosures", sector:"Hospitality", location:"City, ST",
+   scope:"78 guest baths", systems:"Frameless enclosures · low-iron glass",
+   gc:"[GC Name]", timeline:"5 months", photo:"ph-c",
+   desc:"Low-iron frameless enclosures templated per room across four guest floors."},
+  {name:"Beacon Rooftop Amenity", type:"Glass Railings", sector:"Multifamily", location:"City, ST",
+   scope:"340 linear ft of guardrail + windscreen", systems:"Laminated SGP glass · base shoe",
+   gc:"[GC Name]", timeline:"6 weeks", photo:"ph-a",
+   desc:"Engineered wind-exposed rooftop guardrail run with stamped calcs and GC-approved mockup."},
+  {name:"Northgate Corporate Lobby", type:"Storefront", sector:"Class A Office", location:"City, ST",
+   scope:"Two-story lobby entrance re-clad", systems:"All-glass entrance · touchless operators",
+   gc:"[GC Name]", timeline:"8 weeks · occupied building", photo:"ph-f",
+   desc:"Entrance modernization in a fully occupied tower, sequenced for zero lobby downtime."},
+  {name:"Juniper & Main Offices", type:"Interior Glazing", sector:"Workplace", location:"City, ST",
+   scope:"14,000 sq ft fit-out · 31 offices + 6 conference rooms", systems:"Demountable fronts · smart glass boardroom",
+   gc:"[GC Name]", timeline:"4 months", photo:"ph-b",
+   desc:"Glazed office fronts with a switchable smart-glass boardroom feature wall."},
+  {name:"Crestline Custom Residence", type:"Glass Railings", sector:"Custom Residential", location:"City, ST",
+   scope:"Stair + balcony rail, 3 levels", systems:"Frameless laminated rail · custom hardware",
+   gc:"[Builder Name]", timeline:"5 weeks", photo:"ph-e",
+   desc:"Three-story frameless stair and balcony railing with fully concealed fastening."}
+];
+
+/* ── Filters ── */
+const filtersEl = document.getElementById("filters");
+const gridEl = document.getElementById("grid");
+let active = "All";
+
+FILTERS.forEach(f => {
+  const b = document.createElement("button");
+  b.className = "chip" + (f === "All" ? " active" : "");
+  b.textContent = f;
+  b.onclick = () => {
+    active = f;
+    document.querySelectorAll(".chip").forEach(c => c.classList.toggle("active", c.textContent === f));
+    render();
+  };
+  filtersEl.appendChild(b);
+});
+
+/* ── Grid ── */
+function render(){
+  gridEl.innerHTML = "";
+  PROJECTS.filter(p => active === "All" || p.type === active).forEach((p, i) => {
+    const t = document.createElement("button");
+    t.className = "tile rv";
+    t.innerHTML =
+      '<div class="ph ' + p.photo + '"><div class="mullions"></div><span class="ph-tag">Sample</span></div>' +
+      '<div class="tile-body">' +
+        '<div class="type">' + p.type + ' · ' + p.sector + '</div>' +
+        '<h4>' + p.name + '</h4>' +
+        '<div class="meta">' + p.location + '</div>' +
+        '<div class="scope">' + p.scope + '</div>' +
+      '</div>';
+    t.onclick = () => p.caseId ? document.getElementById(p.caseId).scrollIntoView({behavior:"smooth"}) : openModal(p);
+    gridEl.appendChild(t);
+    requestAnimationFrame(() => setTimeout(() => t.classList.add("in"), 40 * i));
+  });
+}
+render();
+
+/* ── Modal ── */
+const back = document.getElementById("modalBack");
+function openModal(p){
+  document.getElementById("modalPh").className = "ph " + p.photo;
+  document.getElementById("modalType").textContent = p.type + " · " + p.sector;
+  document.getElementById("modalTitle").textContent = p.name;
+  document.getElementById("modalLoc").textContent = p.location;
+  document.getElementById("modalFacts").innerHTML =
+    '<div><div class="k">Scope</div><div class="v">' + p.scope + '</div></div>' +
+    '<div><div class="k">Systems</div><div class="v">' + p.systems + '</div></div>' +
+    '<div><div class="k">GC / Client</div><div class="v">' + p.gc + '</div></div>' +
+    '<div><div class="k">Timeline</div><div class="v">' + p.timeline + '</div></div>';
+  document.getElementById("modalDesc").textContent = p.desc;
+  back.classList.add("open");
+}
+document.getElementById("modalClose").onclick = () => back.classList.remove("open");
+back.onclick = e => { if (e.target === back) back.classList.remove("open"); };
+document.addEventListener("keydown", e => { if (e.key === "Escape") back.classList.remove("open"); });
+
+/* ── Scroll reveal ── */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
+}, {threshold: 0.12});
+document.querySelectorAll(".rv").forEach(el => io.observe(el));
+</script>
+</body>
+</html>
