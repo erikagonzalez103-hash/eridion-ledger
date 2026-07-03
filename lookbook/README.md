@@ -30,12 +30,19 @@ step, no hosting cost.
    Keep the numbers specific ("24,000 sq ft · 62 exam rooms" wins more work
    than "large medical project").
 2. **Featured case studies** — edit the three `<article class="case">` blocks.
-3. **Photos** — the gradient placeholders are `<div class="ph ph-a">…</div>`
-   elements. Replace each with a real image:
-   `<img src="images/meridian-tower.jpg" alt="Meridian Tower curtain wall">`
-   (create an `images/` folder next to `index.html`). For grid tiles, set the
-   `photo` field logic aside and swap the `.ph` div in the tile template for an
-   `<img>` using a new `img` field.
+3. **Photos, carousels, and video** — every project has a `media` array; the
+   page renders it automatically. Each item is one of:
+   - `{img:'images/photo.jpg', alt:'what it shows'}` — a photo
+   - `{video:'images/clip.mp4', poster:'images/cover.jpg'}` — a video player
+   - `{ph:'ph-a', tag:'Sample'}` — a gradient placeholder (delete these as
+     real media arrives)
+
+   One item fills the area as a single image/video; two or more become a
+   carousel with arrows, dots, and touch swipe. Grid tiles show the first
+   item as a cover (videos show their poster with a ▶ badge); the full
+   carousel/player appears in featured case studies and the project modal.
+   Put the files in `images/` next to `index.html`. Keep videos short
+   (10–30 s walkthroughs) and compressed (H.264 MP4, ~720p is plenty).
 4. **Links** — the header "Main Site" button and footer "Discuss Your Project"
    button currently point at `https://www.eridionglass.com`; point the footer
    one at your contact page's exact URL.

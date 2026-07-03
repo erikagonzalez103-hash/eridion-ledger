@@ -85,6 +85,31 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-stretch:125%;font-weight:700;colo
   repeating-linear-gradient(90deg,rgba(10,20,35,.55) 0 2px,transparent 2px 25%),
   repeating-linear-gradient(0deg,rgba(10,20,35,.4) 0 2px,transparent 2px 33.4%);}
 
+/* ── MEDIA: single / carousel / video ────────────── */
+.media{position:relative;overflow:hidden;}
+.case-media.media > .car{position:absolute;inset:0;}
+.case-media{position:relative;}
+.car{position:relative;overflow:hidden;height:100%;}
+.car-track{display:flex;height:100%;transition:transform .45s ease;}
+.car-slide{flex:0 0 100%;position:relative;overflow:hidden;}
+.car-slide .ph,.media-cover .ph{position:absolute;inset:0;}
+.car-slide img,.car-slide video,.media-cover img{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0;}
+.car-slide video{background:#0E2741;}
+.car-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:36px;height:36px;border:none;background:rgba(21,56,98,.85);color:#fff;font-size:15px;cursor:pointer;line-height:1;transition:background .2s;}
+.car-btn:hover{background:var(--deep-navy);}
+.car-btn:focus-visible{outline:2px solid var(--green);}
+.car-prev{left:0;}
+.car-next{right:0;}
+.car-dots{position:absolute;left:0;right:0;bottom:10px;display:flex;justify-content:center;gap:6px;z-index:3;}
+.car-dot{width:9px;height:9px;border:none;background:rgba(255,255,255,.5);cursor:pointer;padding:0;}
+.car-dot.on{background:var(--green);}
+.car-count{position:absolute;left:10px;bottom:10px;z-index:3;font-size:10px;font-weight:600;letter-spacing:1px;color:rgba(255,255,255,.9);background:rgba(14,39,65,.6);padding:3px 8px;}
+.media-cover{position:relative;height:200px;overflow:hidden;}
+.play-badge{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;}
+.play-badge span{width:44px;height:44px;background:rgba(21,56,98,.85);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.modal-media{position:relative;height:260px;}
+@media(prefers-reduced-motion:reduce){.car-track{transition:none;}}
+
 /* ── SECTION SHELL ───────────────────────────────── */
 .section{max-width:1200px;margin:0 auto;padding:8vh 5vw;}
 .sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:20px;padding-bottom:18px;margin-bottom:44px;border-bottom:1px solid var(--divider);}
@@ -212,7 +237,7 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-stretch:125%;font-weight:700;colo
   <!-- REAL PROJECT — adapted from the eridionglass.com blog post
        "Why Builders, Designers and Homeowners choose Colorback Glass over Tile" -->
   <article class="case cut rv" id="case-wetroom">
-    <div class="case-media ph ph-b"><div class="mullions"></div><span class="ph-tag">Add project photo</span></div>
+    <div class="case-media media" data-media="case-wetroom"></div>
     <div class="case-body">
       <div class="eyebrow">Luxury Custom Home · Colorback Glass</div>
       <h3>The tile look, without the grout</h3>
@@ -237,7 +262,7 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-stretch:125%;font-weight:700;colo
 
   <!-- SAMPLE — replace with a real Eridion commercial project -->
   <article class="case cut rv" id="case-lobby">
-    <div class="case-media ph ph-f"><div class="mullions"></div><span class="ph-tag">Sample — replace</span></div>
+    <div class="case-media media" data-media="case-lobby"></div>
     <div class="case-body">
       <div class="eyebrow">Commercial · Elevators &amp; Lobbies</div>
       <h3>Tower lobby &amp; elevator cab refresh</h3>
@@ -262,7 +287,7 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-stretch:125%;font-weight:700;colo
 
   <!-- SAMPLE — replace with a real Eridion whole-home project -->
   <article class="case cut rv" id="case-hillcrest">
-    <div class="case-media ph ph-d"><div class="mullions"></div><span class="ph-tag">Sample — replace</span></div>
+    <div class="case-media media" data-media="case-hillcrest"></div>
     <div class="case-body">
       <div class="eyebrow">Custom Residential · Whole-Home Glass Package</div>
       <h3>[Custom residence name]</h3>
@@ -327,7 +352,7 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-stretch:125%;font-weight:700;colo
 <div class="modal-back" id="modalBack">
   <div class="modal" role="dialog" aria-modal="true">
     <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
-    <div class="ph" id="modalPh"><div class="mullions"></div><span class="ph-tag">Sample image — replace</span></div>
+    <div class="modal-media" id="modalPh"></div>
     <div class="modal-body">
       <div class="type" id="modalType"></div>
       <h3 id="modalTitle"></h3>
@@ -342,65 +367,178 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-stretch:125%;font-weight:700;colo
 /* ══════════════════════════════════════════════════════════════
    PROJECT DATA — edit this array to update the lookbook.
    The wet-room entry is REAL (from the eridionglass.com blog);
-   every other project is SAMPLE DATA to replace. Fields:
-     name, type (must match a FILTER value), sector, location,
-     scope (one quantified line), systems, gc, timeline, desc,
-     photo (ph-a … ph-f placeholder style — swap for real
-     images by replacing the .ph divs with <img> tags),
-     caseId (optional — links tile to a featured case study)
+   every other project is SAMPLE DATA to replace.
+
+   MEDIA — every project has a `media` array. Each item is one of:
+     {img:'images/photo.jpg', alt:'what the photo shows'}   → photo
+     {video:'images/clip.mp4', poster:'images/cover.jpg'}   → video player
+     {ph:'ph-a', tag:'Sample'}                               → gradient placeholder
+   One item  → a single image/video fills the area.
+   Two+ items → an automatic carousel with arrows, dots, and swipe.
+   Mix freely, e.g. a real project might use:
+     media: [
+       {img:'images/wetroom-1.jpg', alt:'Colorback wet room, finished'},
+       {video:'images/wetroom-walkthrough.mp4', poster:'images/wetroom-1.jpg'},
+       {img:'images/wetroom-detail.jpg', alt:'Panel joint detail'}
+     ]
+   Grid tiles show the FIRST item as a cover (videos show their
+   poster with a play badge); the full carousel appears in the
+   featured case studies and the project modal.
+
+   Other fields: name, type (must match a FILTER value), sector,
+   location, scope (one quantified line), systems, gc, timeline,
+   desc, caseId (optional — links tile to a featured case study).
    ══════════════════════════════════════════════════════════════ */
 const FILTERS = ["All","Colorback Glass","Showers & Wet Rooms","Mirrors","Elevators & Lobbies","Storefronts","Specialty"];
 
 const PROJECTS = [
   {name:"The Tile Look, Without the Grout", type:"Colorback Glass", sector:"Luxury Custom Home", location:"DFW Metroplex, TX",
    scope:"Primary suite wet room walls, color-matched to the tile spec", systems:"Tempered colorback glass",
-   gc:"Luxury builder partner", timeline:"1 week, measure to install", photo:"ph-b", caseId:"case-wetroom",
+   gc:"Luxury builder partner", timeline:"1 week, measure to install",
+   media:[{ph:"ph-b", tag:"Add photo 1"},{ph:"ph-c", tag:"Add photo 2"},{ph:"ph-f", tag:"Add photo 3"}],
+   caseId:"case-wetroom",
    desc:"Print-featured wet room: the designer's tile aesthetic delivered in non-porous colorback glass — zero grout, 60–70% less cleaning."},
   {name:"Tower Lobby & Elevator Cab Refresh", type:"Elevators & Lobbies", sector:"Commercial", location:"Dallas, TX",
    scope:"4 elevator cabs + lobby feature wall", systems:"Colorback glass panels, custom color",
-   gc:"[Property manager]", timeline:"1 week, off-hours", photo:"ph-f", caseId:"case-lobby",
+   gc:"[Property manager]", timeline:"1 week, off-hours",
+   media:[{ph:"ph-f", tag:"Sample 1"},{ph:"ph-a", tag:"Sample 2"}],
+   caseId:"case-lobby",
    desc:"Occupied-building refresh installed nights and weekends — sample project, replace with a real one."},
   {name:"[Custom Residence Name]", type:"Specialty", sector:"Custom Residential", location:"City, TX",
    scope:"Steam shower, wine cellar, stair rail, vanity mirrors", systems:"Frameless low-iron · laminated stair glass",
-   gc:"[Builder Name]", timeline:"Phased with construction", photo:"ph-d", caseId:"case-hillcrest",
+   gc:"[Builder Name]", timeline:"Phased with construction",
+   media:[{ph:"ph-d", tag:"Sample"}],
+   caseId:"case-hillcrest",
    desc:"Whole-home glass package — sample project, replace with a real one."},
   {name:"Chef's Kitchen Backsplash", type:"Colorback Glass", sector:"Custom Residential", location:"City, TX",
    scope:"48 sq ft seamless backsplash, single panel runs", systems:"Colorback glass, custom color match",
-   gc:"[Builder Name]", timeline:"1 week from final measure", photo:"ph-e",
+   gc:"[Builder Name]", timeline:"1 week from final measure",
+   media:[{ph:"ph-e", tag:"Sample"}],
    desc:"Groutless, seamless backsplash color-matched to the designer's palette — wipes clean in seconds. Sample project."},
   {name:"Steam Shower Enclosure", type:"Showers & Wet Rooms", sector:"Custom Residential", location:"City, TX",
    scope:"Steam-rated frameless enclosure with transom", systems:"Low-iron tempered glass · steam hardware",
-   gc:"[Builder Name]", timeline:"1 week from final measure", photo:"ph-b",
+   gc:"[Builder Name]", timeline:"1 week from final measure",
+   media:[{ph:"ph-b", tag:"Sample"}],
    desc:"Fully sealed steam enclosure with operable transom and concealed hinging. Sample project."},
   {name:"Boutique Remodel — Frameless Shower", type:"Showers & Wet Rooms", sector:"Kitchen & Bath Remodel", location:"City, TX",
    scope:"Frameless enclosure + custom mirror package", systems:"Low-iron glass · polished-edge mirrors",
-   gc:"Direct to homeowner", timeline:"1 week from final measure", photo:"ph-c",
+   gc:"Direct to homeowner", timeline:"1 week from final measure",
+   media:[{ph:"ph-c", tag:"Sample"}],
    desc:"Remodel-scope shower and mirror package coordinated with the homeowner's contractor. Sample project."},
   {name:"Wine Cellar Glass Enclosure", type:"Specialty", sector:"Custom Residential", location:"City, TX",
    scope:"Climate-rated glass wall + pivot door", systems:"Insulated glass · patch fittings",
-   gc:"[Builder Name]", timeline:"Coordinated with millwork", photo:"ph-a",
+   gc:"[Builder Name]", timeline:"Coordinated with millwork",
+   media:[{ph:"ph-a", tag:"Sample"}],
    desc:"Full-height cellar enclosure holding temperature and humidity spec without visual bulk. Sample project."},
   {name:"Floating Stair Glass Railing", type:"Specialty", sector:"Custom Residential", location:"City, TX",
    scope:"3-level stair + landing rail run", systems:"Laminated glass · concealed base fastening",
-   gc:"[Builder Name]", timeline:"5 weeks incl. engineering", photo:"ph-e",
+   gc:"[Builder Name]", timeline:"5 weeks incl. engineering",
+   media:[{ph:"ph-e", tag:"Sample"}],
    desc:"Frameless laminated railing with fully concealed fastening across three levels. Sample project."},
   {name:"Full-Wall Vanity Mirrors", type:"Mirrors", sector:"Luxury Custom Home", location:"City, TX",
    scope:"6 baths, wall-to-wall mirrors with integrated lighting cutouts", systems:"Polished-edge mirror · precision cutouts",
-   gc:"[Builder Name]", timeline:"2 weeks", photo:"ph-c",
+   gc:"[Builder Name]", timeline:"2 weeks",
+   media:[{ph:"ph-c", tag:"Sample"}],
    desc:"Wall-to-wall vanity mirrors with precision cutouts for sconces and outlets. Sample project."},
   {name:"Home Gym Mirror Wall", type:"Mirrors", sector:"Custom Residential", location:"City, TX",
    scope:"320 sq ft of seamed mirror wall", systems:"Safety-backed mirror · flush seams",
-   gc:"Direct to homeowner", timeline:"1 week", photo:"ph-f",
+   gc:"Direct to homeowner", timeline:"1 week",
+   media:[{ph:"ph-f", tag:"Sample"}],
    desc:"Studio-quality mirror wall with near-invisible seams and safety backing. Sample project."},
   {name:"[Retail Storefront]", type:"Storefronts", sector:"Commercial", location:"City, TX",
    scope:"Storefront framing + all-glass entrance", systems:"Aluminum storefront · tempered entrance",
-   gc:"[GC Name]", timeline:"6 weeks", photo:"ph-a",
+   gc:"[GC Name]", timeline:"6 weeks",
+   media:[{ph:"ph-a", tag:"Sample"}],
    desc:"Commercial storefront and entrance package — sample project, replace with a real one."},
   {name:"[Office Suite Glass Package]", type:"Storefronts", sector:"Commercial", location:"City, TX",
    scope:"Glazed office fronts + conference wall", systems:"Interior storefront · glass partitions",
-   gc:"[GC Name]", timeline:"4 weeks", photo:"ph-d",
+   gc:"[GC Name]", timeline:"4 weeks",
+   media:[{ph:"ph-d", tag:"Sample"}],
    desc:"Interior commercial glazing package — sample project, replace with a real one."}
 ];
+
+/* ── Media rendering: single image/video, or carousel when 2+ ── */
+function mediaNode(m){
+  if (m.video){
+    const v = document.createElement("video");
+    v.src = m.video; v.controls = true; v.preload = "metadata"; v.playsInline = true;
+    if (m.poster) v.poster = m.poster;
+    return v;
+  }
+  if (m.img){
+    const i = document.createElement("img");
+    i.src = m.img; i.alt = m.alt || ""; i.loading = "lazy";
+    return i;
+  }
+  const d = document.createElement("div");
+  d.className = "ph " + (m.ph || "ph-a");
+  d.innerHTML = '<div class="mullions"></div><span class="ph-tag">' + (m.tag || "Sample") + "</span>";
+  return d;
+}
+
+function renderMedia(container, media){
+  container.innerHTML = "";
+  if (!media || !media.length) media = [{ph:"ph-a"}];
+  const car = document.createElement("div");
+  car.className = "car";
+  const track = document.createElement("div");
+  track.className = "car-track";
+  media.forEach(m => {
+    const slide = document.createElement("div");
+    slide.className = "car-slide";
+    slide.appendChild(mediaNode(m));
+    track.appendChild(slide);
+  });
+  car.appendChild(track);
+
+  if (media.length > 1){
+    let idx = 0;
+    const dots = [];
+    const go = n => {
+      idx = (n + media.length) % media.length;
+      track.style.transform = "translateX(-" + (idx * 100) + "%)";
+      dots.forEach((d, i) => d.classList.toggle("on", i === idx));
+      track.querySelectorAll("video").forEach(v => v.pause());
+    };
+    const mkBtn = (cls, glyph, label, step) => {
+      const b = document.createElement("button");
+      b.className = "car-btn " + cls;
+      b.textContent = glyph;
+      b.setAttribute("aria-label", label);
+      b.onclick = e => { e.stopPropagation(); go(idx + step); };
+      car.appendChild(b);
+    };
+    mkBtn("car-prev", "‹", "Previous image", -1);
+    mkBtn("car-next", "›", "Next image", 1);
+    const dotWrap = document.createElement("div");
+    dotWrap.className = "car-dots";
+    media.forEach((_, i) => {
+      const d = document.createElement("button");
+      d.className = "car-dot" + (i === 0 ? " on" : "");
+      d.setAttribute("aria-label", "Image " + (i + 1) + " of " + media.length);
+      d.onclick = e => { e.stopPropagation(); go(i); };
+      dots.push(d);
+      dotWrap.appendChild(d);
+    });
+    car.appendChild(dotWrap);
+    /* touch swipe */
+    let x0 = null;
+    car.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, {passive:true});
+    car.addEventListener("touchend", e => {
+      if (x0 === null) return;
+      const dx = e.changedTouches[0].clientX - x0;
+      if (Math.abs(dx) > 40) go(idx + (dx < 0 ? 1 : -1));
+      x0 = null;
+    }, {passive:true});
+  }
+  container.appendChild(car);
+}
+
+/* mount featured case-study media from PROJECTS */
+document.querySelectorAll("[data-media]").forEach(el => {
+  const proj = PROJECTS.find(x => x.caseId === el.dataset.media);
+  renderMedia(el, proj && proj.media);
+});
 
 /* ── Filters ── */
 const filtersEl = document.getElementById("filters");
@@ -419,20 +557,43 @@ FILTERS.forEach(f => {
   filtersEl.appendChild(b);
 });
 
-/* ── Grid ── */
+/* ── Grid: tiles show the first media item as a cover ── */
+function coverNode(p){
+  const wrap = document.createElement("div");
+  wrap.className = "media-cover";
+  const m = (p.media && p.media[0]) || {ph:"ph-a"};
+  if (m.video){
+    if (m.poster){
+      const i = document.createElement("img");
+      i.src = m.poster; i.alt = ""; i.loading = "lazy";
+      wrap.appendChild(i);
+    } else {
+      wrap.appendChild(mediaNode({ph:"ph-a", tag:"Video"}));
+    }
+    const badge = document.createElement("div");
+    badge.className = "play-badge";
+    badge.innerHTML = "<span>▶</span>";
+    wrap.appendChild(badge);
+  } else {
+    wrap.appendChild(mediaNode(m));
+  }
+  return wrap;
+}
+
 function render(){
   gridEl.innerHTML = "";
   PROJECTS.filter(p => active === "All" || p.type === active).forEach((p, i) => {
     const t = document.createElement("button");
     t.className = "tile rv";
-    t.innerHTML =
-      '<div class="ph ' + p.photo + '"><div class="mullions"></div><span class="ph-tag">' + (p.caseId === "case-wetroom" ? "Add photo" : "Sample") + '</span></div>' +
-      '<div class="tile-body">' +
-        '<div class="type">' + p.type + ' · ' + p.sector + '</div>' +
-        '<h4>' + p.name + '</h4>' +
-        '<div class="meta">' + p.location + '</div>' +
-        '<div class="scope">' + p.scope + '</div>' +
-      '</div>';
+    t.appendChild(coverNode(p));
+    const body = document.createElement("div");
+    body.className = "tile-body";
+    body.innerHTML =
+      '<div class="type">' + p.type + " · " + p.sector + "</div>" +
+      "<h4>" + p.name + "</h4>" +
+      '<div class="meta">' + p.location + "</div>" +
+      '<div class="scope">' + p.scope + "</div>";
+    t.appendChild(body);
     t.onclick = () => p.caseId ? document.getElementById(p.caseId).scrollIntoView({behavior:"smooth"}) : openModal(p);
     gridEl.appendChild(t);
     requestAnimationFrame(() => setTimeout(() => t.classList.add("in"), 40 * i));
@@ -440,10 +601,10 @@ function render(){
 }
 render();
 
-/* ── Modal ── */
+/* ── Modal: full media carousel + facts ── */
 const back = document.getElementById("modalBack");
 function openModal(p){
-  document.getElementById("modalPh").className = "ph " + p.photo;
+  renderMedia(document.getElementById("modalPh"), p.media);
   document.getElementById("modalType").textContent = p.type + " · " + p.sector;
   document.getElementById("modalTitle").textContent = p.name;
   document.getElementById("modalLoc").textContent = p.location;
@@ -455,9 +616,13 @@ function openModal(p){
   document.getElementById("modalDesc").textContent = p.desc;
   back.classList.add("open");
 }
-document.getElementById("modalClose").onclick = () => back.classList.remove("open");
-back.onclick = e => { if (e.target === back) back.classList.remove("open"); };
-document.addEventListener("keydown", e => { if (e.key === "Escape") back.classList.remove("open"); });
+function closeModal(){
+  back.classList.remove("open");
+  back.querySelectorAll("video").forEach(v => v.pause());
+}
+document.getElementById("modalClose").onclick = closeModal;
+back.onclick = e => { if (e.target === back) closeModal(); };
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
 
 /* ── Scroll reveal ── */
 const io = new IntersectionObserver(entries => {
@@ -465,5 +630,6 @@ const io = new IntersectionObserver(entries => {
 }, {threshold: 0.12});
 document.querySelectorAll(".rv").forEach(el => io.observe(el));
 </script>
+
 </body>
 </html>
