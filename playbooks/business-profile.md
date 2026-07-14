@@ -78,8 +78,8 @@ model — update it as better numbers arrive. **Gaps are marked `TODO`.**
 - [x] Collect supplier material costs (M3, Imperial, Sky)
 - [x] Installer rate table (Stock Default Costs screenshot)
 - [ ] Hardware costs per job type (CRL)
-- [ ] Overhead trailing 12 months
-- [ ] Exact revenue + volume by product line
-- [ ] Builder list w/ revenue share, payment terms, retainage
+- [x] Overhead (recurring bills: ~$4.7k/mo opex + ~$4.6k/mo owner comp)
+- [x] Revenue run rate ~$76k/mo (~$915k/yr); product-line split TODO
+- [x] Client shares (Grand 28.5%, Trinity 26%, Hammer 12.4%, DRH 10.7%, Hines 6.7%); terms/retainage TODO
 - [x] Standard-item sell catalog (test quote); TODO builder-specific overrides
 - [ ] Derive required markup; score every price-list line
