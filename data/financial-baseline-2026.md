@@ -1,7 +1,56 @@
-# Eridion Glass — Financial Baseline (from ledger backup, 2026-07-14)
+# Eridion Glass — Financial Baseline (2026-07-14)
 
-Source: eridion-ledger app backup JSON (data window Apr 1 – Jul 14, 2026; app
-launched Apr 1). Numbers are as-recorded; see data-quality flags at bottom.
+Sources: eridion-ledger app backup JSON (Apr 1 – Jul 14, 2026) and the Xero
+Income Statement, cash basis, Jan 1 – Jul 14, 2026. Owner-confirmed: the
+"duplicate-looking" income entries are deposits + final payments (not doubles).
+
+## Actual P&L — Jan 1 to Jul 14, 2026 (cash basis, ~6.5 months)
+
+| Line | $ | % of sales |
+|---|---|---|
+| Sales | 284,564 | 100% |
+| Materials | 122,014 | **42.9%** |
+| Subcontractors | 47,407 | 16.7% |
+| Sales taxes paid | 13,297 | 4.7% |
+| Stripe fees | 2,556 | 0.9% |
+| **Total COGS** | **185,273** | **65.1%** |
+| **Gross profit** | **99,487** | **34.9%** |
+| Operating expenses | 66,306 | 23.3% (~$10.2k/mo) |
+| **Net income (before owner draws)** | **33,181** | **11.7%** |
+| Owner draws (bill schedule, ~$4.6k/mo ≈ $30k for period) | ~30,000 | ~10.5% |
+| **True economic profit after owner comp** | **~$3k** | **~1.2%** |
+
+**The H1 diagnosis in one line: the business worked for free.** After paying
+the owner a modest draw, H1 profit was ~1% of sales vs the 8% Stone floor —
+a shortfall of ~$19k for the period (~$62k/yr at current run rate).
+
+### Where it leaked
+
+1. **Materials ran 42.9% of sales vs the 31.8% Profit First budget** — 11
+   points ≈ $31k of H1 gross profit that the allocation model expected but
+   never existed. Causes to separate in the audit: 2020 sell prices vs 2026
+   glass costs (documented), breakage/remakes not billed, cash-basis timing
+   (glass bought for jobs not yet invoiced), and supplier mix (M3 vs Imperial).
+2. **Subs ran 16.7% vs 14.3% budget** — consistent with install sell lines
+   priced below the ×1.45 rule (see standard-items margin check).
+3. **Opex at $10.2k/mo is 2.2× the $4.7k/mo bill schedule** — the schedule
+   misses: accounting $10.5k YTD, meals ~$4.8k, software $6.2k YTD, small
+   tools $4.1k, bank charges + interest $5.6k, taxes & licenses $6.2k.
+   Note bookkeeping+accounting ≈ 3.7% of revenue — high for this size.
+4. **Q1 volume was weak:** Jan–Mar ≈ $109k (~$36k/mo) vs May–Jun ~$76k/mo.
+   Overhead at $10.2k/mo is 23% of a $44k month but 13% of a $76k month —
+   volume recovery alone repairs much of the margin, IF cost ratios hold.
+
+### Revised Stone inputs (actuals-based)
+
+```
+O (true overhead)  = $10.2k/mo opex + $4.6k/mo owner comp ≈ $14.8k/mo ≈ $178k/yr
+V (run rate)       ≈ $915k/yr (May–Jun pace) — H1 annualized only ~$525k
+P (target)         = 8% floor / 10% target
+Break-even markup at run-rate volume ≈ 1.38× on job cost (absolute floor)
+PF-model markup (allocations hold)   ≈ 2.17× on job cost (the audit target)
+Actual H1 whole-business markup      ≈ 1.54× (COGS 65.1%)
+```
 
 ## Revenue run rate
 
@@ -74,13 +123,8 @@ reason the audit needs per-item scoring, not just rule compliance.
 
 ## Data-quality flags (verify before trusting shares above)
 
-1. **Possible duplicate income entries.** Trinity Stairs "3213 Santa Bella"
-   $8,208.42 appears 3× (two dated 2026-06-10 with the same invoice 2093) plus
-   $6,715.98 2× ; Hines "222 Abington" $3,816.66 2×; Martyn Hammer $5,992.53 2×
-   and $4,902.97 2×. Notes say "payment 2/3/4" — equal progress payments are
-   plausible, but two identical entries on the same date for the same invoice
-   look like double-recording. If duplicates, Trinity's share (and total
-   revenue) is overstated.
+1. ~~Possible duplicate income entries~~ — RESOLVED: owner confirms these are
+   deposit + final-payment pairs, not duplicates. Client shares stand.
 2. **Actual expenses aren't tracked in the app** (expense store holds only
    opening balances) — bills schedule is the overhead source of truth;
    materials/subs actuals live in Xero.
