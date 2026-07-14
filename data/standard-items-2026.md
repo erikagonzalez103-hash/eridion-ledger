@@ -55,8 +55,58 @@ mirrors), IOBM (install-only mirrors), IMCI/IOCI (cabinet inserts), M12/M34
 variants), **IDRH ("Install DRH" — DR Horton-specific rate)**.
 
 Observed rates: M34 measure $50.75/hr · I4PF install $398.75/hr · flat install
-lines from $72.50 (single panel) to $1,566 (conference room). *Owner: these are
-pre-sub-era in-house hourly costs — current sub flat rates are NOT in the system.*
+lines from $72.50 (single panel) to $1,566 (conference room).
+
+## Pricing rules (owner-stated)
+
+- **Hardware: cost × 1.60** (60% upcharge)
+- **Sub labor: cost × 1.45** (45% upcharge)
+- Glass/fab: no stated rule — implied markup on M3 base cost ranges ~1.7×–2.7×
+  across items (inconsistent; needs a derived rule in the audit)
+
+## Sub installer flat rates (Stock Default Costs — what Eridion PAYS crews)
+
+| Code | Job | Cost | Code | Job | Cost |
+|---|---|---|---|---|---|
+| I1PF | 1 panel frameless | $150 | I1PFD | 1 panel framed | $170 |
+| I2PF | 2 panel frameless | $200 | I2PFD | 2 panel framed | $220 |
+| I3PF | 3 panel frameless | $250 | I3PFD | 3 panel framed | $270 |
+| I4PF | 4 panel frameless | $275 | I4PFD | 4 panel framed | $300 |
+| I1PFG–I4PFG | framed w/grid | $200–330 | IDRH | **DR Horton install (flat)** | $225 |
+| ISDC | commercial single door | $360 | IDDC | commercial double door | $540 |
+| ISDTC | single door w/transom | $495 | IDDTC | double door w/transom | $720 |
+| OFP/OFPG | office fixed panel | $170/200 | OHD/OHDG | office hinged door | $200/230 |
+| OSD/OSDG | office sliding door | $200/230 | ISMF/ISMFA | module frame | $180/135 |
+| ISMG12 | module glass ≤1/2" | $50 | ISMG121 | module glass 1/2–1" | $100 |
+| IBMMI | measure+install mirror | $50 | IOBM | install-only mirror | $30 |
+| IMCI | measure+install cab insert | $50 | IOCI | install-only cab insert | $30 |
+| M12 | measure 1–2 panel | $25 | M34 | measure 3–4 panel | $35 |
+| SMFF/AMFF | module frame fab | $90 | | | |
+
+## Install-line margin check (quote sell price vs sub cost × 1.45 rule)
+
+| Item | Install sell | Sub cost (code) | Rule price | Verdict |
+|---|---|---|---|---|
+| Single Panel Static | $72.50 | $150 (I1PF) | $217.50 | 🔴 **$77.50 BELOW raw sub cost** — loses money on every unit |
+| 2 Panel Standard | $282.75 | $200 (I2PF) | $290.00 | 🟠 $7 under rule (1.41×) |
+| 3 Panel Box | $271.88 | $250 (I3PF) | $362.50 | 🟠 $90.62 under rule — only 8.75% over cost |
+| Bypass Slider | $217.50 | $200 (I2PF) | $290.00 | 🟠 $72.50 under rule (priced as if 1-panel) |
+| 3 Panel Pony Wall | $659.75 | $250 (I3PF) | $362.50 | 🟢 over rule (implied cost $455 — complexity priced in) |
+| 4 Panel + 2 Pony | $398.75 | $275 (I4PF) | $398.75 | 🟢 **exact rule match** — the reference item |
+| Gridded Office (2 doors) | $870.00 | ~$860 (2×OHDG+2×OFPG) | ~$1,247 | 🔴 barely over raw cost |
+| Conference Room | $1,566.00 | implied $1,080 | — | needs code composition to verify |
+
+Measure lines all price at or above the 1.45 rule (implied costs $29.50–45 vs
+current M12 $25 / M34 $35) — measures are fine; installs are the leak.
+
+Hardware spot-check against the 1.6 rule: current-price items match exactly
+(SGCU1 $21.82 → cost $13.64 · V1E037 $90.72 → $56.70 · CAM73 $810.51 → $506.57);
+the old-price items imply stale vendor costs (V1E037 @ $38.98, SGCU1 @ $9.40)
+that were never refreshed — consistent with the coexisting-price-table red flag.
+
+Note: IDRH (DR Horton) at $225 flat sits below I3PF ($250) — if DRH jobs average
+3 panels, the DRH-specific crew rate is a discount that should be priced into the
+DRH relationship deliberately, not by accident.
 
 ## Red flags for the audit (visible without cost data)
 

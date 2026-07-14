@@ -28,8 +28,7 @@ model — update it as better numbers arrive. **Gaps are marked `TODO`.**
 ## Labor model
 
 - Sub installers (1099), paid **flat rate per job, varies by job type**
-- `TODO: rate table — shower $__, mirror $__, rail $__/ft, pool fence $__/ft,`
-  `measure trip $__, remake/callback handling __`
+- Sub flat-rate table captured — see `data/standard-items-2026.md`. Pricing rules: hardware cost ×1.60, sub labor cost ×1.45.
 
 ## Overhead
 
@@ -77,10 +76,10 @@ model — update it as better numbers arrive. **Gaps are marked `TODO`.**
 ## First-run audit checklist (from pricing-playbook.md)
 
 - [x] Collect supplier material costs (M3, Imperial, Sky)
-- [ ] Installer rate table
+- [x] Installer rate table (Stock Default Costs screenshot)
 - [ ] Hardware costs per job type (CRL)
 - [ ] Overhead trailing 12 months
 - [ ] Exact revenue + volume by product line
 - [ ] Builder list w/ revenue share, payment terms, retainage
-- [ ] Sell-side price lists per builder
+- [x] Standard-item sell catalog (test quote); TODO builder-specific overrides
 - [ ] Derive required markup; score every price-list line
