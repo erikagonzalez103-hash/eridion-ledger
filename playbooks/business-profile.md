@@ -9,7 +9,7 @@ model — update it as better numbers arrive. **Gaps are marked `TODO`.**
 - Eridion Glass — glass subcontractor, DFW (Dallas–Fort Worth)
 - Revenue: ~$500k–$1M/yr (trailing 12 months, owner estimate) — `TODO: exact from Xero`
 - Customers: production builders dominate; **1–2 builders hold most of the revenue**
-  - `TODO: builder names + rough revenue share each` (ledger app suggests DR Horton, Grand Homes)
+  - Builders: **Grand Homes** and **Hines Homes** highest, then **DR Horton** — `TODO: rough % share each`
 - Sell prices: **mostly 2020 opening prices** — never repriced from a cost model
 - Profit target: none has ever been set. Audit decision: start at Stone's 8% net
   floor, target 10% once the price list is repaired.
@@ -71,7 +71,8 @@ model — update it as better numbers arrive. **Gaps are marked `TODO`.**
 
 ## Sell-side price lists (what Eridion charges builders)
 
-- `TODO: upload current builder price list(s) — the 2020-era list is the audit target`
+- Captured: standard-item catalog with current system sell rates — see `data/standard-items-2026.md`
+- `TODO: any builder-specific price lists that differ from the standard catalog`
 
 ## First-run audit checklist (from pricing-playbook.md)
 
