@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<!-- Negotiation Agent v1 · 2026-07-14 · knowledge: playbooks/negotiation-playbook.md + data/builder-profiles.md -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eridion Glass — Negotiation Prep</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:#0E1E35;color:#F5F5F5;min-height:100vh;padding-bottom:60px;}
+.hdr{background:#0E1E35;border-bottom:3px solid #3CA83C;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.hdr-left{display:flex;align-items:center;gap:12px;}
+.hdr-title{font-family:'DM Serif Display',serif;font-size:17px;letter-spacing:1px;}
+.hdr-sub{font-size:9px;color:#3CA83C;letter-spacing:3px;text-transform:uppercase;margin-top:2px;}
+.hdr-btn{font-family:inherit;font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;background:#0A1728;border:1px solid #2A4A6A;border-radius:20px;padding:5px 12px;color:#5A7A99;cursor:pointer;}
+.hdr-btn:hover{border-color:#3CA83C;color:#3CA83C;}
+.wrap{padding:18px 24px;max-width:1100px;margin:0 auto;}
+.card{background:#152844;border:1px solid #2A4A6A;border-radius:8px;padding:16px 20px;margin-bottom:14px;}
+.card-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #2A4A6A;flex-wrap:wrap;gap:8px;}
+.card-title{font-size:9px;font-weight:600;letter-spacing:3px;color:#3CA83C;text-transform:uppercase;}
+.hint{font-size:10px;color:#5A7A99;line-height:1.5;}
+.grid{display:grid;gap:10px;}
+.g3{grid-template-columns:2fr 2fr 1fr;}
+.field label{font-size:9px;font-weight:600;letter-spacing:2px;color:#5A7A99;text-transform:uppercase;display:block;margin-bottom:4px;}
+.field select,.field input{width:100%;background:#0E1E35;border:1px solid #2A4A6A;border-radius:4px;padding:8px 10px;color:#F5F5F5;font-family:'DM Sans',sans-serif;font-size:12px;outline:none;}
+.field select:focus,.field input:focus{border-color:#3CA83C;}
+.field select option{background:#0E1E35;}
+.btn-primary{background:#3CA83C;color:#0E1E35;border:none;border-radius:4px;padding:9px 20px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;width:100%;}
+.btn-primary:hover{background:#4DC84D;}
+/* profile strip */
+.prof{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.pt{background:#152844;border:1px solid #2A4A6A;border-radius:8px;padding:12px 14px;position:relative;overflow:hidden;}
+.pt::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:#5599CC;}
+.pt-lbl{font-size:8px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#5A7A99;margin-bottom:5px;}
+.pt-val{font-family:'DM Serif Display',serif;font-size:17px;line-height:1.2;}
+.pt-sub{font-size:9px;color:#5A7A99;margin-top:3px;line-height:1.4;}
+/* brief */
+.brief{display:none;}
+.brief.open{display:block;}
+.b-sec{margin-bottom:16px;}
+.b-h{font-size:9px;font-weight:600;letter-spacing:3px;color:#3CA83C;text-transform:uppercase;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid #1E3A5A;}
+.b-p{font-size:12.5px;color:#D0DDE8;line-height:1.65;margin-bottom:6px;}
+.b-p b{color:#F5F5F5;}
+.b-li{font-size:12.5px;color:#D0DDE8;line-height:1.6;padding:5px 0 5px 18px;position:relative;}
+.b-li::before{content:'\25B8';position:absolute;left:2px;color:#3CA83C;}
+.numbox{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0;}
+.nb{background:#0A1728;border:1px solid #1E3A5A;border-radius:6px;padding:10px 12px;text-align:center;}
+.nb-lbl{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#5A7A99;margin-bottom:4px;}
+.nb-val{font-family:'DM Serif Display',serif;font-size:18px;color:#3CA83C;}
+.warn{background:rgba(226,75,74,0.1);border:1px solid rgba(226,75,74,0.3);border-radius:6px;padding:10px 14px;font-size:11.5px;color:#F07070;line-height:1.6;margin-top:8px;}
+.obj{display:grid;grid-template-columns:1fr 1.4fr;gap:0;border:1px solid #1E3A5A;border-radius:6px;overflow:hidden;margin-top:6px;}
+.obj>div{padding:9px 12px;font-size:11.5px;line-height:1.55;border-bottom:1px solid #1E3A5A;}
+.obj>div:nth-child(odd){background:#0A1728;color:#F0B05A;}
+.obj>div:nth-child(even){color:#D0DDE8;}
+.obj>div:nth-last-child(-n+2){border-bottom:none;}
+/* debrief */
+textarea{width:100%;background:#0E1E35;border:1px solid #2A4A6A;border-radius:4px;padding:10px;color:#F5F5F5;font-family:'DM Sans',sans-serif;font-size:12px;height:90px;resize:vertical;outline:none;}
+textarea:focus{border-color:#3CA83C;}
+.log-item{padding:8px 0;border-bottom:1px solid #1A3050;font-size:11.5px;color:#D0DDE8;line-height:1.5;}
+.log-meta{font-size:9px;color:#5A7A99;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;}
+@media(max-width:820px){.prof{grid-template-columns:1fr 1fr;}.g3{grid-template-columns:1fr;}.numbox{grid-template-columns:1fr;}.obj{grid-template-columns:1fr;}}
+@media print{
+  body{background:#fff;color:#111;}
+  .hq-nav,.hdr,.setup-card,.debrief-card,.hdr-btn{display:none !important;}
+  .card{background:#fff;border-color:#ccc;color:#111;}
+  .b-p,.b-li,.obj>div:nth-child(even){color:#222;}
+  .pt,.nb{background:#fff;border-color:#ccc;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ ERIDION HQ NAV ═══ -->
+<style>
+.hq-nav{background:#0D1B2A;border-bottom:1px solid rgba(255,255,255,.1);padding:0 1.5rem;display:flex;align-items:center;height:40px;gap:2px;overflow-x:auto;font-family:'DM Sans',system-ui,sans-serif;}
+.hq-nav-brand{font-size:11px;font-weight:700;letter-spacing:2px;color:#C8963E;margin-right:12px;white-space:nowrap;}
+.hq-nav-link{font-size:12px;font-weight:500;padding:5px 14px;border-radius:6px;color:rgba(255,255,255,.45);text-decoration:none;transition:all .2s;white-space:nowrap;}
+.hq-nav-link:hover{color:rgba(255,255,255,.8);background:rgba(255,255,255,.07);}
+.hq-nav-link.active{color:#fff;background:rgba(255,255,255,.13);}
+</style>
+<nav class="hq-nav">
+  <span class="hq-nav-brand">ERIDION HQ</span>
+  <a class="hq-nav-link" href="https://erikagonzalez103-hash.github.io/morning-brief/">☀ Today</a>
+  <a class="hq-nav-link" href="https://erikagonzalez103-hash.github.io/order-tracker/">💼 Jobs</a>
+  <a class="hq-nav-link" href="./index.html">💰 Money</a>
+  <a class="hq-nav-link" href="./pricing.html">📐 Pricing</a>
+  <a class="hq-nav-link active" href="./negotiation.html">🤝 Negotiate</a>
+  <a class="hq-nav-link" href="https://erikagonzalez103-hash.github.io/eridion-snapshot/">📊 Snapshot</a>
+</nav>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <svg width="30" height="30" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="#3CA83C" stroke-width="2.5"/><polygon points="8,12 26,17 26,21 8,16" fill="#3CA83C"/><polygon points="8,19 22,23 22,27 8,23" fill="#3CA83C"/><polygon points="8,12 10,12 10,23 8,23" fill="#3CA83C"/><polygon points="18,12 26,17 24,20 16,15" fill="#0E1E35"/></svg>
+    <div><div class="hdr-title">ERIDION GLASS &mdash; NEGOTIATION PREP</div><div class="hdr-sub">Voss &middot; Harvard PON &middot; Clause 25</div></div>
+  </div>
+  <button class="hdr-btn" onclick="window.print()">&#128424; Print brief</button>
+</div>
+
+<div class="wrap">
+
+  <!-- SETUP -->
+  <div class="card setup-card">
+    <div class="card-title-row">
+      <div class="card-title">Who &amp; What</div>
+      <div class="hint">pick the counterparty and the situation — the brief rebuilds instantly</div>
+    </div>
+    <div class="grid g3">
+      <div class="field"><label>Counterparty</label>
+        <select id="sel-builder" onchange="render()"></select>
+      </div>
+      <div class="field"><label>Negotiation type</label>
+        <select id="sel-scenario" onchange="render()"></select>
+      </div>
+      <div class="field" style="display:flex;align-items:flex-end;">
+        <button class="btn-primary" onclick="render();document.getElementById('brief').scrollIntoView({behavior:'smooth'})">Build brief</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE STRIP -->
+  <div class="prof" id="prof-strip"></div>
+
+  <!-- BRIEF -->
+  <div class="card brief open" id="brief"></div>
+
+  <!-- DEBRIEF -->
+  <div class="card debrief-card">
+    <div class="card-title-row">
+      <div class="card-title">Two-Minute Debrief</div>
+      <div class="hint">log it while it's fresh — what they opened with, where you landed, what they revealed, what you'd do differently</div>
+    </div>
+    <textarea id="debrief-text" placeholder="e.g. Opened with corporate cost-down mandate. Landed at +6% vs +9% goal. Revealed they lost their other glass sub in Prosper. Gave net-20 in exchange for holding mirror pricing."></textarea>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button class="btn-primary" style="width:auto;padding:8px 18px;" onclick="saveDebrief()">Save to log</button>
+    </div>
+    <div id="debrief-log" style="margin-top:14px;"></div>
+  </div>
+
+</div>
+
+<script>
+// ─── knowledge base: data/builder-profiles.md + playbooks/negotiation-playbook.md ───
+const BUILDERS = {
+  'Grand Homes': {
+    share:'28.5%', flex:'LOCKED — annual', style:'Relationship + volume',
+    facts:'Largest client. Multiple divisions, steady multi-community flow, pays by check (deposit + final).',
+    ourLev:'Incumbent across active communities (showers + mirrors bundled). Switching mid-community costs them requalification and schedule risk with supers.',
+    theirLev:'28.5% of our revenue — they know we need them. Annual pricing lock limits our timing.',
+    ourBatna:'Weak today. Strengthen before renewal: grow Trinity, Hines, custom. Every point of diversification is negotiating power.',
+    theirBatna:'Requalify a new glass sub: onboarding, insurance, warranty continuity, schedule slip on open communities.',
+    renewal:'Renewal month TODO — the prep clock runs 60+ days back from it.'
+  },
+  'DR Horton': {
+    share:'10.7%', flex:'MOST LOCKED — annual, national', style:'Process + cost-down mandates',
+    facts:'Two purchasing offices (TX + NW Arkansas/Little Rock). Standardized tickets: mirrors $275 flat, showers ~$933. We give an un-negotiated IDRH labor discount ($225 vs $250 standard).',
+    ourLev:'Reliable per-plan execution across communities; standardized pricing is exactly what their process wants — clean per-plan cost sheets speak their language.',
+    theirLev:'National purchasing power, take-it-or-leave-it posture, many subs want the volume.',
+    ourBatna:'At 10.7% share, walking is survivable — that is real leverage. Do not price below floor to keep DRH.',
+    theirBatna:'Cheapest-sub roulette: they can rebid, but AR/TX split means two requalifications and schedule risk in active phases.',
+    renewal:'Renewal month TODO. Fold the IDRH discount into the ask — do not fight it mid-year.'
+  },
+  'Trinity Stairs': {
+    share:'26.0%', flex:'FLEXIBLE — reprice now', style:'B2B partner (we are their glass sub)',
+    facts:'Stair company; big tickets ($6.7k–$8.2k), deposit + progress payments, sometimes pays by card (Stripe fees eat margin).',
+    ourLev:'Glass rail is specialized; we are embedded in their delivery. Project-quoted work = every new quote can carry new pricing.',
+    theirLev:'#2 revenue source — concentration risk cuts both ways.',
+    ourBatna:'Moderate: rail capacity could serve builders/GCs directly.',
+    theirBatna:'Finding another rail-glass sub with our lead times is slow; mid-project switching is expensive for them.',
+    renewal:'No annual lock. New rates on the next quote. Also fix: card-payment fees (ACH terms or surcharge).'
+  },
+  'Hines Homes': {
+    share:'6.7%', flex:'FLEXIBLE-ISH', style:'Growth account',
+    facts:'Production builder; showers, mirrors, door film. Owner wants more share here.',
+    ourLev:'Room to grow — but growth at below-target pricing is buying work, not winning it.',
+    theirLev:'Smaller book with us; can shop around more easily than GH.',
+    ourBatna:'Fine — small share means low exposure.',
+    theirBatna:'Other glass subs exist; our edge is responsiveness and builder-grade process.',
+    renewal:'Grow share at full target pricing. Use as the proving ground for the repaired price list.'
+  },
+  'Pennington (commercial)': {
+    share:'5.3%', flex:'PROJECT-BASED', style:'Commercial / office',
+    facts:'Office glass (doors, enclosures, mirrors). Every job is a fresh quote.',
+    ourLev:'New pricing applies immediately — no lock to wait out.',
+    theirLev:'Commercial work gets bid competitively.',
+    ourBatna:'Fine — project work is elastic.',
+    theirBatna:'Rebid to commercial glaziers; our edge is speed on small office packages.',
+    renewal:'Audit flagged commercial installs near cost pass-through (Gridded Office). Fix on the very next quote.'
+  },
+  'Custom / Homeowner': {
+    share:'~14%', flex:'FULL VALUE PRICING', style:'Custom builders, designers, homeowners',
+    facts:'Martyn Hammer, designers, direct homeowners. Least price-sensitive segment; mirrors and custom showers.',
+    ourLev:'Design help, 2-yr guarantee, fast lead times, photo portfolio — worth real money here.',
+    theirLev:'Can always get three bids — but rarely compares apples to apples.',
+    ourBatna:'Strong — individually small jobs.',
+    theirBatna:'The low bidder with exclusions and no warranty.',
+    renewal:'Enns rules: never one number — base / recommended / premium on every quote. Never below target here.'
+  }
+};
+
+const SCENARIOS = {
+  'Annual price list renewal': 's_renewal',
+  'Bidding a new community / project': 's_newbid',
+  'Change order dispute': 's_change',
+  'Payment terms / retainage / card fees': 's_terms',
+  'Scope creep on existing work': 's_scope',
+  'Back-charge dispute': 's_backcharge',
+  'Client-facing bid (homeowner picks)': 's_client'
+};
+
+// pull live numbers from the Pricing page if present
+function pricingNumbers(){
+  try{
+    const s = JSON.parse(localStorage.getItem('eg_pricing_v1'));
+    const a = s.assump;
+    const alloc = a.opexPct + a.ownersPct + a.taxPct + a.profitPct;
+    const target = 100/(100-alloc);
+    const floor = 1/(1 - a.overhead/a.volume - 0.08);
+    return { target: target.toFixed(2), floor: floor.toFixed(2), live:true };
+  }catch(e){ return { target:'2.17', floor:'1.38', live:false }; }
+}
+
+const esc = t => t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+
+function briefContent(bName, sName){
+  const b = BUILDERS[bName];
+  const n = pricingNumbers();
+  const isLocked = /LOCKED/.test(b.flex);
+  const S = {};
+
+  S.situation = `<div class="b-p"><b>${bName}</b> · ${b.share} of revenue · ${b.flex}. ${b.facts}</div>
+    <div class="b-p" style="color:#9BAFC0;">${b.renewal}</div>`;
+
+  S.numbers = `<div class="numbox">
+      <div class="nb"><div class="nb-lbl">Margin floor</div><div class="nb-val">${n.floor}&times;</div></div>
+      <div class="nb"><div class="nb-lbl">Target markup</div><div class="nb-val">${n.target}&times;</div></div>
+      <div class="nb"><div class="nb-lbl">H1 actual</div><div class="nb-val" style="color:#F0B05A;">1.54&times;</div></div>
+    </div>
+    <div class="b-p">${n.live ? 'Live from your Pricing page.' : 'Baseline values — open the Pricing page once in this browser to sync live numbers.'}
+    Materials ran 42.9% of sales vs 31.8% budget in H1 — that documented gap is the factual spine of every ask.</div>
+    <div class="warn"><b>Guardrail:</b> never agree to a number below the ${n.floor}&times; floor in the room. "Let me run that against my cost sheet" is a complete sentence — the pause is free, the bad deal is not.</div>`;
+
+  S.batna = `<div class="b-li"><b>Our leverage:</b> ${b.ourLev}</div>
+    <div class="b-li"><b>Their leverage:</b> ${b.theirLev}</div>
+    <div class="b-li"><b>Our walk-away reality:</b> ${b.ourBatna}</div>
+    <div class="b-li"><b>Their alternative to a deal:</b> ${b.theirBatna}</div>`;
+
+  const sc = {
+    s_renewal: {
+      opener: `"You're probably expecting the annual sub letter asking for more money with nothing behind it. I'd feel the same way. So instead I brought our actual supplier cost sheets — 2020 against today — and I'd rather walk through facts than trade percentages."`,
+      questions: [
+        `"What does your budget process need from me to make a cost-based adjustment easy to approve internally?"`,
+        `"How are you handling material escalation with your framing and lumber trades?" (anchors to index-based escalation they already accept)`,
+        `"What would make us a no-brainer to keep across every community — besides holding 2020 prices forever?"`,
+        `"If corporate needs a cost-down story, what could we standardize or bundle so we both win?"`
+      ],
+      objections: [
+        [`"Budgets are set — we can't move."`, `"I understand — that's exactly why I'm here ${isLocked ? '60+ days before' : 'ahead of'} your budget cycle, not after it. Our clause 25 ties pricing to documented cost increases; here's the documentation."`],
+        [`"Other glass subs will do it for less."`, `"Some will quote less. Then a super finds out what's excluded mid-community. What did the last sub transition actually cost you in schedule days?"`],
+        [`"Take it or leave it."`, `"How am I supposed to install at 2026 costs on 2020 prices? Walk me through how that works and I'll consider it."`]
+      ],
+      ladder: [
+        `Open: full audit-based ask (anchored above target, odd number, e.g. +12.3%)`,
+        `Trade 1: phase the increase (half now, half in 6 months) FOR a volume commitment in writing`,
+        `Trade 2: hold high-volume plan pricing FOR full correction on mirrors + escalation clause tied to a glass index`,
+        `Last: smaller number FOR net-15 payment terms — cash speed has real value`,
+        `Never: any line below the ${n.floor}× floor. That is a "no" delivered warmly.`
+      ]
+    },
+    s_newbid: {
+      opener: `"Before I sharpen any pencils — help me understand what actually decides this award, because if it's only the lowest number, I want to make sure we're comparing the same scope."`,
+      questions: [
+        `"What would make a sub a no-brainer for this community besides price?"`,
+        `"What happened with the glass sub on your last community?" (mirror + silence)`,
+        `"How do you want escalation handled if material indexes move mid-community?"`,
+        `"What's the realistic start cadence — homes per month?" (volume shapes price legitimately)`
+      ],
+      objections: [
+        [`"Your bid is higher than the others."`, `"It seems like the bids don't match scope-for-scope. Ours includes measured lead times, the 2-yr guarantee, and no exclusions games. Which line items differ?"`],
+        [`"We need 2020-era numbers to pencil."`, `"That math doesn't exist anymore at any reliable sub. What if we standardized plans so fabrication gets cheaper honestly?"`]
+      ],
+      ladder: [
+        `Open: cost sheet × target markup — bid to win profitably, not to win`,
+        `Trade 1: volume-tier pricing FOR committed plan standardization`,
+        `Trade 2: sharper mobilization pricing FOR escalation language in the contract`,
+        `Never: buying into a community below floor "to build the relationship" without a named cap and exit`
+      ]
+    },
+    s_change: {
+      opener: `"You're going to think we're nickel-and-diming a change order. I'd think the same. So here's the signed field directive, the dated photos, and the original scope from the bid — and then let's talk about the number."`,
+      questions: [
+        `"What should I tell my installer who already performed the work in good faith?"`,
+        `"How do we set this up so field changes get written sign-off in under an hour — so this never happens again?"`,
+        `"What does your PM need documented for this to be an easy yes?"`
+      ],
+      objections: [
+        [`"That should have been in your base scope."`, `"The bid scope says X — this is Y. It seems like the plans changed after our measure. Here's the paper trail."`],
+        [`"We'll pay half."`, `"How do I explain half to the crew that did the whole thing? Walk me through which half of the work we shouldn't have done."`]
+      ],
+      ladder: [
+        `Open: full documented amount`,
+        `Trade 1: schedule flexibility on payment FOR full amount acknowledged now`,
+        `Never: performing disputed extra work without written direction — field rule, not negotiation rule`
+      ]
+    },
+    s_terms: {
+      opener: `"This isn't about the price of the work — it's about what the money costs while it waits. I want terms that make it easy for you to keep sending us everything."`,
+      questions: [
+        `"What's driving the current payment cadence on your side?"`,
+        `"If we made billing dead-simple — consolidated, per-community — could payment land at net-15?"`,
+        `"Card payments cost us ~3%. Would ACH be workable, or should card jobs carry the fee?"`
+      ],
+      objections: [
+        [`"Everyone gets paid at our standard terms."`, `"It sounds like terms are policy. Is it a ridiculous idea to trade something you value — priority scheduling, consolidated billing — for net-15?"`],
+        [`"Retainage is standard."`, `"On $X held for 6 months that's a real financing cost — here's the number. What completion milestone would release it earlier?"`]
+      ],
+      ladder: [
+        `Open: net-15, no retainage on completed-and-signed-off work, ACH`,
+        `Trade 1: small early-pay discount (priced, not vibes) FOR net-10`,
+        `Trade 2: accept net-30 FOR zero retainage + card-fee pass-through`,
+        `Never: price concessions AND slow terms in the same deal — that's paying twice`
+      ]
+    },
+    s_scope: {
+      opener: `"It seems like the supers have started expecting a few extras as included — re-sets, extra trips, that kind of thing. I'd rather name it now while it's small than surprise anyone with a bill later."`,
+      questions: [
+        `"What do you understand to be included in our line pricing?" (let them say it — then anchor the contract scope)`,
+        `"How should we handle super requests in the field — what's the sign-off path that works for your team?"`,
+        `"Would a published add-on price sheet make life easier for everyone?"`
+      ],
+      objections: [
+        [`"The last sub included that."`, `"And where is the last sub now? Included-everything pricing is how subs disappear mid-community. Here's the add-on sheet — cheap, fast, in writing."`]
+      ],
+      ladder: [
+        `Open: published add-on price sheet effective immediately`,
+        `Trade 1: grandfather current homes FOR sheet applying to all future starts`,
+        `Never: silence. Every silent freebie reprices the whole contract downward.`
+      ]
+    },
+    s_backcharge: {
+      opener: `"You probably expect us to fight every dollar of this back-charge. We're not going to. Two of these items are fair and we'll own them today. The other ones aren't ours — and I brought the sign-offs to show you why."`,
+      questions: [
+        `"Walk me through how this got attributed to our scope?"`,
+        `"What would you need from us at install sign-off so attribution is never fuzzy again?"`
+      ],
+      objections: [
+        [`"It's already deducted."`, `"It seems like deduct-first is the process. Here's the documentation — how do we correct this invoice, and what's the path so next time it's a conversation before a deduction?"`]
+      ],
+      ladder: [
+        `Open: concede legitimate items instantly (buys credibility), dispute the rest with photos/sign-offs`,
+        `Trade 1: split a genuinely ambiguous item FOR a written attribution process going forward`,
+        `Never: paying illegitimate charges to "keep the peace" — it sets the price of peace`
+      ]
+    },
+    s_client: {
+      opener: `POSITIONING MODE — this is not a negotiation, it's a homeowner choosing between bids they can't fully compare. Warm, plain language only. The paragraph next to the number matters more than the number.`,
+      questions: [
+        `Present three options every time: Base (their budget), Recommended (what we'd put in our own home), Premium (Starphire, upgraded hardware). The premium anchors; the middle sells.`,
+        `Make the other columns visible: 2-year guarantee · 7–10 day lead time · dedicated install crew · photos of comparable local work · exactly what "included" includes.`,
+        `Name the low bid's exclusions kindly: "If a bid is much lower, ask them what happens after install day — silicone warranty, remakes, adjustment visits."`
+      ],
+      objections: [
+        [`"Your bid is $300 higher."`, `"It is — and it includes the measure, the guarantee, and a crew that's done 40 of these this year in your neighborhood. If the other bid includes all that, take it — but ask for it in writing."`]
+      ],
+      ladder: [
+        `Hold price; flex on value-adds (upgrade hardware finish, priority slot)`,
+        `Never: discounting to chase the lowest bidder — that homeowner calls back anyway when the low bid falls through`
+      ]
+    }
+  }[SCENARIOS[sName]];
+
+  S.opener = `<div class="b-p">${esc(sc.opener)}</div>`;
+  S.questions = sc.questions.map(q=>`<div class="b-li">${esc(q)}</div>`).join('');
+  S.objections = `<div class="obj">${sc.objections.map(([o,r])=>`<div>${esc(o)}</div><div>${esc(r)}</div>`).join('')}</div>`;
+  S.ladder = sc.ladder.map(l=>`<div class="b-li">${esc(l)}</div>`).join('');
+  return S;
+}
+
+function render(){
+  const bName = document.getElementById('sel-builder').value;
+  const sName = document.getElementById('sel-scenario').value;
+  const b = BUILDERS[bName];
+
+  document.getElementById('prof-strip').innerHTML = `
+    <div class="pt"><div class="pt-lbl">Revenue share</div><div class="pt-val">${b.share}</div><div class="pt-sub">${b.style}</div></div>
+    <div class="pt"><div class="pt-lbl">Price flexibility</div><div class="pt-val" style="font-size:13px;">${b.flex}</div><div class="pt-sub">${b.renewal}</div></div>
+    <div class="pt"><div class="pt-lbl">Our leverage</div><div class="pt-sub" style="font-size:10.5px;color:#D0DDE8;">${b.ourLev}</div></div>
+    <div class="pt"><div class="pt-lbl">Their leverage</div><div class="pt-sub" style="font-size:10.5px;color:#D0DDE8;">${b.theirLev}</div></div>`;
+
+  const S = briefContent(bName, sName);
+  document.getElementById('brief').innerHTML = `
+    <div class="card-title-row"><div class="card-title">Prep Brief — ${bName} · ${sName}</div>
+      <div class="hint">review in the truck · tone: calm, curious, late-night-DJ</div></div>
+    <div class="b-sec"><div class="b-h">1 · Situation</div>${S.situation}</div>
+    <div class="b-sec"><div class="b-h">2 · The numbers</div>${S.numbers}</div>
+    <div class="b-sec"><div class="b-h">3 · Leverage &amp; BATNA</div>${S.batna}</div>
+    <div class="b-sec"><div class="b-h">4 · Opener (accusation audit)</div>${S.opener}</div>
+    <div class="b-sec"><div class="b-h">5 · Calibrated questions</div>${S.questions}</div>
+    <div class="b-sec"><div class="b-h">6 · Their objections &rarr; your responses</div>${S.objections}</div>
+    <div class="b-sec"><div class="b-h">7 · Concession ladder (trade, never concede)</div>${S.ladder}</div>`;
+  renderLog();
+}
+
+// ─── debrief log (localStorage) ───
+const LOG_KEY = 'eg_negotiation_log_v1';
+function saveDebrief(){
+  const txt = document.getElementById('debrief-text').value.trim();
+  if(!txt) return;
+  const log = JSON.parse(localStorage.getItem(LOG_KEY)||'[]');
+  log.unshift({ when: new Date().toISOString().slice(0,10),
+    builder: document.getElementById('sel-builder').value,
+    scenario: document.getElementById('sel-scenario').value, note: txt });
+  localStorage.setItem(LOG_KEY, JSON.stringify(log));
+  document.getElementById('debrief-text').value='';
+  renderLog();
+}
+function renderLog(){
+  const bName = document.getElementById('sel-builder').value;
+  const log = JSON.parse(localStorage.getItem(LOG_KEY)||'[]').filter(l=>l.builder===bName);
+  document.getElementById('debrief-log').innerHTML = log.length
+    ? log.map(l=>`<div class="log-item"><div class="log-meta">${l.when} · ${esc(l.builder)} · ${esc(l.scenario)}</div>${esc(l.note)}</div>`).join('')
+    : `<div class="hint">No debriefs logged for ${esc(bName)} yet. The log is this page's memory — it makes every next negotiation smarter.</div>`;
+}
+
+// init
+const selB = document.getElementById('sel-builder');
+const selS = document.getElementById('sel-scenario');
+Object.keys(BUILDERS).forEach(b=>selB.add(new Option(b,b)));
+Object.keys(SCENARIOS).forEach(s=>selS.add(new Option(s,s)));
+render();
+</script>
+</body>
+</html>
