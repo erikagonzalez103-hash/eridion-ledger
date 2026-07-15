@@ -121,6 +121,25 @@ $810 kits, office enclosures with $860 sub labor) the blended markup falls well
 short of 2.17 even when every component follows its rule. This is the structural
 reason the audit needs per-item scoring, not just rule compliance.
 
+## Repricing constraint: the locked vs. flexible segments (owner, 2026-07-14)
+
+**Grand Homes and DR Horton prices are set once a year and barely movable
+mid-cycle** (GH: little room; DRH: even less). That locks ~39% of revenue
+(GH 28.5% + DRH 10.7%) at current pricing until each renewal. Strategy split:
+
+- **Flexible segment (~61% of revenue) — reprice NOW:** Trinity Stairs (26%),
+  Martyn Hammer and custom/direct (~14%), Pennington/commercial (5.3%),
+  Hines (6.7%), and all homeowner work. Mirrors (three packages below
+  break-even) can be fixed immediately here. This segment must carry an
+  above-target markup to offset the locked builders until their renewals.
+- **Locked segment — prepare the annual renewal package:** full clause-25
+  cost documentation (M3 2020 vs 2026 + energy surcharge history), the
+  per-item audit, and the negotiation prep brief, ready well before each
+  renewal date. `TODO: GH and DRH renewal months` — the prep clock runs
+  from those dates.
+- DRH also carries the quiet IDRH labor discount ($225 flat vs $250 standard
+  3-panel rate) — fold into the renewal ask rather than fighting it mid-year.
+
 ## Data-quality flags (verify before trusting shares above)
 
 1. ~~Possible duplicate income entries~~ — RESOLVED: owner confirms these are
