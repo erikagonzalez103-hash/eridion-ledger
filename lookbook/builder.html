@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<!-- Eridion Glass — Lookbook Builder
+     Loads the tagged photo catalog (Cloudflare R2 manifest), lets you
+     assemble lookbook projects from real photos, and exports:
+       · a PROJECTS array for lookbook/index.html
+       · projects.json
+       · a Wix CMS import CSV
+     Work is autosaved in this browser (localStorage). -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eridion — Lookbook Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#153862;--deep:#0E2741;--wash:#EAEEF3;--green:#32A200;
+  --black:#000;--slate:#5C6B7A;--div:#C4C4C4;--hair:#E6E8EC;--paper:#F7F8FA;--card:#fff;
+  --head:'Jost',sans-serif;--body:'Inter',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--body);font-size:14px;background:var(--paper);color:var(--black);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+button{font-family:var(--body);cursor:pointer;}
+input,select,textarea{font-family:var(--body);font-size:13px;border:1px solid var(--div);background:#fff;padding:7px 10px;color:var(--black);}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--navy);outline-offset:-1px;}
+
+/* ── top bar ── */
+.top{display:flex;align-items:center;gap:14px;padding:10px 18px;background:var(--navy);color:#fff;flex-wrap:wrap;}
+.top .wm{font-family:var(--head);font-weight:300;font-size:18px;letter-spacing:.5px;white-space:nowrap;}
+.top .wm b{font-weight:400;}
+.top input{flex:1;min-width:220px;border:none;}
+.btn{border:none;background:#fff;color:var(--navy);font-weight:600;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:9px 14px;}
+.btn:hover{background:var(--wash);}
+.btn.ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4);}
+.btn.ghost:hover{border-color:#fff;}
+.status{font-size:12px;color:#C7D3E0;white-space:nowrap;}
+.status.ok{color:#7DD87D;}
+.status.err{color:#F09A9A;}
+
+/* ── layout ── */
+.main{flex:1;display:flex;min-height:0;}
+.pane{display:flex;flex-direction:column;min-width:0;min-height:0;}
+.browser{flex:1.15;border-right:1px solid var(--div);}
+.assembler{flex:1;background:var(--wash);}
+.pane-head{padding:12px 16px 10px;border-bottom:1px solid var(--hair);background:var(--card);display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.pane-head .t{font-family:var(--head);font-weight:400;font-size:15px;color:var(--navy);letter-spacing:1px;text-transform:uppercase;margin-right:auto;}
+.scroll{flex:1;overflow-y:auto;min-height:0;}
+
+/* ── browser ── */
+.filters{padding:10px 16px;background:var(--card);border-bottom:1px solid var(--hair);display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.filters input[type=search]{width:180px;}
+.tagchips{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 10px;background:var(--card);border-bottom:1px solid var(--hair);max-height:84px;overflow-y:auto;}
+.chip{font-size:11px;font-weight:600;letter-spacing:.5px;background:transparent;border:1px solid var(--div);color:var(--slate);padding:4px 10px;}
+.chip:hover{border-color:var(--navy);color:var(--navy);}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff;}
+.count{font-size:12px;color:var(--slate);padding:8px 16px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;padding:0 16px 20px;}
+.thumb{position:relative;border:1px solid var(--hair);background:#fff;padding:0;aspect-ratio:4/3;overflow:hidden;}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.thumb:hover{outline:2px solid var(--green);outline-offset:-2px;}
+.thumb .vid{position:absolute;top:4px;left:4px;background:rgba(14,39,65,.8);color:#fff;font-size:9px;font-weight:600;padding:2px 5px;}
+.thumb .used{position:absolute;top:4px;right:4px;background:var(--green);color:#fff;font-size:9px;font-weight:700;padding:2px 5px;}
+.thumb .cap{position:absolute;left:0;right:0;bottom:0;background:rgba(14,39,65,.75);color:#fff;font-size:10px;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;transition:opacity .15s;}
+.thumb:hover .cap{opacity:1;}
+.empty{padding:40px 20px;text-align:center;color:var(--slate);font-size:13px;max-width:46ch;margin:0 auto;}
+
+/* ── assembler ── */
+.projlist{display:flex;flex-direction:column;gap:10px;padding:14px 16px;}
+.proj{background:var(--card);border:1px solid var(--hair);}
+.proj.sel{border-color:var(--navy);box-shadow:0 0 0 1px var(--navy);}
+.proj-head{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;}
+.proj-head .nm{font-family:var(--head);font-weight:400;font-size:16px;color:var(--navy);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.proj-head .n{font-size:11px;color:var(--slate);white-space:nowrap;}
+.proj-head .feat{font-size:9px;font-weight:700;letter-spacing:1px;background:var(--navy);color:#fff;padding:2px 6px;}
+.proj-head .del{border:none;background:none;color:var(--slate);font-size:14px;}
+.proj-head .del:hover{color:#B84A48;}
+.proj-body{display:none;border-top:1px solid var(--hair);padding:14px;}
+.proj.sel .proj-body{display:block;}
+.frm{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.frm .full{grid-column:1/-1;}
+.frm label{display:flex;flex-direction:column;gap:3px;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--slate);}
+.frm textarea{resize:vertical;min-height:34px;}
+details.cs{grid-column:1/-1;border:1px solid var(--hair);padding:8px 10px;background:var(--paper);}
+details.cs summary{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--navy);cursor:pointer;}
+details.cs .frm{margin-top:10px;grid-template-columns:1fr;}
+.tray{margin-top:12px;}
+.tray .tl{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--slate);margin-bottom:6px;}
+.tray-items{display:flex;gap:8px;flex-wrap:wrap;}
+.titem{position:relative;width:104px;border:1px solid var(--hair);background:#fff;}
+.titem img{width:100%;height:70px;object-fit:cover;display:block;}
+.titem .cover{position:absolute;top:3px;left:3px;background:var(--green);color:#fff;font-size:8px;font-weight:700;padding:1px 5px;}
+.titem .vid{position:absolute;top:3px;right:3px;background:rgba(14,39,65,.85);color:#fff;font-size:8px;font-weight:600;padding:1px 4px;}
+.titem .ops{display:flex;}
+.titem .ops button{flex:1;border:none;background:var(--paper);color:var(--slate);font-size:11px;padding:3px 0;border-top:1px solid var(--hair);}
+.titem .ops button:hover{background:var(--navy);color:#fff;}
+.hint{font-size:12px;color:var(--slate);margin-top:8px;}
+
+/* ── modal ── */
+.mback{position:fixed;inset:0;background:rgba(14,39,65,.55);display:none;align-items:center;justify-content:center;padding:4vw;z-index:50;}
+.mback.open{display:flex;}
+.modal{background:#fff;max-width:760px;width:100%;max-height:88vh;display:flex;flex-direction:column;border:1px solid var(--hair);}
+.modal .mh{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--hair);}
+.modal .mh .t{font-family:var(--head);font-weight:400;font-size:16px;color:var(--navy);margin-right:auto;}
+.modal textarea{flex:1;margin:14px 16px 16px;min-height:320px;font-family:ui-monospace,monospace;font-size:11.5px;white-space:pre;}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <span class="wm">ERIDION <b>· Lookbook Builder</b></span>
+  <input id="manifestUrl" type="url" placeholder="Paste the public catalog manifest URL (Cloudflare R2)…">
+  <button class="btn" id="loadBtn">Load Catalog</button>
+  <button class="btn ghost" id="demoBtn" title="Try the builder with sample entries">Demo</button>
+  <span class="status" id="status">No catalog loaded</span>
+</div>
+
+<div class="main">
+  <!-- ═══ PHOTO BROWSER ═══ -->
+  <div class="pane browser">
+    <div class="pane-head"><span class="t">Photo Catalog</span></div>
+    <div class="filters">
+      <input type="search" id="q" placeholder="Search caption / job / tag…">
+      <select id="jobSel"><option value="">All jobs</option></select>
+      <button class="chip" id="clearTags" title="Clear tag filters">✕ tags</button>
+    </div>
+    <div class="tagchips" id="tagchips"></div>
+    <div class="count" id="count"></div>
+    <div class="scroll"><div class="grid" id="photoGrid"></div>
+      <div class="empty" id="browserEmpty">Paste your catalog manifest URL above and click <b>Load Catalog</b> — or click <b>Demo</b> to try the builder with sample entries.<br><br>Click any photo to add it to the selected project on the right.</div>
+    </div>
+  </div>
+
+  <!-- ═══ PROJECT ASSEMBLER ═══ -->
+  <div class="pane assembler">
+    <div class="pane-head">
+      <span class="t">Projects</span>
+      <button class="btn" style="background:var(--navy);color:#fff;" id="newProj">+ New Project</button>
+      <button class="btn" id="expJs">Export JS</button>
+      <button class="btn" id="expJson">Export JSON</button>
+      <button class="btn" id="expCsv">Wix CSV</button>
+      <button class="btn" id="impJson" title="Paste previously exported JSON">Import</button>
+    </div>
+    <div class="scroll"><div class="projlist" id="projlist"></div>
+      <div class="empty" id="projEmpty">No projects yet. Click <b>+ New Project</b>, fill in the facts, then click photos on the left to build its gallery. First photo = cover. Everything autosaves in this browser.</div>
+    </div>
+  </div>
+</div>
+
+<!-- export/import modal -->
+<div class="mback" id="mback">
+  <div class="modal">
+    <div class="mh"><span class="t" id="mtitle"></span>
+      <button class="btn" id="mcopy">Copy</button>
+      <button class="btn" id="mdl">Download</button>
+      <button class="btn" id="mapply" style="display:none;background:var(--navy);color:#fff;">Import This</button>
+      <button class="btn ghost" style="color:var(--navy);border-color:var(--div);" id="mclose">Close</button>
+    </div>
+    <textarea id="mtext" spellcheck="false"></textarea>
+  </div>
+</div>
+
+<script>
+/* ════════════════════ state ════════════════════ */
+const LS_KEY = 'eridion_lookbook_builder_v1';
+const TYPES = ["Colorback Glass","Showers & Wet Rooms","Mirrors","Elevators & Lobbies","Storefronts","Specialty"];
+let photos = [];          // normalized catalog entries
+let activeTags = new Set();
+let state = { manifestUrl:'', projects: [], selected: null };
+
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+function load(){
+  try{ const s = JSON.parse(localStorage.getItem(LS_KEY)); if (s && s.projects) state = s; }catch(e){}
+  document.getElementById('manifestUrl').value = state.manifestUrl || '';
+}
+load();
+
+/* ════════════════════ manifest loading ════════════════════ */
+function setStatus(msg, cls){ const el = document.getElementById('status'); el.textContent = msg; el.className = 'status ' + (cls||''); }
+
+function normalizeManifest(data){
+  let arr = Array.isArray(data) ? data
+    : data.photos || data.images || data.items || data.assets || data.files || data.entries || data.catalog;
+  if (!arr && data && typeof data === 'object'){
+    const vals = Object.values(data);
+    if (vals.length && typeof vals[0] === 'object' && !Array.isArray(vals[0])) arr = vals;
+  }
+  if (!Array.isArray(arr)) throw new Error('No photo array found in manifest');
+  const base = (data.base || data.baseUrl || data.base_url || '').replace(/\/$/,'');
+  return arr.map((e, i) => {
+    if (typeof e === 'string') e = { url: e };
+    let url = e.url || e.src || e.href || e.image || '';
+    if (!url && e.key) url = base ? base + '/' + e.key : e.key;
+    else if (url && !/^https?:|^data:/.test(url) && base) url = base + '/' + url;
+    let tags = e.tags || e.tag || [];
+    if (typeof tags === 'string') tags = tags.split(/[,;]+/).map(t => t.trim()).filter(Boolean);
+    return {
+      id: i, url,
+      thumb: e.thumb || e.thumbnail || url,
+      tags: tags.map(t => String(t).toLowerCase()),
+      job: e.job || e.project || e.album || e.folder || e.group || '',
+      caption: e.caption || e.alt || e.title || e.name || '',
+      isVideo: e.type === 'video' || /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url)
+    };
+  }).filter(p => p.url);
+}
+
+async function loadCatalog(){
+  const url = document.getElementById('manifestUrl').value.trim();
+  if (!url){ setStatus('Enter a manifest URL first', 'err'); return; }
+  setStatus('Loading…');
+  try{
+    const res = await fetch(url, {mode:'cors'});
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    photos = normalizeManifest(await res.json());
+    state.manifestUrl = url; save();
+    setStatus(photos.length + ' photos loaded', 'ok');
+    buildFilters(); renderPhotos();
+  }catch(err){
+    setStatus('Load failed: ' + err.message, 'err');
+  }
+}
+document.getElementById('loadBtn').onclick = loadCatalog;
+
+/* demo entries so the flow can be tried before wiring the real manifest */
+function svgThumb(label, c1, c2){
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="240" height="180"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient></defs><rect width="240" height="180" fill="url(#g)"/><g stroke="rgba(10,20,35,.45)" stroke-width="2"><line x1="80" y1="0" x2="80" y2="180"/><line x1="160" y1="0" x2="160" y2="180"/><line x1="0" y1="90" x2="240" y2="90"/></g><text x="12" y="168" font-family="sans-serif" font-size="13" fill="rgba(255,255,255,.9)">${label}</text></svg>`;
+  return 'data:image/svg+xml;base64,' + btoa(svg);
+}
+document.getElementById('demoBtn').onclick = () => {
+  const mk = (label,c1,c2,tags,job,cap) => ({url:svgThumb(label,c1,c2), tags, job, caption:cap});
+  photos = normalizeManifest([
+    mk('wetroom-01','#3E6E82','#122B38',['colorback','wetroom','finished','hero'],'Wet Room — Primary Suite','Colorback wet room, finished'),
+    mk('wetroom-02','#54718A','#2C4258',['colorback','wetroom','detail'],'Wet Room — Primary Suite','Panel joint detail'),
+    mk('wetroom-03','#8FA8B8','#54718A',['colorback','wetroom','install','crew'],'Wet Room — Primary Suite','Setting the second panel'),
+    mk('shower-01','#4E7E5E','#15342C',['shower','frameless','finished','hero'],'Steam Shower — Hillcrest','Frameless steam shower'),
+    mk('shower-02','#2C5140','#15342C',['shower','hardware','detail'],'Steam Shower — Hillcrest','Hinge detail'),
+    mk('mirror-01','#5E5E80','#161F33',['mirror','vanity','finished'],'Vanity Mirrors — Hillcrest','Wall-to-wall vanity mirror'),
+    mk('lobby-01','#28486E','#0C1828',['colorback','elevator','commercial','finished'],'Tower Lobby Refresh','Elevator cab, after'),
+    mk('lobby-02','#B99B6B','#33405C',['colorback','elevator','commercial','before'],'Tower Lobby Refresh','Elevator cab, before'),
+  ]);
+  setStatus(photos.length + ' demo entries loaded (not your real catalog)', 'ok');
+  buildFilters(); renderPhotos();
+};
+
+/* ════════════════════ browser ════════════════════ */
+function buildFilters(){
+  const jobs = [...new Set(photos.map(p => p.job).filter(Boolean))].sort();
+  const sel = document.getElementById('jobSel');
+  sel.innerHTML = '<option value="">All jobs (' + jobs.length + ')</option>' +
+    jobs.map(j => `<option>${j.replace(/</g,'&lt;')}</option>`).join('');
+  const freq = {};
+  photos.forEach(p => p.tags.forEach(t => freq[t] = (freq[t]||0) + 1));
+  const top = Object.entries(freq).sort((a,b) => b[1]-a[1]).slice(0, 40);
+  const tc = document.getElementById('tagchips');
+  tc.innerHTML = '';
+  activeTags.clear();
+  top.forEach(([t, n]) => {
+    const b = document.createElement('button');
+    b.className = 'chip'; b.textContent = `${t} (${n})`; b.dataset.tag = t;
+    b.onclick = () => { b.classList.toggle('on'); b.classList.contains('on') ? activeTags.add(t) : activeTags.delete(t); renderPhotos(); };
+    tc.appendChild(b);
+  });
+}
+document.getElementById('clearTags').onclick = () => {
+  activeTags.clear();
+  document.querySelectorAll('#tagchips .chip.on').forEach(c => c.classList.remove('on'));
+  renderPhotos();
+};
+document.getElementById('q').oninput = renderPhotos;
+document.getElementById('jobSel').onchange = renderPhotos;
+
+function usedUrls(){
+  const s = new Set();
+  state.projects.forEach(p => p.media.forEach(m => s.add(m.url)));
+  return s;
+}
+
+function renderPhotos(){
+  const q = document.getElementById('q').value.toLowerCase();
+  const job = document.getElementById('jobSel').value;
+  const used = usedUrls();
+  const list = photos.filter(p =>
+    (!job || p.job === job) &&
+    (![...activeTags].some(t => !p.tags.includes(t))) &&
+    (!q || p.caption.toLowerCase().includes(q) || p.job.toLowerCase().includes(q) || p.tags.some(t => t.includes(q)))
+  );
+  document.getElementById('count').textContent = photos.length ? `${list.length} of ${photos.length} photos` : '';
+  document.getElementById('browserEmpty').style.display = photos.length ? 'none' : 'block';
+  const g = document.getElementById('photoGrid');
+  g.innerHTML = '';
+  list.slice(0, 400).forEach(p => {
+    const b = document.createElement('button');
+    b.className = 'thumb';
+    b.title = (p.caption || p.url) + (p.job ? ' — ' + p.job : '');
+    b.innerHTML = `<img src="${p.thumb}" loading="lazy" alt="">` +
+      (p.isVideo ? '<span class="vid">VIDEO</span>' : '') +
+      (used.has(p.url) ? '<span class="used">✓</span>' : '') +
+      `<span class="cap">${(p.caption || p.job || '').replace(/</g,'&lt;')}</span>`;
+    b.onclick = () => addToProject(p);
+    g.appendChild(b);
+  });
+  if (list.length > 400){
+    const d = document.createElement('div');
+    d.className = 'count'; d.textContent = 'Showing first 400 — narrow with tags/search';
+    g.appendChild(d);
+  }
+}
+
+/* ════════════════════ projects ════════════════════ */
+function blankProject(){
+  return { name:'Untitled project', type:TYPES[0], sector:'', location:'', scope:'', systems:'',
+    gc:'', timeline:'', desc:'', featured:false,
+    challenge:'', approach:'', result:'', quote:'', quoteWho:'', media:[] };
+}
+document.getElementById('newProj').onclick = () => {
+  state.projects.push(blankProject());
+  state.selected = state.projects.length - 1;
+  save(); renderProjects();
+};
+
+function addToProject(photo){
+  if (state.selected === null || !state.projects[state.selected]){
+    state.projects.push(blankProject());
+    state.selected = state.projects.length - 1;
+  }
+  const proj = state.projects[state.selected];
+  if (proj.media.some(m => m.url === photo.url)) return;
+  proj.media.push({ url: photo.url, caption: photo.caption, isVideo: photo.isVideo });
+  save(); renderProjects(); renderPhotos();
+}
+
+const F = [ ['name','Project name','text'], ['type','Type','select'], ['sector','Sector','text'],
+  ['location','Location','text'], ['scope','Scope (quantified)','text'], ['systems','Systems','text'],
+  ['gc','GC / Client','text'], ['timeline','Timeline','text'] ];
+
+function renderProjects(){
+  const wrap = document.getElementById('projlist');
+  document.getElementById('projEmpty').style.display = state.projects.length ? 'none' : 'block';
+  wrap.innerHTML = '';
+  state.projects.forEach((p, i) => {
+    const el = document.createElement('div');
+    el.className = 'proj' + (state.selected === i ? ' sel' : '');
+    const head = document.createElement('div');
+    head.className = 'proj-head';
+    head.innerHTML = `<span class="nm">${(p.name||'Untitled').replace(/</g,'&lt;')}</span>` +
+      (p.featured ? '<span class="feat">FEATURED</span>' : '') +
+      `<span class="n">${p.media.length} media</span>`;
+    const del = document.createElement('button');
+    del.className = 'del'; del.textContent = '✕'; del.title = 'Delete project';
+    del.onclick = e => { e.stopPropagation();
+      if (confirm('Delete "' + p.name + '"?')){
+        state.projects.splice(i,1);
+        if (state.selected >= state.projects.length) state.selected = state.projects.length ? state.projects.length - 1 : null;
+        save(); renderProjects(); renderPhotos();
+      }};
+    head.appendChild(del);
+    head.onclick = () => { state.selected = (state.selected === i ? null : i); save(); renderProjects(); };
+    el.appendChild(head);
+
+    const body = document.createElement('div');
+    body.className = 'proj-body';
+    const frm = document.createElement('div');
+    frm.className = 'frm';
+    F.forEach(([k, label, kind]) => {
+      const lab = document.createElement('label');
+      lab.textContent = label;
+      let inp;
+      if (kind === 'select'){
+        inp = document.createElement('select');
+        inp.innerHTML = TYPES.map(t => `<option${t===p.type?' selected':''}>${t}</option>`).join('');
+      } else {
+        inp = document.createElement('input'); inp.type = 'text'; inp.value = p[k] || '';
+      }
+      inp.onchange = () => { p[k] = inp.value; save(); if (k === 'name') renderProjects(); };
+      inp.onclick = e => e.stopPropagation();
+      lab.appendChild(inp); frm.appendChild(lab);
+    });
+    const descLab = document.createElement('label');
+    descLab.className = 'full'; descLab.textContent = 'Description (1–2 sentences)';
+    const descIn = document.createElement('textarea'); descIn.value = p.desc || '';
+    descIn.onchange = () => { p.desc = descIn.value; save(); };
+    descLab.appendChild(descIn); frm.appendChild(descLab);
+
+    const featLab = document.createElement('label');
+    featLab.className = 'full';
+    featLab.style.flexDirection = 'row'; featLab.style.alignItems = 'center'; featLab.style.gap = '8px';
+    const featIn = document.createElement('input'); featIn.type = 'checkbox'; featIn.checked = !!p.featured;
+    featIn.onchange = () => { p.featured = featIn.checked; save(); renderProjects(); };
+    featLab.appendChild(featIn); featLab.appendChild(document.createTextNode('Featured case study'));
+    frm.appendChild(featLab);
+
+    const cs = document.createElement('details');
+    cs.className = 'cs'; cs.open = p.featured;
+    cs.innerHTML = '<summary>Case-study fields (challenge / approach / result / quote)</summary>';
+    const csf = document.createElement('div'); csf.className = 'frm';
+    [['challenge','Challenge'],['approach','Approach'],['result','Result'],['quote','Pull quote'],['quoteWho','Quote attribution']].forEach(([k,label]) => {
+      const lab = document.createElement('label'); lab.textContent = label;
+      const ta = document.createElement(k.startsWith('quote') ? 'input' : 'textarea');
+      ta.value = p[k] || '';
+      ta.onchange = () => { p[k] = ta.value; save(); };
+      lab.appendChild(ta); csf.appendChild(lab);
+    });
+    cs.appendChild(csf); frm.appendChild(cs);
+    body.appendChild(frm);
+
+    const tray = document.createElement('div');
+    tray.className = 'tray';
+    tray.innerHTML = '<div class="tl">Gallery — first item is the cover · click photos on the left to add</div>';
+    const ti = document.createElement('div'); ti.className = 'tray-items';
+    p.media.forEach((m, mi) => {
+      const it = document.createElement('div');
+      it.className = 'titem';
+      it.innerHTML = `<img src="${m.url}" loading="lazy" alt="">` +
+        (mi === 0 ? '<span class="cover">COVER</span>' : '') +
+        (m.isVideo ? '<span class="vid">VID</span>' : '');
+      const ops = document.createElement('div'); ops.className = 'ops';
+      const mk = (txt, title, fn) => { const b = document.createElement('button'); b.textContent = txt; b.title = title; b.onclick = fn; ops.appendChild(b); };
+      mk('◀','Move earlier', () => { if (mi > 0){ [p.media[mi-1], p.media[mi]] = [p.media[mi], p.media[mi-1]]; save(); renderProjects(); }});
+      mk('✕','Remove', () => { p.media.splice(mi,1); save(); renderProjects(); renderPhotos(); });
+      mk('▶','Move later', () => { if (mi < p.media.length-1){ [p.media[mi+1], p.media[mi]] = [p.media[mi], p.media[mi+1]]; save(); renderProjects(); }});
+      it.appendChild(ops); ti.appendChild(it);
+    });
+    tray.appendChild(ti);
+    if (!p.media.length) tray.innerHTML += '<div class="hint">No media yet — click photos in the catalog to add them here.</div>';
+    body.appendChild(tray);
+    el.appendChild(body);
+    wrap.appendChild(el);
+  });
+}
+
+/* ════════════════════ exports ════════════════════ */
+function toLookbookProjects(){
+  return state.projects.map(p => ({
+    name: p.name, type: p.type, sector: p.sector, location: p.location,
+    scope: p.scope, systems: p.systems, gc: p.gc, timeline: p.timeline,
+    ...(p.featured ? { featured: true } : {}),
+    media: p.media.map(m => m.isVideo ? { video: m.url } : { img: m.url, alt: m.caption || p.name }),
+    desc: p.desc
+  }));
+}
+function csvEsc(v){ v = String(v ?? ''); return /[",\n]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v; }
+
+let modalFile = 'export.txt';
+function showModal(title, text, filename, applyBtn){
+  document.getElementById('mtitle').textContent = title;
+  document.getElementById('mtext').value = text;
+  document.getElementById('mtext').readOnly = !applyBtn;
+  document.getElementById('mapply').style.display = applyBtn ? '' : 'none';
+  modalFile = filename;
+  document.getElementById('mback').classList.add('open');
+}
+document.getElementById('mclose').onclick = () => document.getElementById('mback').classList.remove('open');
+document.getElementById('mcopy').onclick = () => { navigator.clipboard.writeText(document.getElementById('mtext').value); };
+document.getElementById('mdl').onclick = () => {
+  const blob = new Blob([document.getElementById('mtext').value], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = modalFile; a.click();
+};
+
+document.getElementById('expJs').onclick = () => {
+  const js = 'const PROJECTS = ' + JSON.stringify(toLookbookProjects(), null, 2) + ';';
+  showModal('PROJECTS array — paste into lookbook/index.html (replacing the existing const PROJECTS)', js, 'projects.js');
+};
+document.getElementById('expJson').onclick = () => {
+  showModal('projects.json — full builder state (re-importable)', JSON.stringify(state.projects, null, 2), 'projects.json');
+};
+document.getElementById('expCsv').onclick = () => {
+  const cols = ['Title','Type','Sector','Location','Scope','Systems','Client','Timeline','Description','Featured','Challenge','Approach','Result','Quote','QuoteWho'];
+  const rows = state.projects.map(p => [p.name,p.type,p.sector,p.location,p.scope,p.systems,p.gc,p.timeline,p.desc,
+    p.featured?'Yes':'No',p.challenge,p.approach,p.result,p.quote,p.quoteWho].map(csvEsc).join(','));
+  showModal('Wix CMS import CSV (media added in Wix afterward)', cols.join(',') + '\n' + rows.join('\n'), 'wix-projects.csv');
+};
+document.getElementById('impJson').onclick = () => {
+  showModal('Paste projects JSON (from a previous Export JSON), then click "Import This"', '', 'import.json', true);
+};
+document.getElementById('mapply').onclick = () => {
+  try{
+    const arr = JSON.parse(document.getElementById('mtext').value);
+    if (!Array.isArray(arr)) throw new Error('expected an array');
+    state.projects = arr; state.selected = arr.length ? 0 : null;
+    save(); renderProjects(); renderPhotos();
+    document.getElementById('mback').classList.remove('open');
+  }catch(err){ alert('Import failed: ' + err.message); }
+};
+
+/* ════════════════════ boot ════════════════════ */
+renderProjects();
+if (state.manifestUrl) loadCatalog();
+</script>
+</body>
+</html>
