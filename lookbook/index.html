@@ -199,7 +199,7 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
 <body>
 
 <div class="notice" id="notice">
-  <strong>Template preview.</strong> The wet-room case study is real; all other projects are sample data — replace with real Eridion projects and photography before publishing.
+  <strong>Template preview.</strong> The wet-room and grey-shower case studies are real; remaining projects are sample data — replace before publishing.
   <button onclick="document.getElementById('notice').style.display='none'">Dismiss</button>
 </div>
 
@@ -287,27 +287,27 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
     </div>
   </article>
 
-  <!-- SAMPLE — replace with a real Eridion whole-home project -->
-  <article class="case cut rv" id="case-hillcrest">
-    <div class="case-media media" data-media="case-hillcrest"></div>
+  <!-- REAL PROJECT — grey-glass shower, boys' bath (owner interview, July 2026) -->
+  <article class="case cut rv" id="case-greyshower">
+    <div class="case-media media" data-media="case-greyshower"></div>
     <div class="case-body">
-      <div class="eyebrow">Custom Residential · Whole-Home Glass Package</div>
-      <h3>[Custom residence name]</h3>
-      <div class="loc">[Neighborhood] — City, TX</div>
+      <div class="eyebrow">Custom Residential · Shower Enclosures</div>
+      <h3>Privacy that didn't look like a compromise</h3>
+      <div class="loc">Boys' Bath — 5-Bedroom New Build, DFW Suburb</div>
       <div class="case-facts">
-        <div><div class="k">Scope</div><div class="v">Steam shower, wine cellar, stair rail, vanity mirrors</div></div>
-        <div><div class="k">Systems</div><div class="v">Frameless low-iron glass · laminated stair glass</div></div>
-        <div><div class="k">Client</div><div class="v">[Builder Name]</div></div>
-        <div><div class="k">Timeline</div><div class="v">Phased with construction schedule</div></div>
+        <div><div class="k">Scope</div><div class="v">72″ × 90″ opening — 2-panel inline, 28″ pivot door</div></div>
+        <div><div class="k">Systems</div><div class="v">3/8″ grey-tinted tempered · dual-swing pivot · matte black hardware</div></div>
+        <div><div class="k">Client</div><div class="v">Builder partner</div></div>
+        <div><div class="k">Timeline</div><div class="v">1 week, measure to install · 2-day set</div></div>
       </div>
       <div class="case-story">
-        <p><strong>Challenge</strong>[One or two sentences: what made this project demanding — tolerances, curved runs, oversized panels, schedule.]</p>
-        <p><strong>Approach</strong>[How Eridion solved it — templating, engineering, fabrication choices, coordination with the builder.]</p>
-        <p><strong>Result</strong>[The outcome — on schedule, zero punch-list glass items, the detail the owner shows off at parties.]</p>
+        <p><strong>Challenge</strong>In a five-bedroom new build, the boys' rooms shared a bathroom — no ensuite in the plan. The teenage son wanted more privacy than a clear enclosure gives, and his mom brought the request to the build team looking for recommendations, not products.</p>
+        <p><strong>Approach</strong>We recommended grey-tinted glass over the usual satin-etch. Same privacy, different message: frosted glass reads as a utility fix, while grey reads as a design decision — edgier, more modern, and right at home with the house's matte black finishes. Fabricated as a two-panel inline enclosure in 3/8-inch tempered grey glass with a 28-inch pivot door that swings both in and out.</p>
+        <p><strong>Result</strong>Set on the standard one-week measure-to-install timeline, about two days on site. The family loved it — and that word came back through the builder, which counts double.</p>
       </div>
       <div class="case-quote">
-        <p>“[Builder or homeowner quote.]”</p>
-        <div class="who">[Title, Builder Name]</div>
+        <p>“Builders don't usually call about a shower. When she called to say the family loved it — that's a big deal.”</p>
+        <div class="who">Owner, Eridion Glass</div>
       </div>
     </div>
   </article>
@@ -406,12 +406,12 @@ const PROJECTS = [
    media:[{ph:"ph-f", tag:"Sample 1"},{ph:"ph-a", tag:"Sample 2"}],
    caseId:"case-lobby",
    desc:"Occupied-building refresh installed nights and weekends — sample project, replace with a real one."},
-  {name:"[Custom Residence Name]", type:"Specialty", sector:"Custom Residential", location:"City, TX",
-   scope:"Steam shower, wine cellar, stair rail, vanity mirrors", systems:"Frameless low-iron · laminated stair glass",
-   gc:"[Builder Name]", timeline:"Phased with construction",
-   media:[{ph:"ph-d", tag:"Sample"}],
-   caseId:"case-hillcrest",
-   desc:"Whole-home glass package — sample project, replace with a real one."},
+  {name:"Privacy that didn't look like a compromise", type:"Showers & Wet Rooms", sector:"Custom Residential", location:"DFW Suburb, TX",
+   scope:"72″ × 90″ opening — 2-panel inline, 28″ pivot door", systems:"3/8″ grey-tinted tempered · matte black",
+   gc:"Builder partner", timeline:"1 week · 2-day set",
+   media:[{ph:"ph-b", tag:"Add photo"}],
+   caseId:"case-greyshower",
+   desc:"Grey-tinted enclosure giving a teenager privacy in a shared bath — recommended over satin-etch because it reads as design, not a fix."},
   {name:"Chef's Kitchen Backsplash", type:"Colorback Glass", sector:"Custom Residential", location:"City, TX",
    scope:"48 sq ft seamless backsplash, single panel runs", systems:"Colorback glass, custom color match",
    gc:"[Builder Name]", timeline:"1 week from final measure",
