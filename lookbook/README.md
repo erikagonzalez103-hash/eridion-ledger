@@ -38,7 +38,14 @@ step, no hosting cost.
      real media arrives)
 
    One item fills the area as a single image/video; two or more become a
-   carousel with arrows, dots, and touch swipe. Grid tiles show the first
+   carousel with arrows, dots, and touch swipe.
+
+   **Portrait vs. landscape:** each featured case study has two layouts.
+   The default two-column layout gives a tall media area (best for
+   portrait/square photos). Add the class `wide` to the article tag —
+   `<article class="case cut rv wide" ...>` — for a full-width 16:9
+   landscape hero with the story below it. Pick per case based on its
+   best photos; alternating the two reads nicely down the page. Grid tiles show the first
    item as a cover (videos show their poster with a ▶ badge); the full
    carousel/player appears in featured case studies and the project modal.
    Put the files in `images/` next to `index.html`. Keep videos short

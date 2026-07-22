@@ -138,6 +138,14 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
 .case-quote{margin-top:auto;padding-top:20px;border-top:1px solid var(--hairline);}
 .case-quote p{font-family:var(--head);font-weight:400;font-size:18px;line-height:1.4;color:var(--navy);}
 .case-quote .who{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--slate);margin-top:8px;}
+/* wide variant — full-width landscape hero above the story.
+   Add class "wide" to a .case article when its best photos are landscape;
+   the default two-column layout suits portrait and square imagery. */
+.case.wide,.case.wide:nth-of-type(even){grid-template-columns:1fr;}
+.case.wide .case-media,.case.wide:nth-of-type(even) .case-media{order:0;min-height:0;aspect-ratio:16/9;}
+.case.wide .case-facts{grid-template-columns:repeat(4,1fr);}
+.case.wide .case-story p{max-width:72ch;}
+@media(max-width:860px){.case.wide .case-facts{grid-template-columns:1fr 1fr;}.case.wide .case-media{min-height:0;}}
 @media(max-width:860px){.case,.case:nth-of-type(even){grid-template-columns:1fr;}.case:nth-of-type(even) .case-media{order:0;}.case-media{min-height:260px;}.case-body{padding:30px 24px;}}
 
 /* ── FILTER + GRID ───────────────────────────────── */
@@ -238,7 +246,7 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
 
   <!-- REAL PROJECT — adapted from the eridionglass.com blog post
        "Why Builders, Designers and Homeowners choose Colorback Glass over Tile" -->
-  <article class="case cut rv" id="case-wetroom">
+  <article class="case cut rv wide" id="case-wetroom">
     <div class="case-media media" data-media="case-wetroom"></div>
     <div class="case-body">
       <div class="eyebrow">Luxury Custom Home · Colorback Glass</div>
@@ -288,7 +296,7 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
   </article>
 
   <!-- REAL PROJECT — grey-glass shower, boys' bath (owner interview, July 2026) -->
-  <article class="case cut rv" id="case-greyshower">
+  <article class="case cut rv wide" id="case-greyshower">
     <div class="case-media media" data-media="case-greyshower"></div>
     <div class="case-body">
       <div class="eyebrow">Custom Residential · Shower Enclosures</div>
