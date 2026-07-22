@@ -199,7 +199,7 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
 <body>
 
 <div class="notice" id="notice">
-  <strong>Template preview.</strong> All three featured case studies are real; some grid projects are still sample data — replace before publishing.
+  <strong>Template preview.</strong> All four featured case studies are real; some grid projects are still sample data — replace before publishing.
   <button onclick="document.getElementById('notice').style.display='none'">Dismiss</button>
 </div>
 
@@ -307,6 +307,31 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
       </div>
       <div class="case-quote">
         <p>“Builders don't usually call about a shower. When she called to say the family loved it — that's a big deal.”</p>
+        <div class="who">Owner, Eridion Glass</div>
+      </div>
+    </div>
+  </article>
+
+  <!-- REAL PROJECT — floating staircase, Starphire railings (owner interview, July 2026) -->
+  <article class="case cut rv" id="case-staircase">
+    <div class="case-media media" data-media="case-staircase"></div>
+    <div class="case-body">
+      <div class="eyebrow">Custom Residential · Glass Railings</div>
+      <h3>A staircase that looks like it's floating</h3>
+      <div class="loc">Two-Story Foyer — Large Custom Home, DFW</div>
+      <div class="case-facts">
+        <div><div class="k">Scope</div><div class="v">241.5 sq ft — 15 panels, stair flights + both loft runs</div></div>
+        <div><div class="k">Systems</div><div class="v">1/2″ tempered Starphire (low-iron) · adjustable standoffs</div></div>
+        <div><div class="k">Client</div><div class="v">Stair contractor partner — builds large custom homes</div></div>
+        <div><div class="k">Timeline</div><div class="v">Templated per panel · set in about a day, two-man crew</div></div>
+      </div>
+      <div class="case-story">
+        <p><strong>Challenge</strong>The ask on this one was simple to say and hard to do: make the staircase look like it's floating. Floating oak treads in a two-story foyer, glass climbing the stair and wrapping both sides of the loft above it — and the glass had to disappear. We came in through a stair contractor new to us who builds massive homes. We weren't there at the drawing stage, but on site, while the build gets finalized, we have a lot of input.</p>
+        <p><strong>Approach</strong>Starphire glass is what makes it work: half-inch tempered, low-iron — standard glass reads green at that thickness, and Starphire is almost invisible. You can tell. Fifteen panels, 241.5 square feet, a little over half a ton of glass. Every panel gets measured individually, and a template made and numbered so there's no confusion. We learned that lesson a long time ago — templates are a small expense in the long run, and worth every penny.</p>
+        <p><strong>Result</strong>Two men set it in about a day. The templates and adjustable standoffs kept the hours down — measure twice — and that kind of install speed is another reason builders choose Eridion. The staircase floats, the glass disappears, and the stair contractor has already slotted us for their next two homes.</p>
+      </div>
+      <div class="case-quote">
+        <p>“The ask was to make the staircase float. I think we read the assignment.”</p>
         <div class="who">Owner, Eridion Glass</div>
       </div>
     </div>
@@ -437,11 +462,12 @@ const PROJECTS = [
    gc:"[Builder Name]", timeline:"Coordinated with millwork",
    media:[{ph:"ph-a", tag:"Sample"}],
    desc:"Full-height cellar enclosure holding temperature and humidity spec without visual bulk. Sample project."},
-  {name:"Floating Stair Glass Railing", type:"Specialty", sector:"Custom Residential", location:"City, TX",
-   scope:"3-level stair + landing rail run", systems:"Laminated glass · concealed base fastening",
-   gc:"[Builder Name]", timeline:"5 weeks incl. engineering",
-   media:[{ph:"ph-e", tag:"Sample"}],
-   desc:"Frameless laminated railing with fully concealed fastening across three levels. Sample project."},
+  {name:"A staircase that looks like it's floating", type:"Specialty", sector:"Custom Residential", location:"DFW, TX",
+   scope:"241.5 sq ft · 15 panels — stair + both loft runs", systems:"1/2″ tempered Starphire · adjustable standoffs",
+   gc:"Stair contractor partner", timeline:"Templated per panel · ~1-day set",
+   media:[{ph:"ph-c", tag:"Add photo"}],
+   caseId:"case-staircase",
+   desc:"Half a ton of near-invisible low-iron glass wrapping a floating stair and loft — set by a two-man crew in about a day."},
   {name:"Full-Wall Vanity Mirrors", type:"Mirrors", sector:"Luxury Custom Home", location:"City, TX",
    scope:"6 baths, wall-to-wall mirrors with integrated lighting cutouts", systems:"Polished-edge mirror · precision cutouts",
    gc:"[Builder Name]", timeline:"2 weeks",
