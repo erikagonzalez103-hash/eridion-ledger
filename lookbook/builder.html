@@ -119,9 +119,10 @@ details.cs .frm{margin-top:10px;grid-template-columns:1fr;}
   <div class="pane browser">
     <div class="pane-head"><span class="t">Photo Catalog</span></div>
     <div class="filters">
-      <input type="search" id="q" placeholder="Search caption / job / tag…">
-      <select id="jobSel"><option value="">All jobs</option></select>
+      <input type="search" id="q" placeholder="Search caption / category / tag…">
+      <select id="jobSel"><option value="">All categories</option></select>
       <button class="chip" id="clearTags" title="Clear tag filters">✕ tags</button>
+      <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--slate);"><input type="checkbox" id="hideSkip" checked>hide "skip" grade</label>
     </div>
     <div class="tagchips" id="tagchips"></div>
     <div class="count" id="count"></div>
@@ -177,7 +178,27 @@ load();
 /* ════════════════════ manifest loading ════════════════════ */
 function setStatus(msg, cls){ const el = document.getElementById('status'); el.textContent = msg; el.className = 'status ' + (cls||''); }
 
-function normalizeManifest(data){
+function normalizeManifest(data, srcUrl){
+  /* Eridion catalog schema — written by catalog.html in
+     eridion-social-campaign-studio: {assets:[{id,filename,category,
+     orientation,thumb,web,caption,notes,product[],space[],style[],
+     shot,grade,flags[],reviewed}], base?} */
+  if (data && Array.isArray(data.assets) && data.assets.length && (data.assets[0].web || data.assets[0].thumb)){
+    const dir = srcUrl ? srcUrl.replace(/[?#].*$/,'').replace(/\/[^\/]*$/, '') : '';
+    const base = ((data.base || dir) + '/').replace(/\/+$/,'/');
+    return data.assets.map((a, i) => ({
+      id: a.id ?? i,
+      url: base + (a.web || a.thumb),
+      thumb: base + (a.thumb || a.web),
+      tags: [ ...(a.product||[]), ...(a.space||[]), ...(a.style||[]),
+              a.shot, a.grade, ...(a.flags||[]) ].filter(Boolean).map(t => String(t).toLowerCase()),
+      job: a.category || '',
+      caption: a.caption || a.filename || '',
+      grade: a.grade || '',
+      isVideo: /\.(mp4|webm|mov|m4v)(\?|$)/i.test(a.web || '')
+    })).filter(p => p.url !== base);
+  }
+  /* generic fallback shapes */
   let arr = Array.isArray(data) ? data
     : data.photos || data.images || data.items || data.assets || data.files || data.entries || data.catalog;
   if (!arr && data && typeof data === 'object'){
@@ -209,9 +230,9 @@ async function loadCatalog(){
   if (!url){ setStatus('Enter a manifest URL first', 'err'); return; }
   setStatus('Loading…');
   try{
-    const res = await fetch(url, {mode:'cors'});
+    const res = await fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(), {mode:'cors'});
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    photos = normalizeManifest(await res.json());
+    photos = normalizeManifest(await res.json(), url);
     state.manifestUrl = url; save();
     setStatus(photos.length + ' photos loaded', 'ok');
     buildFilters(); renderPhotos();
@@ -246,7 +267,7 @@ document.getElementById('demoBtn').onclick = () => {
 function buildFilters(){
   const jobs = [...new Set(photos.map(p => p.job).filter(Boolean))].sort();
   const sel = document.getElementById('jobSel');
-  sel.innerHTML = '<option value="">All jobs (' + jobs.length + ')</option>' +
+  sel.innerHTML = '<option value="">All categories (' + jobs.length + ')</option>' +
     jobs.map(j => `<option>${j.replace(/</g,'&lt;')}</option>`).join('');
   const freq = {};
   photos.forEach(p => p.tags.forEach(t => freq[t] = (freq[t]||0) + 1));
@@ -268,6 +289,7 @@ document.getElementById('clearTags').onclick = () => {
 };
 document.getElementById('q').oninput = renderPhotos;
 document.getElementById('jobSel').onchange = renderPhotos;
+document.getElementById('hideSkip').onchange = renderPhotos;
 
 function usedUrls(){
   const s = new Set();
@@ -278,8 +300,10 @@ function usedUrls(){
 function renderPhotos(){
   const q = document.getElementById('q').value.toLowerCase();
   const job = document.getElementById('jobSel').value;
+  const hideSkip = document.getElementById('hideSkip').checked;
   const used = usedUrls();
   const list = photos.filter(p =>
+    (!hideSkip || p.grade !== 'skip') &&
     (!job || p.job === job) &&
     (![...activeTags].some(t => !p.tags.includes(t))) &&
     (!q || p.caption.toLowerCase().includes(q) || p.job.toLowerCase().includes(q) || p.tags.some(t => t.includes(q)))
@@ -484,6 +508,8 @@ document.getElementById('mapply').onclick = () => {
 };
 
 /* ════════════════════ boot ════════════════════ */
+const DEFAULT_MANIFEST = 'https://pub-17160ed212d74341a64e62d4f71d7c34.r2.dev/manifest.json';
+if (!state.manifestUrl){ state.manifestUrl = DEFAULT_MANIFEST; document.getElementById('manifestUrl').value = DEFAULT_MANIFEST; }
 renderProjects();
 if (state.manifestUrl) loadCatalog();
 </script>
