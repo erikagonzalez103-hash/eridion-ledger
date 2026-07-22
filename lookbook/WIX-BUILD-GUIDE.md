@@ -36,25 +36,32 @@ Set the theme colors to the brand tokens:
 shapes. If green ever needs to carry text, don't — use navy instead.
 
 ### Fonts (Site Design → Text Theme)
-1. Search Wix's font list for **Archivo** and **Inter**. If "Archivo
-   Expanded" isn't offered, download the free family from Google Fonts
-   (fonts.google.com/specimen/Archivo → get the **Expanded 500/700**
-   static files) and upload via **Upload Fonts**. Both are open-license;
-   uploading is fine.
+Headline face: **Jost** in light weights (a Futura-style geometric —
+owner decision, supersedes the Archivo Expanded named in Brand
+Guidelines v2.0; update the guidelines doc to match). Body: **Inter**.
+
+1. Search Wix's font list for **Jost** and **Inter**. If either is
+   missing, download the free family from Google Fonts
+   (fonts.google.com/specimen/Jost — get Light 300 + Regular 400) and
+   add it via **Upload Fonts**. Both are open-license; uploading is fine.
 2. Set the text theme:
 
 | Theme slot | Font | Size | Color |
 |---|---|---|---|
-| Heading 1 | Archivo Expanded 700 | 40px | `#153862` |
-| Heading 2 | Archivo Expanded 700 | 30px | `#153862` |
-| Heading 3 | Archivo Expanded 500 | 22px | `#153862` |
+| Heading 1 | Jost Light 300 | 44px | `#153862` |
+| Heading 2 | Jost Light 300 | 30px | `#153862` |
+| Heading 3 | Jost 400 | 22–26px | `#153862` |
 | Paragraph (lead) | Inter 500 | 18px | `#000000` |
 | Paragraph (body) | Inter 400 | 16px | `#000000` |
 | Caption | Inter 400 | 13px | `#5C6B7A` |
 
-Eyebrow style (used often, worth memorizing): Archivo Expanded 500,
-12px, ALL CAPS, letter-spacing ~0.25em, color `#5C6B7A` (or `#32A200`
-only on navy backgrounds).
+Rule of thumb: Jost **300** only at display sizes (H1/H2 and big stat
+numbers); anything 26px or smaller uses Jost **400** so thin strokes
+never get fragile. Body copy is always Inter.
+
+Eyebrow style (used often, worth memorizing): Jost 400, 12px, ALL CAPS,
+letter-spacing ~0.25em, color `#5C6B7A` (or `#32A200` only on navy
+backgrounds).
 
 ### Buttons
 Default button style: **squared corners (0 radius)**, fill `#153862`,
