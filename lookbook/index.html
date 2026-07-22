@@ -199,7 +199,7 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
 <body>
 
 <div class="notice" id="notice">
-  <strong>Template preview.</strong> The wet-room and grey-shower case studies are real; remaining projects are sample data — replace before publishing.
+  <strong>Template preview.</strong> All three featured case studies are real; some grid projects are still sample data — replace before publishing.
   <button onclick="document.getElementById('notice').style.display='none'">Dismiss</button>
 </div>
 
@@ -262,27 +262,27 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
     </div>
   </article>
 
-  <!-- SAMPLE — replace with a real Eridion commercial project -->
-  <article class="case cut rv" id="case-lobby">
-    <div class="case-media media" data-media="case-lobby"></div>
+  <!-- REAL PROJECT — grey mirror, designer's own home (owner interview, July 2026) -->
+  <article class="case cut rv" id="case-greymirror">
+    <div class="case-media media" data-media="case-greymirror"></div>
     <div class="case-body">
-      <div class="eyebrow">Commercial · Elevators &amp; Lobbies</div>
-      <h3>Tower lobby &amp; elevator cab refresh</h3>
-      <div class="loc">[Building Name] — Dallas, TX</div>
+      <div class="eyebrow">Designer's Personal Home · Mirrors</div>
+      <h3>Grey mirror in a designer's own home</h3>
+      <div class="loc">Entry Powder Bath — Southlake, TX</div>
       <div class="case-facts">
-        <div><div class="k">Scope</div><div class="v">4 elevator cabs + lobby feature wall</div></div>
-        <div><div class="k">Systems</div><div class="v">Colorback glass panels, custom color</div></div>
-        <div><div class="k">Client</div><div class="v">[Property manager / GC]</div></div>
-        <div><div class="k">Timeline</div><div class="v">1 week, nights and weekends</div></div>
+        <div><div class="k">Scope</div><div class="v">60″ × 84″ grey mirror — counter toward an 11-ft ceiling</div></div>
+        <div><div class="k">Systems</div><div class="v">1/4″ grey mirror · precision cutouts for the wall-mounted faucet</div></div>
+        <div><div class="k">Client</div><div class="v">Interior designer — her own home, the first of two</div></div>
+        <div><div class="k">Timeline</div><div class="v">Sequenced over several weeks with the full sub team</div></div>
       </div>
       <div class="case-story">
-        <p><strong>Challenge</strong>Dated elevator interiors and a scuffed lobby wall in a fully occupied building — with no tolerance for daytime downtime or a weeks-long refinishing process.</p>
-        <p><strong>Approach</strong>Field-measured colorback glass panels fabricated in advance and installed during off-hours, transforming each cab in a single night shift.</p>
-        <p><strong>Result</strong>A complete visual refresh in one week with zero business-hours disruption — durable, cleanable surfaces that will not chip or peel like paint or laminate.</p>
+        <p><strong>Challenge</strong>This was the first home we did for an interior designer — her own place in Southlake, about 10,000 square feet. The entry powder bath mattered to her because she likes to entertain, and that's the room guests actually see. She wanted it to make a statement, and she wanted the mirror to be different — but she was also planning artwork for the room, and we didn't want the mirror taking too much away from that focal point.</p>
+        <p><strong>Approach</strong>Grey mirror got it done on both counts: different enough to notice, quiet enough that the art stays the focus. One panel, roughly 60 by 84 inches at a quarter inch thick, running from the countertop up toward the eleven-foot ceiling, with cutouts for the wall-mounted faucet. Cutouts make any piece of glass more fragile, especially at a quarter inch — these sat far enough from the edges to keep the piece manageable, and Dion is meticulous about his measurements. Years of measuring colorback glass will do that. Fit wasn't a problem.</p>
+        <p><strong>Result</strong>The mirror went in as part of the larger build — a lot of moving parts, several weeks, a layered team effort by all the subs. The room came out the way she wanted: the mirror gets noticed, the art keeps the room. And she hired us again for her family's next home before they moved out of state.</p>
       </div>
       <div class="case-quote">
-        <p>“[Client quote about the transformation and the schedule.]”</p>
-        <div class="who">[Title, Client Name]</div>
+        <p>“Designers see everyone's work up close. Getting picked for her own home told us where we stand.”</p>
+        <div class="who">Owner, Eridion Glass</div>
       </div>
     </div>
   </article>
@@ -404,7 +404,6 @@ const PROJECTS = [
    scope:"4 elevator cabs + lobby feature wall", systems:"Colorback glass panels, custom color",
    gc:"[Property manager]", timeline:"1 week, off-hours",
    media:[{ph:"ph-f", tag:"Sample 1"},{ph:"ph-a", tag:"Sample 2"}],
-   caseId:"case-lobby",
    desc:"Occupied-building refresh installed nights and weekends — sample project, replace with a real one."},
   {name:"Privacy that didn't look like a compromise", type:"Showers & Wet Rooms", sector:"Custom Residential", location:"DFW Suburb, TX",
    scope:"72″ × 90″ opening — 2-panel inline, 28″ pivot door", systems:"3/8″ grey-tinted tempered · matte black",
@@ -412,6 +411,12 @@ const PROJECTS = [
    media:[{ph:"ph-b", tag:"Add photo"}],
    caseId:"case-greyshower",
    desc:"Grey-tinted enclosure giving a teenager privacy in a shared bath — recommended over satin-etch because it reads as design, not a fix."},
+  {name:"Grey mirror in a designer's own home", type:"Mirrors", sector:"Designer's Personal Home", location:"Southlake, TX",
+   scope:"60″ × 84″ grey mirror, counter to ceiling", systems:"1/4″ grey mirror · faucet cutouts",
+   gc:"Interior designer (repeat client)", timeline:"Several weeks, with the full sub team",
+   media:[{ph:"ph-f", tag:"Add photo"}],
+   caseId:"case-greymirror",
+   desc:"Statement grey mirror in an entertaining-first powder bath — noticeable, without taking focus from the art. She hired Eridion again for her next home."},
   {name:"Chef's Kitchen Backsplash", type:"Colorback Glass", sector:"Custom Residential", location:"City, TX",
    scope:"48 sq ft seamless backsplash, single panel runs", systems:"Colorback glass, custom color match",
    gc:"[Builder Name]", timeline:"1 week from final measure",
