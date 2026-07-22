@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<!-- Eridion Glass — Brand Guidelines v2.1 (July 2026)
+     Supersedes the v2.0 PDF (June 2026). Single change: headline
+     typography. All other foundations carried over unchanged. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eridion Glass — Brand Guidelines v2.1</title>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#153862; --deep-navy:#0E2741; --navy-wash:#EAEEF3;
+  --green:#32A200; --deep-green:#1E6B00;
+  --black:#000; --slate:#5C6B7A; --divider:#C4C4C4; --hairline:#E6E8EC; --paper:#F7F8FA;
+  --head:'Jost',sans-serif; --body:'Inter',-apple-system,Segoe UI,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--body);font-size:15px;background:var(--paper);color:var(--black);line-height:1.65;}
+.page{max-width:860px;margin:0 auto;padding:0 5vw 12vh;}
+h1,h2,h3{font-family:var(--head);color:var(--navy);line-height:1.15;}
+h1{font-size:42px;font-weight:300;}
+h2{font-size:30px;font-weight:300;margin-bottom:6px;}
+h2::after{content:"";display:block;width:44px;height:4px;background:var(--green);margin-top:10px;}
+h3{font-size:15px;font-weight:400;letter-spacing:2px;text-transform:uppercase;color:var(--slate);margin:34px 0 12px;}
+section{margin-top:9vh;padding-top:4vh;border-top:1px solid var(--divider);}
+.eyebrow{font-family:var(--head);font-weight:400;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--slate);}
+p.intro{margin-top:16px;max-width:60ch;color:var(--black);}
+.cover{padding:12vh 0 6vh;text-align:left;}
+.cover img{height:64px;width:auto;display:block;margin-bottom:34px;}
+.cover .ver{margin-top:14px;color:var(--slate);font-size:13px;}
+.changelog{margin-top:26px;background:#fff;border:1px solid var(--hairline);border-left:3px solid var(--green);padding:14px 18px;font-size:13.5px;max-width:60ch;}
+.changelog strong{color:var(--navy);}
+
+/* swatches */
+.sw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-top:14px;}
+.sw{background:#fff;border:1px solid var(--hairline);}
+.sw .chip{height:64px;position:relative;}
+.sw .lock{position:absolute;top:8px;right:8px;font-size:11px;color:#fff;background:rgba(0,0,0,.25);padding:2px 6px;}
+.sw .m{padding:10px 12px 12px;}
+.sw .n{font-weight:600;font-size:13px;}
+.sw .hx{font-family:ui-monospace,monospace;font-size:12px;color:var(--slate);}
+.sw .u{font-size:12px;color:var(--slate);margin-top:2px;}
+
+/* tables */
+table{width:100%;border-collapse:collapse;margin-top:14px;background:#fff;border:1px solid var(--hairline);font-size:13.5px;}
+th{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--slate);text-align:left;padding:10px 14px;border-bottom:1px solid var(--divider);}
+td{padding:10px 14px;border-bottom:1px solid var(--hairline);vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+td.mono{font-family:ui-monospace,monospace;font-size:12.5px;color:var(--slate);white-space:nowrap;}
+.pass{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;background:var(--navy-wash);color:var(--navy);}
+.warn{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;background:#FFF3D6;color:#6B5A1E;}
+.tblwrap{overflow-x:auto;}
+
+/* do / don't */
+.dd{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;}
+.dd>div{background:#fff;border:1px solid var(--hairline);padding:16px 18px;font-size:13.5px;}
+.dd .do{border-top:3px solid var(--deep-green);}
+.dd .dont{border-top:3px solid #B84A48;}
+.dd .tag{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;display:block;}
+.dd .do .tag{color:var(--deep-green);}
+.dd .dont .tag{color:#B84A48;}
+@media(max-width:640px){.dd{grid-template-columns:1fr;}}
+
+/* type specimens */
+.spec{background:#fff;border:1px solid var(--hairline);margin-top:14px;}
+.spec>div{padding:18px 22px;border-bottom:1px solid var(--hairline);}
+.spec>div:last-child{border-bottom:none;}
+.spec .lab{font-family:ui-monospace,monospace;font-size:11.5px;color:var(--slate);margin-top:6px;}
+.s-h1{font-family:var(--head);font-weight:300;font-size:44px;color:var(--navy);line-height:1.1;}
+.s-h2{font-family:var(--head);font-weight:300;font-size:30px;color:var(--navy);}
+.s-h3{font-family:var(--head);font-weight:400;font-size:24px;color:var(--navy);}
+.s-lead{font-weight:500;font-size:18px;}
+.s-body{font-weight:400;font-size:16px;}
+.s-cap{font-size:13px;color:var(--slate);}
+.s-eye{font-family:var(--head);font-weight:400;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--slate);}
+
+/* voice */
+.say-avoid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;}
+.say-avoid>div{background:#fff;border:1px solid var(--hairline);padding:16px 18px;font-size:13.5px;}
+.say-avoid .h{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+.say-avoid .say .h{color:var(--deep-green);}
+.say-avoid .avoid .h{color:#B84A48;}
+@media(max-width:640px){.say-avoid{grid-template-columns:1fr;}}
+.example{background:#fff;border:1px solid var(--hairline);padding:16px 18px;margin-top:14px;font-size:13.5px;}
+.example .who{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:1px;color:var(--slate);text-transform:uppercase;}
+.example .bad{color:#8A6060;margin-top:8px;}
+.example .good{margin-top:8px;}
+.example .pill{display:inline-block;font-size:10px;font-weight:600;padding:1px 7px;margin-right:8px;}
+.example .pill.a{background:#F6E3E2;color:#B84A48;}
+.example .pill.e{background:var(--navy-wash);color:var(--navy);}
+ul.rules{margin:14px 0 0 0;list-style:none;}
+ul.rules li{padding:8px 0 8px 22px;position:relative;font-size:14px;max-width:66ch;}
+ul.rules li::before{content:"";position:absolute;left:0;top:16px;width:12px;height:3px;background:var(--green);}
+
+/* applications */
+.apps{display:flex;gap:20px;flex-wrap:wrap;margin-top:16px;align-items:flex-start;}
+.statcard{background:#fff;border:1px solid var(--hairline);width:240px;padding:20px;position:relative;}
+.statcard::after{content:"";position:absolute;top:0;right:0;border-top:20px solid var(--green);border-left:20px solid transparent;}
+.statcard .e{font-family:var(--head);font-weight:400;font-size:11px;letter-spacing:2.5px;color:var(--navy);text-transform:uppercase;}
+.statcard .big{font-family:var(--head);font-weight:300;font-size:52px;color:var(--navy);line-height:1.05;margin-top:8px;}
+.statcard .bar{width:36px;height:4px;background:var(--green);margin:10px 0;}
+.statcard .l{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--slate);}
+.statcard .d{font-size:12.5px;color:var(--black);margin-top:8px;}
+.info{background:var(--navy);color:#fff;width:280px;padding:26px 22px;text-align:center;}
+.info .g{font-family:var(--head);font-weight:400;font-size:12px;letter-spacing:4px;color:var(--green);text-transform:uppercase;}
+.info .t{font-family:var(--head);font-weight:300;font-size:24px;margin-top:10px;line-height:1.2;}
+.info .rule{width:36px;height:2px;background:var(--green);margin:14px auto;}
+.info .n{font-family:var(--head);font-weight:300;font-size:34px;color:var(--green);}
+.info .s{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:#C7D3E0;margin-top:4px;}
+.info .q{font-size:12px;color:#C7D3E0;margin-top:16px;font-style:italic;}
+.info .q b{color:var(--green);font-style:normal;font-weight:500;}
+footer{margin-top:10vh;padding-top:20px;border-top:1px solid var(--hairline);font-size:12px;color:var(--slate);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="cover">
+  <img src="../lookbook/images/eridion-logo.png" alt="Eridion Glass">
+  <div class="eyebrow">Eridion Glass, LLC</div>
+  <h1>Brand Guidelines</h1>
+  <div class="ver">Version 2.1 · July 2026 · supersedes v2.0 (June 2026)</div>
+  <div class="changelog">
+    <strong>Changed in v2.1:</strong> the headline typeface is now
+    <strong>Jost</strong> (Light 300 at display sizes, Regular 400 below
+    26px), replacing Archivo Expanded. Rationale: a lighter, geometric
+    face reads modern and architectural — like the material — and its
+    Futura lineage has stayed current for a century. Everything else —
+    color, the green rule, voice, photography, icons — is unchanged from
+    v2.0.
+  </div>
+</div>
+
+<!-- ═══ COLOR ═══ -->
+<section id="color">
+  <div class="eyebrow">01 — Foundations</div>
+  <h2>Color</h2>
+  <p class="intro">Navy and green live on the logo and never change. Everything else is a support system built around them, on light backgrounds wherever possible.</p>
+
+  <h3>Core — locked to the logo</h3>
+  <div class="sw-grid">
+    <div class="sw"><div class="chip" style="background:#153862;"><span class="lock">🔒</span></div><div class="m"><div class="n">Navy — primary</div><div class="hx">#153862</div><div class="u">Headlines, primary UI, the mark</div></div></div>
+    <div class="sw"><div class="chip" style="background:#32A200;"><span class="lock">🔒</span></div><div class="m"><div class="n">Brand green</div><div class="hx">#32A200</div><div class="u">Accent only — large fills, icons</div></div></div>
+  </div>
+
+  <h3>Extended system</h3>
+  <div class="sw-grid">
+    <div class="sw"><div class="chip" style="background:#0E2741;"></div><div class="m"><div class="n">Deep navy</div><div class="hx">#0E2741</div><div class="u">Depth, footers, hover on navy</div></div></div>
+    <div class="sw"><div class="chip" style="background:#EAEEF3;"></div><div class="m"><div class="n">Navy wash</div><div class="hx">#EAEEF3</div><div class="u">Tinted section backgrounds</div></div></div>
+    <div class="sw"><div class="chip" style="background:#1E6B00;"></div><div class="m"><div class="n">Deep green</div><div class="hx">#1E6B00</div><div class="u">Substitutes for brand green in text</div></div></div>
+    <div class="sw"><div class="chip" style="background:#000;"></div><div class="m"><div class="n">Black — text</div><div class="hx">#000000</div><div class="u">All body copy and headings</div></div></div>
+    <div class="sw"><div class="chip" style="background:#5C6B7A;"></div><div class="m"><div class="n">Slate</div><div class="hx">#5C6B7A</div><div class="u">Secondary text, captions</div></div></div>
+    <div class="sw"><div class="chip" style="background:#C4C4C4;"></div><div class="m"><div class="n">Light gray</div><div class="hx">#C4C4C4</div><div class="u">Borders, dividers (locked)</div></div></div>
+    <div class="sw"><div class="chip" style="background:#E6E8EC;"></div><div class="m"><div class="n">Hairline</div><div class="hx">#E6E8EC</div><div class="u">Subtle rules, input borders</div></div></div>
+    <div class="sw"><div class="chip" style="background:#F7F8FA;border-bottom:1px solid #E6E8EC;"></div><div class="m"><div class="n">Off-white</div><div class="hx">#F7F8FA</div><div class="u">Page background</div></div></div>
+  </div>
+</section>
+
+<!-- ═══ GREEN RULE ═══ -->
+<section id="green-rule">
+  <div class="eyebrow">01 — Foundations</div>
+  <h2>The green rule</h2>
+  <p class="intro">The two greens never appear in the same layout. Deep green substitutes for brand green when green has to carry text or contrast — it is not a companion to it. Navy backgrounds use brand green; light backgrounds use deep green. Pick one per layout and commit.</p>
+
+  <div class="dd">
+    <div class="do"><span class="tag">Do — one green, navy carries the rest</span>
+      A brand-green badge with a navy-underlined link. One point of green emphasis; navy does the structural work.</div>
+    <div class="dont"><span class="tag">Don't — both greens in one layout</span>
+      A brand-green badge next to a deep-green underlined link. Two greens compete and the emphasis is lost.</div>
+  </div>
+
+  <h3>Contrast on white</h3>
+  <div class="tblwrap"><table>
+    <tr><th>Text color</th><th>Ratio</th><th>Rating</th></tr>
+    <tr><td style="color:#153862;font-weight:500;">Navy text</td><td class="mono">10.4:1</td><td><span class="pass">AAA</span></td></tr>
+    <tr><td style="font-weight:500;">Black text</td><td class="mono">21:1</td><td><span class="pass">AAA</span></td></tr>
+    <tr><td style="color:#5C6B7A;">Slate text</td><td class="mono">5.5:1</td><td><span class="pass">AA</span></td></tr>
+    <tr><td style="color:#1E6B00;font-weight:500;">Deep green text</td><td class="mono">6.7:1</td><td><span class="pass">AA</span></td></tr>
+    <tr><td style="color:#32A200;font-weight:500;">Brand green text</td><td class="mono">3.0:1</td><td><span class="warn">Large text only</span></td></tr>
+  </table></div>
+  <p style="margin-top:12px;font-size:13.5px;max-width:66ch;">Brand green is reserved for large fills, icons, and accents; it fails as body text. Deep green, navy, and black carry copy safely.</p>
+</section>
+
+<!-- ═══ TYPOGRAPHY (UPDATED v2.1) ═══ -->
+<section id="typography">
+  <div class="eyebrow">01 — Foundations · updated in v2.1</div>
+  <h2>Typography</h2>
+  <p class="intro">Jost carries the headings — light, geometric, architectural, in the Futura tradition that has defined "modern" for a century. Inter does everything from the lead down: a quiet, legible workhorse that never competes. Two characterful lines of hierarchy, the rest invisible.</p>
+
+  <div class="spec">
+    <div><div class="s-h1">Custom glazing, built to spec</div><div class="lab">Display / H1 — Jost 300 · 40–44px · navy #153862</div></div>
+    <div><div class="s-h2">Precision fabrication and install</div><div class="lab">Heading / H2 — Jost 300 · 30px · navy #153862</div></div>
+    <div><div class="s-h3">Built for homes over $1M</div><div class="lab">Subhead / H3 — Jost 400 · 22–26px · navy #153862</div></div>
+    <div><div class="s-lead">We measure, cut, and set every panel to spec.</div><div class="lab">Lead — Inter 500 · 18px · black</div></div>
+    <div><div class="s-body">Eridion Glass fabricates and installs custom glazing for builders working on homes over a million dollars.</div><div class="lab">Body — Inter 400 · 16px · black</div></div>
+    <div><div class="s-cap">Estimate valid 30 days · Updated July 2026</div><div class="lab">Caption — Inter 400 · 13px · slate</div></div>
+    <div><div class="s-eye">Glazing · Design · Craft</div><div class="lab">Eyebrow — Jost 400 · 12px · tracked · uppercase</div></div>
+  </div>
+
+  <ul class="rules">
+    <li><strong>The weight rule:</strong> Jost 300 (Light) only at display sizes — H1, H2, and large stat numbers. Anything 26px or smaller uses Jost 400 so thin strokes never turn fragile.</li>
+    <li>Headlines never drop below 22px. Below that, it isn't a headline — set it in Inter.</li>
+    <li>The eyebrow is the one place to use tracked-caps treatment in running material.</li>
+    <li>Body copy is always Inter; the display face never carries paragraphs.</li>
+  </ul>
+</section>
+
+<!-- ═══ VOICE ═══ -->
+<section id="voice">
+  <div class="eyebrow">01 — Foundations</div>
+  <h2>Voice</h2>
+  <p class="intro">Eridion sounds like a master tradesperson talking to another professional — precise, confident, and free of fluff. The craft comes through in specifics, not adjectives.</p>
+
+  <h3>Principles</h3>
+  <ul class="rules">
+    <li><strong>Builder-to-builder.</strong> Write to GCs and builders as peers in the trade — plain, direct, knowledgeable. Skip the consumer-marketing gloss.</li>
+    <li><strong>Specifics over adjectives.</strong> "Low-iron glass, field-verified, set to spec" earns more trust than "premium quality." The detail is the proof.</li>
+    <li><strong>Confident, never boastful.</strong> State what you do and let the work carry the weight. Hype words undercut it.</li>
+    <li><strong>Calm.</strong> Quiet authority — the unhurried tone of someone who's done this a thousand times. Say enough to be clear and reassuring, never so much that you lose, bore, or confuse the listener.</li>
+  </ul>
+
+  <div class="say-avoid">
+    <div class="say"><span class="h">Say</span>field-verify · set to spec · low-iron · frameless · fabricate · install · on schedule</div>
+    <div class="avoid"><span class="h">Avoid</span>world-class · cutting-edge · solutions · we pride ourselves · exceptional · leverage · exciting opportunity</div>
+  </div>
+
+  <h3>In practice</h3>
+  <div class="example">
+    <div class="who">Website intro</div>
+    <div class="bad"><span class="pill a">Avoid</span>Eridion Glass is a leading provider of world-class glass solutions, leveraging cutting-edge techniques to deliver exceptional results.</div>
+    <div class="good"><span class="pill e">Eridion</span>Eridion Glass is a husband-and-wife shop fabricating and installing custom glazing for high-end homes. We field-verify every opening and set each panel to spec — so the people who quote your job are the same ones who stand behind it.</div>
+  </div>
+  <div class="example">
+    <div class="who">Builder email</div>
+    <div class="bad"><span class="pill a">Avoid</span>Thank you so much for reaching out! We would absolutely love the opportunity to partner with you on this exciting project.</div>
+    <div class="good"><span class="pill e">Eridion</span>Thanks for sending the plans over — happy to take a look. We'll field-measure Thursday and have a number back to you by Monday. Easy one.</div>
+  </div>
+
+  <h3>Guardrails — never in public-facing copy</h3>
+  <ul class="rules">
+    <li>No mention of Profit First or internal financial systems — that's an operating tool, not a selling point.</li>
+    <li>No Casa Verde or World Cup rental references anywhere in Eridion's positioning.</li>
+    <li>Lead with what's distinctive — a master-glazier-led shop doing custom work for luxury homes — not generic quality claims.</li>
+  </ul>
+</section>
+
+<!-- ═══ PHOTOGRAPHY ═══ -->
+<section id="photography">
+  <div class="eyebrow">01 — Foundations</div>
+  <h2>Photography</h2>
+  <p class="intro">A clean break from generic stock: shoot your own work, in real light. Authentic craft beats any catalogue image.</p>
+  <ul class="rules">
+    <li><strong>Subject.</strong> Finished installs in real homes, panels being fabricated and handled in the shop, and tight detail on edges, joints, and hardware. The crew in-frame sometimes — candid, working, not posed.</li>
+    <li><strong>Light.</strong> Natural daylight. Let glass behave like glass — reflections, transparency, clean highlights. No harsh flash.</li>
+    <li><strong>Composition.</strong> Architectural and deliberate — strong lines, right angles, symmetry. The geometry should rhyme with the mark. Get close; detail sells craft.</li>
+    <li><strong>Treatment.</strong> True-to-life color, crisp, barely filtered. Never moody, HDR, or heavily graded.</li>
+    <li><strong>Avoid.</strong> Generic stock, handshake clichés, cluttered frames, anything that could belong to any glass company.</li>
+  </ul>
+  <h3>Library to build</h3>
+  <ul class="rules">
+    <li>Hero installs (finished, in the home)</li>
+    <li>In-progress fabrication in the shop</li>
+    <li>Macro detail — edges, joints, hardware</li>
+    <li>Hands at work</li>
+    <li>Before / after pairs</li>
+  </ul>
+</section>
+
+<!-- ═══ ICONS ═══ -->
+<section id="icons">
+  <div class="eyebrow">01 — Foundations</div>
+  <h2>Icons &amp; illustration</h2>
+  <p class="intro">Icons carry the logo's geometry right down to 24px: squared joins, never rounded.</p>
+  <ul class="rules">
+    <li>Uniform 2px stroke on a 24px grid · miter joins, square caps.</li>
+    <li>Navy is the default color; brand green only as an accent or active state (one green, never both).</li>
+    <li>45° angles where an icon naturally allows it · minimal detail.</li>
+    <li>Spot illustrations follow the same logic — flat, geometric, line-based.</li>
+  </ul>
+</section>
+
+<!-- ═══ APPLICATIONS ═══ -->
+<section id="applications">
+  <div class="eyebrow">02 — In use</div>
+  <h2>Applications</h2>
+  <p class="intro">The foundations applied. Social cards and infographics inherit the palette, type, icons, and voice — they introduce nothing new. One accent color per layout: navy carries the structure, green marks the single point of emphasis, the cut corner ties every piece back to the mark.</p>
+  <div class="apps">
+    <div class="statcard">
+      <div class="e">Eridion Glass</div>
+      <div class="big">91%</div>
+      <div class="bar"></div>
+      <div class="l">Light Transmission</div>
+      <div class="d">Low-iron glass, versus ~83% for standard glass.</div>
+    </div>
+    <div class="info">
+      <div class="g">— Glass —</div>
+      <div class="t">The longevity material</div>
+      <div class="rule"></div>
+      <div class="n">20+ years</div>
+      <div class="s">Minimal Maintenance</div>
+      <div class="q">Luxury isn't just how a material looks on day one. <b>It's how it performs twenty years later.</b></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>Eridion Glass — Brand Guidelines v2.1 · July 2026</span>
+  <span>Typeface change (Jost) approved by owner · all other foundations per v2.0</span>
+</footer>
+
+</div>
+</body>
+</html>
