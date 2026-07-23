@@ -107,9 +107,9 @@
 - **Location:** Cloudflare Worker `frosty-base-f01e` (no GitHub repo)
 - **Purpose:** Francisco ↔ Biff communication layer
 
-### Biff (Dion's agent) 📄
-- **Location:** Context document only — not in any repo; note where the doc lives when confirmed
-- **Status:** Context document drafted; not yet live
+### Biff → Jericho (Dion's agent) 📄
+- **Location:** [`erikagonzalez103-hash/Jericho`](https://github.com/erikagonzalez103-hash/Jericho) (last pushed May 2, 2026)
+- **Status:** Jericho is the evolution of Biff (confirmed July 23, 2026). Context document drafted; not yet live. Older references to "Biff" (message bus, Module 10) refer to this agent.
 
 ### Module 10 — "Blackbox" Continuity Playbook 📄
 - **Location:** Spec document only — not yet in a repo
@@ -173,6 +173,7 @@ Snapshot of every GitHub repo in the account (July 23, 2026) and what it maps to
 | `grant-tracker` | Grant Pipeline Tracker | Jul 14, 2026 |
 | `quinta` | Workshop Signup Form | Jul 21, 2026 |
 | `her-dallas-crm` | HER Dallas Sponsor CRM | Apr 23, 2026 |
+| `Jericho` | Biff → Jericho (Dion's agent) | May 2, 2026 |
 
 ### Unmatched repos — reconcile with registry
 
@@ -185,7 +186,6 @@ These repos exist in the account but match no registry entry — they may be too
 | `pulse-dashboard` | Jun 24, 2026 | Unknown — not in registry |
 | `fortune_teller` | Jun 30, 2026 | Unknown — possibly a prep/novelty build |
 | `her-house-tool` | Jun 7, 2026 | Unknown — HER Dallas related? |
-| `Jericho` | May 2, 2026 | Unknown — possibly Valuation Worksheets or a spec archive |
 
 ---
 
