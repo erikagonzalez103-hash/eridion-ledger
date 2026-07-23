@@ -82,9 +82,10 @@
 - **Purpose:** Weekly blog + social content generator with built-in research
 - **v3.0 roadmap:** Instagram format, SEO package generator, blog header fix, Canva spec generator, voice training, LinkedIn OAuth direct posting, Instagram API, Wix API blog auto-publish, MP4 upload, session persistence, automated cross-posting, post lifespan extender
 
-### Image Library ❓ TBD
-- **Location:** Cloudflare (confirmed July 23, 2026 — no GitHub repo). Which resource (Worker / R2 bucket / KV) and its name still to fill in.
-- **Purpose/status/URL:** *Details to complete — confirm what it does, its URL, and current status, then update this entry.*
+### Image Library 🟢 (confirmed July 2026)
+- **Location:** Cloudflare R2 bucket (no GitHub repo) — bucket name TBD, add when confirmed
+- **Access:** dash.cloudflare.com → **R2** in the sidebar → open the bucket → click an image → Download
+- **Purpose:** Image storage/library — usage details and any serving URL to fill in
 
 ---
 
@@ -145,6 +146,14 @@
 - **Format:** Single HTML, Cinzel + near-black + gold, sidebar nav, search, click-expand Q&A, mobile-responsive, chunked Read Aloud (180/350/650ms pauses), voice picker, speed slider, 14 sections, TL;DR, callouts, flag analysis, local save
 - **Use:** Any cert/interview prep build
 
+### Fortune Teller ❓ TBD
+- **Location:** [`erikagonzalez103-hash/fortune_teller`](https://github.com/erikagonzalez103-hash/fortune_teller)
+- **Purpose/status:** Assigned under Quinta & Co. (July 23, 2026) — purpose, status, and URL to fill in
+
+### HER House Tool ❓ TBD
+- **Location:** [`erikagonzalez103-hash/her-house-tool`](https://github.com/erikagonzalez103-hash/her-house-tool)
+- **Purpose/status:** Assigned under Quinta & Co. (July 23, 2026) — purpose, status, and URL to fill in
+
 ---
 
 ## 6. Community (HER Dallas)
@@ -153,6 +162,20 @@
 - **Location:** [`erikagonzalez103-hash/her-dallas-crm`](https://github.com/erikagonzalez103-hash/her-dallas-crm)
 - **File:** HerDallas_Sponsor_CRM.html (mobile-optimized)
 - **Data:** 38 named contacts with LinkedIn personalization intel; 48-org community partner list, 4 tiers
+
+---
+
+## 7. Pulse (early-stage venture)
+
+Separate company being built slowly alongside Eridion and Quinta & Co.
+
+### Pulse Dashboard 🔵
+- **Location:** [`erikagonzalez103-hash/pulse-dashboard`](https://github.com/erikagonzalez103-hash/pulse-dashboard)
+- **Purpose/status:** Details to fill in
+
+### Pulse Demo 🔵
+- **Location:** [`erikagonzalez103-hash/pulse-demo`](https://github.com/erikagonzalez103-hash/pulse-demo)
+- **Purpose/status:** Details to fill in
 
 ---
 
@@ -174,18 +197,18 @@ Snapshot of every GitHub repo in the account (July 23, 2026) and what it maps to
 | `quinta` | Workshop Signup Form | Jul 21, 2026 |
 | `her-dallas-crm` | HER Dallas Sponsor CRM | Apr 23, 2026 |
 | `Jericho` | Biff → Jericho (Dion's agent) | May 2, 2026 |
+| `pulse-dashboard` | Pulse Dashboard | Jun 24, 2026 |
+| `pulse-demo` | Pulse Demo | Jul 3, 2026 |
+| `fortune_teller` | Fortune Teller (Quinta & Co.) | Jun 30, 2026 |
+| `her-house-tool` | HER House Tool (Quinta & Co.) | Jun 7, 2026 |
 
-### Unmatched repos — reconcile with registry
+### Cleanup
 
-These repos exist in the account but match no registry entry — they may be tools missing from this list entirely.
+All repos are now mapped to registry entries except the one below.
 
-| Repo | Last push | Best guess |
+| Repo | Last push | Note |
 |---|---|---|
-| `florals` | Jul 9, 2026 | Speed-build demo (flower shop site, 45 min w/ hardening) — **to be deleted** (Erika, July 23, 2026) |
-| `pulse-demo` | Jul 3, 2026 | Unknown — not in registry |
-| `pulse-dashboard` | Jun 24, 2026 | Unknown — not in registry |
-| `fortune_teller` | Jun 30, 2026 | Unknown — possibly a prep/novelty build |
-| `her-house-tool` | Jun 7, 2026 | Unknown — HER Dallas related? |
+| `florals` | Jul 9, 2026 | Speed-build demo (flower shop site, 45 min w/ hardening) — **to be deleted** (Erika, July 23, 2026); remove this row once deleted |
 
 ---
 
