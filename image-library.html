@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Image Library — Eridion</title>
+<link rel="icon" href="data:,">
+<style>
+  :root { --navy:#153862; --green:#32A200; --gray:#C4C4C4; --ink:#000; --bg:#F7F8FA; --card:#fff; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--ink); line-height:1.5; }
+  header { background:var(--navy); color:#fff; padding:18px 24px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+  header h1 { font-size:1.25rem; }
+  header p { font-size:.8rem; opacity:.85; }
+  .btn { border:none; border-radius:8px; padding:8px 14px; font-size:.85rem; font-weight:600; cursor:pointer; }
+  .btn-green { background:var(--green); color:#fff; }
+  .btn-ghost { background:transparent; color:#fff; border:1px solid rgba(255,255,255,.5); }
+  .btn-danger { background:#C02626; color:#fff; }
+  .btn-small { padding:4px 10px; font-size:.75rem; }
+  .controls { position:sticky; top:0; z-index:10; background:var(--navy); padding:0 24px 14px; box-shadow:0 2px 6px rgba(0,0,0,.15); }
+  .controls input[type="search"] { width:100%; max-width:560px; padding:10px 14px; font-size:1rem; border:2px solid transparent; border-radius:8px; outline:none; }
+  .controls input[type="search"]:focus { border-color:var(--green); }
+  .chips { margin-top:10px; display:flex; flex-wrap:wrap; gap:6px; }
+  .chip { border:1px solid rgba(255,255,255,.4); background:transparent; color:#fff; border-radius:999px; padding:4px 12px; font-size:.8rem; cursor:pointer; }
+  .chip.active { background:var(--green); border-color:var(--green); font-weight:600; }
+  .count { color:rgba(255,255,255,.75); font-size:.78rem; margin-top:8px; }
+  main { max-width:1180px; margin:0 auto; padding:24px; }
+  .drop { border:2px dashed var(--gray); border-radius:12px; background:var(--card); padding:18px; text-align:center; font-size:.9rem; color:#444; margin-bottom:20px; }
+  .drop.over { border-color:var(--green); background:#f0f9ec; }
+  .drop input[type="file"] { display:none; }
+  .drop .row { display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap; margin-top:10px; }
+  .drop input[type="text"] { padding:8px 12px; border:1px solid var(--gray); border-radius:8px; font-size:.85rem; min-width:240px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; }
+  .imgcard { background:var(--card); border:1px solid var(--gray); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; }
+  .thumb { aspect-ratio:4/3; background:#eef1f4; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  .thumb img { width:100%; height:100%; object-fit:cover; }
+  .thumb span { color:#888; font-size:.8rem; padding:8px; word-break:break-all; }
+  .meta { padding:10px 12px; display:flex; flex-direction:column; gap:6px; flex:1; }
+  .meta .name { font-size:.82rem; font-weight:700; color:var(--navy); word-break:break-all; }
+  .meta .sub { font-size:.72rem; color:#666; }
+  .tags { display:flex; flex-wrap:wrap; gap:4px; }
+  .tag { background:#eef1f4; border:1px solid var(--gray); border-radius:999px; padding:1px 8px; font-size:.7rem; }
+  .actions { display:flex; gap:6px; margin-top:auto; padding-top:6px; flex-wrap:wrap; }
+  .actions .btn { flex:1; min-width:0; }
+  .btn-navy { background:var(--navy); color:#fff; }
+  .btn-line { background:#fff; color:var(--navy); border:1px solid var(--gray); }
+  .empty, #msg { text-align:center; color:#555; padding:40px 0; font-size:.95rem; }
+  .hidden { display:none !important; }
+  /* setup modal */
+  .overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; z-index:50; padding:20px; }
+  .modal { background:#fff; border-radius:12px; padding:24px; max-width:440px; width:100%; }
+  .modal h2 { color:var(--navy); font-size:1.1rem; margin-bottom:6px; }
+  .modal p { font-size:.82rem; color:#555; margin-bottom:14px; }
+  .modal label { display:block; font-size:.8rem; font-weight:600; color:var(--navy); margin:10px 0 4px; }
+  .modal input { width:100%; padding:9px 12px; border:1px solid var(--gray); border-radius:8px; font-size:.9rem; }
+  .modal .row { display:flex; gap:8px; justify-content:flex-end; margin-top:18px; }
+  .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--navy); color:#fff; padding:10px 18px; border-radius:8px; font-size:.85rem; z-index:60; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Eridion Image Library</h1>
+    <p>Cloudflare R2 · filter, search, upload, delete · copy a public URL for any image</p>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-ghost" id="settingsBtn">⚙ Settings</button>
+    <button class="btn btn-green" id="refreshBtn">↻ Refresh</button>
+  </div>
+</header>
+
+<div class="controls">
+  <input type="search" id="q" placeholder="Search by name or tag…" autocomplete="off">
+  <div class="chips" id="tagChips"></div>
+  <div class="count" id="count"></div>
+</div>
+
+<main>
+  <div class="drop" id="drop">
+    <b>Upload:</b> drag &amp; drop images here, or
+    <label class="btn btn-navy btn-small" for="fileInput" style="display:inline-block">choose files</label>
+    <input type="file" id="fileInput" accept="image/*" multiple>
+    <div class="row">
+      <label for="uploadTags" style="font-size:.8rem;font-weight:600;color:var(--navy)">Tags for this upload:</label>
+      <input type="text" id="uploadTags" placeholder="e.g. colorback, kitchen, install">
+    </div>
+  </div>
+  <div id="msg">Loading…</div>
+  <div class="grid" id="grid"></div>
+  <div class="empty hidden" id="empty">No images match — try fewer words or clear the tag filter.</div>
+</main>
+
+<div class="overlay hidden" id="setup">
+  <div class="modal">
+    <h2>Connect to the library</h2>
+    <p>Enter the Worker URL and passphrase (set once in Cloudflare — see workers/image-library-worker.js in the eridion-ledger repo for deploy steps). Saved only in this browser.</p>
+    <label for="cfgUrl">Worker URL</label>
+    <input type="url" id="cfgUrl" placeholder="https://eridion-image-library.….workers.dev">
+    <label for="cfgKey">Passphrase</label>
+    <input type="password" id="cfgKey" placeholder="LIBRARY_KEY value">
+    <div class="row">
+      <button class="btn btn-line" id="cfgCancel">Cancel</button>
+      <button class="btn btn-green" id="cfgSave">Save &amp; connect</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LS = "imglib:config";
+let cfg = null, images = [], activeTags = new Set();
+
+function loadCfg() {
+  try { cfg = JSON.parse(localStorage.getItem(LS)); } catch (e) { cfg = null; }
+  return cfg && cfg.url && cfg.key;
+}
+function base() { return cfg.url.replace(/\/+$/, ""); }
+function api(path, opts = {}) {
+  opts.headers = Object.assign({ "X-Library-Key": cfg.key }, opts.headers || {});
+  return fetch(base() + path, opts).then(r => {
+    if (r.status === 401) { openSetup("Passphrase rejected — check settings."); throw new Error("unauthorized"); }
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    return r.json();
+  });
+}
+function imgUrl(key) { return base() + "/img/" + encodeURIComponent(key).replace(/%2F/g, "/"); }
+function esc(s) { return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function toast(text) {
+  const t = document.createElement("div");
+  t.className = "toast"; t.textContent = text;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2200);
+}
+function tagList(s) { return (s || "").split(",").map(t => t.trim()).filter(Boolean); }
+function fmtSize(n) { return n > 1048576 ? (n/1048576).toFixed(1)+" MB" : Math.max(1, Math.round(n/1024))+" KB"; }
+
+// ---- setup modal ----
+function openSetup(note) {
+  if (cfg) { document.getElementById("cfgUrl").value = cfg.url; document.getElementById("cfgKey").value = cfg.key; }
+  if (note) document.querySelector("#setup p").textContent = note;
+  document.getElementById("setup").classList.remove("hidden");
+}
+document.getElementById("settingsBtn").onclick = () => openSetup();
+document.getElementById("cfgCancel").onclick = () => document.getElementById("setup").classList.add("hidden");
+document.getElementById("cfgSave").onclick = () => {
+  const url = document.getElementById("cfgUrl").value.trim();
+  const key = document.getElementById("cfgKey").value;
+  if (!url || !key) return;
+  cfg = { url, key };
+  localStorage.setItem(LS, JSON.stringify(cfg));
+  document.getElementById("setup").classList.add("hidden");
+  load();
+};
+
+// ---- load + render ----
+function load() {
+  document.getElementById("msg").textContent = "Loading…";
+  document.getElementById("msg").classList.remove("hidden");
+  api("/api/list")
+    .then(d => { images = d.images; render(); })
+    .catch(e => {
+      if (e.message !== "unauthorized")
+        document.getElementById("msg").textContent = "Couldn't reach the Worker (" + e.message + "). Check the URL in ⚙ Settings.";
+    });
+}
+document.getElementById("refreshBtn").onclick = load;
+
+function render() {
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  const allTags = new Set();
+  images.forEach(im => tagList(im.tags).forEach(t => allTags.add(t)));
+  activeTags = new Set([...activeTags].filter(t => allTags.has(t)));
+
+  const chips = document.getElementById("tagChips");
+  chips.innerHTML = "";
+  [...allTags].sort().forEach(t => {
+    const b = document.createElement("button");
+    b.className = "chip" + (activeTags.has(t) ? " active" : "");
+    b.textContent = t;
+    b.onclick = () => { activeTags.has(t) ? activeTags.delete(t) : activeTags.add(t); render(); };
+    chips.appendChild(b);
+  });
+
+  const q = document.getElementById("q").value.trim().toLowerCase();
+  const words = q ? q.split(/\s+/) : [];
+  let shown = 0;
+  images.forEach(im => {
+    const tags = tagList(im.tags);
+    const hay = (im.key + " " + tags.join(" ")).toLowerCase();
+    if (![...activeTags].every(t => tags.includes(t))) return;
+    if (!words.every(w => hay.includes(w))) return;
+    shown++;
+    const card = document.createElement("div");
+    card.className = "imgcard";
+    card.innerHTML =
+      '<div class="thumb"><img loading="lazy" src="' + imgUrl(im.key) + '" alt="' + esc(im.key) + '" onerror="this.replaceWith(Object.assign(document.createElement(\'span\'),{textContent:\'preview unavailable\'}))"></div>' +
+      '<div class="meta"><div class="name">' + esc(im.key) + "</div>" +
+      '<div class="sub">' + fmtSize(im.size) + " · " + new Date(im.uploaded).toLocaleDateString() + "</div>" +
+      '<div class="tags">' + tags.map(t => '<span class="tag">' + esc(t) + "</span>").join("") + "</div>" +
+      '<div class="actions">' +
+        '<button class="btn btn-small btn-green act-copy">Copy URL</button>' +
+        '<button class="btn btn-small btn-line act-tags">Tags</button>' +
+        '<button class="btn btn-small btn-danger act-del">Delete</button>' +
+      "</div></div>";
+    card.querySelector(".act-copy").onclick = () =>
+      navigator.clipboard.writeText(imgUrl(im.key)).then(() => toast("Public URL copied"));
+    card.querySelector(".act-tags").onclick = () => {
+      const next = prompt("Tags for " + im.key + " (comma-separated):", im.tags || "");
+      if (next === null) return;
+      api("/api/tags?key=" + encodeURIComponent(im.key), {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tags: next }),
+      }).then(() => { im.tags = next; render(); toast("Tags updated"); });
+    };
+    card.querySelector(".act-del").onclick = () => {
+      if (!confirm("Delete " + im.key + "? This cannot be undone.")) return;
+      api("/api/image?key=" + encodeURIComponent(im.key), { method: "DELETE" })
+        .then(() => { images = images.filter(x => x.key !== im.key); render(); toast("Deleted"); });
+    };
+    grid.appendChild(card);
+  });
+
+  document.getElementById("msg").classList.add("hidden");
+  document.getElementById("empty").classList.toggle("hidden", shown > 0 || images.length === 0);
+  document.getElementById("count").textContent =
+    shown + " of " + images.length + " images" + (activeTags.size ? " · tags: " + [...activeTags].join(", ") : "");
+  if (images.length === 0) {
+    document.getElementById("msg").textContent = "Library is empty — drop images above to upload.";
+    document.getElementById("msg").classList.remove("hidden");
+  }
+}
+document.getElementById("q").addEventListener("input", render);
+
+// ---- upload ----
+const drop = document.getElementById("drop");
+["dragover", "dragenter"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => uploadFiles([...e.dataTransfer.files]));
+document.getElementById("fileInput").addEventListener("change", e => { uploadFiles([...e.target.files]); e.target.value = ""; });
+
+async function uploadFiles(files) {
+  const imgs = files.filter(f => f.type.startsWith("image/"));
+  if (!imgs.length) return;
+  const tags = document.getElementById("uploadTags").value.trim();
+  for (const f of imgs) {
+    toast("Uploading " + f.name + "…");
+    try {
+      await api("/api/upload?key=" + encodeURIComponent(f.name), {
+        method: "POST",
+        headers: { "Content-Type": f.type, "X-Image-Tags": tags },
+        body: f,
+      });
+    } catch (e) {
+      if (e.message === "unauthorized") return;
+      toast("Upload failed: " + f.name);
+    }
+  }
+  toast("Upload complete");
+  load();
+}
+
+// ---- boot ----
+if (loadCfg()) load();
+else { document.getElementById("msg").textContent = "Not connected yet — open ⚙ Settings."; openSetup(); }
+</script>
+</body>
+</html>
