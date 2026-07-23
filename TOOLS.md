@@ -83,8 +83,8 @@
 - **v3.0 roadmap:** Instagram format, SEO package generator, blog header fix, Canva spec generator, voice training, LinkedIn OAuth direct posting, Instagram API, Wix API blog auto-publish, MP4 upload, session persistence, automated cross-posting, post lifespan extender
 
 ### Image Library ❓ TBD
-- **Location:** *Unconfirmed — see "Unmatched repos" below; `florals` (last pushed July 9, 2026) is the most likely candidate*
-- **Purpose/status/URL:** *Not found in searchable history — Erika to confirm which chat this was built in and what it does, then complete this entry.*
+- **Location:** Cloudflare (confirmed July 23, 2026 — no GitHub repo). Which resource (Worker / R2 bucket / KV) and its name still to fill in.
+- **Purpose/status/URL:** *Details to complete — confirm what it does, its URL, and current status, then update this entry.*
 
 ---
 
@@ -176,11 +176,11 @@ Snapshot of every GitHub repo in the account (July 23, 2026) and what it maps to
 
 ### Unmatched repos — reconcile with registry
 
-These repos exist in the account but match no registry entry. One of them is probably the forgotten Image Library; others may be tools missing from this list entirely.
+These repos exist in the account but match no registry entry — they may be tools missing from this list entirely.
 
 | Repo | Last push | Best guess |
 |---|---|---|
-| `florals` | Jul 9, 2026 | **Image Library?** (name + recency fit) |
+| `florals` | Jul 9, 2026 | Speed-build demo (flower shop site, 45 min w/ hardening) — **to be deleted** (Erika, July 23, 2026) |
 | `pulse-demo` | Jul 3, 2026 | Unknown — not in registry |
 | `pulse-dashboard` | Jun 24, 2026 | Unknown — not in registry |
 | `fortune_teller` | Jun 30, 2026 | Unknown — possibly a prep/novelty build |
