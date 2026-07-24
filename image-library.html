@@ -49,6 +49,7 @@
   .thumb img { width:100%; height:100%; object-fit:cover; }
   .thumb span { color:#888; font-size:.8rem; padding:8px; word-break:break-all; }
   .dupbadge { position:absolute; top:8px; right:8px; background:#C98A00; color:#fff; font-size:.68rem; font-weight:700; border-radius:999px; padding:2px 8px; }
+  .newbadge { position:absolute; top:8px; left:8px; background:var(--green); color:#fff; font-size:.68rem; font-weight:700; border-radius:999px; padding:2px 8px; }
   .meta { padding:10px 12px; display:flex; flex-direction:column; gap:6px; flex:1; }
   .meta .name { font-size:.82rem; font-weight:700; color:var(--navy); word-break:break-word; }
   .meta .caption { font-size:.74rem; color:#555; font-style:italic; }
@@ -289,8 +290,13 @@ function buildCards() {
       search: (f.key + " " + tags.join(" ")).toLowerCase(),
     });
   }
+  // Newest uploads first, using the bucket file's upload timestamp
+  const when = new Map(lastFiles.map(f => [f.key, Date.parse(f.uploaded) || 0]));
+  out.forEach(c => c.uploadedAt = when.get(c.fullKey) || 0);
+  out.sort((a, b) => b.uploadedAt - a.uploadedAt);
   return out;
 }
+let freshKeys = new Set();   // uploaded this session — get a NEW badge until refresh
 
 // ---- filter bar (rebuilt when data changes) ----
 function facetValues(key) {
@@ -402,6 +408,7 @@ function load() {
     .then(([list, man]) => {
       manifestRaw = man || null;
       lastFiles = list.images;
+      freshKeys = new Set();
       limit = PAGE;
       document.getElementById("mgrBtn").classList.toggle("hidden", !manifestRaw);
       buildAll();
@@ -419,6 +426,7 @@ function cardEl(c) {
   el.innerHTML =
     '<div class="thumb"><img loading="lazy" src="' + imgUrl(c.thumbKey) + '" alt="' + esc(c.name) + '"></div>' +
     (c.dup ? '<span class="dupbadge">dup</span>' : "") +
+    (freshKeys.has(c.fullKey) ? '<span class="newbadge">NEW</span>' : "") +
     '<div class="meta"><div class="name">' + esc(c.name) + "</div>" +
     (c.caption ? '<div class="caption">' + esc(c.caption) + "</div>" : "") +
     '<div class="sub">' + esc(c.sub) + "</div>" +
@@ -669,6 +677,7 @@ async function uploadFiles(files) {
 
       await putBlob("web/" + slug + ".jpg", web.blob);
       await putBlob("thumb/" + slug + ".jpg", thumb.blob);
+      freshKeys.add("web/" + slug + ".jpg");
       lastFiles.push(
         { key: "web/" + slug + ".jpg", size: web.blob.size, uploaded: new Date().toISOString(), tags: "", contentType: "image/jpeg" },
         { key: "thumb/" + slug + ".jpg", size: thumb.blob.size, uploaded: new Date().toISOString(), tags: "", contentType: "image/jpeg" },
@@ -717,6 +726,7 @@ async function uploadFiles(files) {
   if (manifestRaw) {
     try { await saveManifest(); } catch (e) { toast("Manifest save failed — refresh and retry"); }
     buildAll();
+    document.getElementById("grid").scrollIntoView({ behavior: "smooth", block: "start" });
     toast("Upload complete" + (autotagDown ? "" : " — AI tagged"));
   } else {
     toast("Upload complete");
