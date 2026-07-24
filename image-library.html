@@ -599,25 +599,129 @@ const drop = document.getElementById("drop");
 drop.addEventListener("drop", e => uploadFiles([...e.dataTransfer.files]));
 document.getElementById("fileInput").addEventListener("change", e => { uploadFiles([...e.target.files]); e.target.value = ""; });
 
+function loadImageFile(file) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(img.src); res(img); };
+    img.onerror = rej;
+    img.src = URL.createObjectURL(file);
+  });
+}
+function resizeTo(img, max, quality) {
+  const scale = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const w = Math.max(1, Math.round(img.naturalWidth * scale));
+  const h = Math.max(1, Math.round(img.naturalHeight * scale));
+  const c = document.createElement("canvas");
+  c.width = w; c.height = h;
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, w, h);
+  ctx.drawImage(img, 0, 0, w, h);
+  return new Promise(r => c.toBlob(b => r({ blob: b, w, h }), "image/jpeg", quality));
+}
+function slugify(name) {
+  return name.replace(/\.[^.]+$/, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "image";
+}
+function manifestAdd(entry) {
+  if (Array.isArray(manifestRaw)) manifestRaw.push(entry);
+  else if (Array.isArray(manifestRaw.images)) manifestRaw.images.push(entry);
+  else if (Array.isArray(manifestRaw.assets)) manifestRaw.assets.push(entry);
+  else manifestRaw[entry.id] = entry;
+}
+function currentVocab() {
+  const vals = key => facetValues(key).map(([v]) => v).slice(0, 150);
+  const shots = [...new Set(manifestEntries().map(e => e.shot).filter(Boolean))].slice(0, 30);
+  return { category: vals("category"), product: vals("product"), space: vals("space"), style: vals("style"), tags: vals("tags"), shot: shots };
+}
+
 async function uploadFiles(files) {
   const imgs = files.filter(f => f.type.startsWith("image/"));
   if (!imgs.length) return;
-  const tags = document.getElementById("uploadTags").value.trim();
+  const manualTags = csv(document.getElementById("uploadTags").value);
+  const putBlob = (key, blob) =>
+    api("/api/upload?key=" + encodeURIComponent(key), {
+      method: "POST",
+      headers: { "Content-Type": "image/jpeg" },
+      body: blob,
+    });
+
+  let autotagDown = false;
   for (const f of imgs) {
-    toast("Uploading " + f.name + "…");
     try {
-      await api("/api/upload?key=" + encodeURIComponent(f.name), {
-        method: "POST",
-        headers: { "Content-Type": f.type, "X-Image-Tags": tags },
-        body: f,
+      // Legacy path if no manifest: plain upload with R2 metadata tags
+      if (!manifestRaw) {
+        toast("Uploading " + f.name + "…");
+        await api("/api/upload?key=" + encodeURIComponent(f.name), {
+          method: "POST",
+          headers: { "Content-Type": f.type, "X-Image-Tags": manualTags.join(",") },
+          body: f,
+        });
+        continue;
+      }
+
+      toast("Uploading " + f.name + "…");
+      const img = await loadImageFile(f);
+      const web = await resizeTo(img, 1600, 0.85);
+      const thumb = await resizeTo(img, 400, 0.8);
+      let slug = slugify(f.name);
+      const taken = new Set([...lastFiles.map(x => x.key), ...manifestEntries().map(e => e.web)]);
+      for (let n = 2; taken.has("web/" + slug + ".jpg"); n++) slug = slugify(f.name) + "-" + n;
+
+      await putBlob("web/" + slug + ".jpg", web.blob);
+      await putBlob("thumb/" + slug + ".jpg", thumb.blob);
+      lastFiles.push(
+        { key: "web/" + slug + ".jpg", size: web.blob.size, uploaded: new Date().toISOString(), tags: "", contentType: "image/jpeg" },
+        { key: "thumb/" + slug + ".jpg", size: thumb.blob.size, uploaded: new Date().toISOString(), tags: "", contentType: "image/jpeg" },
+      );
+
+      let ai = null;
+      if (!autotagDown) {
+        toast("AI tagging " + f.name + "…");
+        try {
+          ai = await api("/api/autotag", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ key: "web/" + slug + ".jpg", vocab: currentVocab() }),
+          });
+        } catch (e) {
+          if (e.message === "unauthorized") return;
+          autotagDown = true;   // 501 not configured or API failure — tag manually later
+          toast("Auto-tagging unavailable — uploaded untagged");
+        }
+      }
+
+      manifestAdd({
+        id: slug,
+        filename: f.name,
+        category: ai ? ai.category : "",
+        tags: [...new Set([...(ai ? ai.tags : []), ...manualTags])],
+        caption: ai ? ai.caption : "",
+        width: web.w, height: web.h,
+        web: "web/" + slug + ".jpg",
+        thumb: "thumb/" + slug + ".jpg",
+        orientation: web.w > web.h ? "landscape" : web.w < web.h ? "portrait" : "square",
+        product: ai ? ai.product : [],
+        space: ai ? ai.space : [],
+        style: ai ? ai.style : [],
+        flags: [],
+        shot: ai ? ai.shot : "",
+        grade: "ok",
+        reviewed: false,
       });
     } catch (e) {
       if (e.message === "unauthorized") return;
       toast("Upload failed: " + f.name);
     }
   }
-  toast("Upload complete");
-  load();
+
+  if (manifestRaw) {
+    try { await saveManifest(); } catch (e) { toast("Manifest save failed — refresh and retry"); }
+    buildAll();
+    toast("Upload complete" + (autotagDown ? "" : " — AI tagged"));
+  } else {
+    toast("Upload complete");
+    load();
+  }
 }
 
 // ---- boot ----
