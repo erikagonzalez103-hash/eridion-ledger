@@ -223,7 +223,7 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
 <body>
 
 <div class="notice" id="notice">
-  <strong>Template preview.</strong> All four featured case studies are real; some grid projects are still sample data — replace before publishing.
+  <strong>Template preview.</strong> All five featured case studies are real; some grid projects are still sample data — replace before publishing.
   <button onclick="document.getElementById('notice').style.display='none'">Dismiss</button>
 </div>
 
@@ -360,6 +360,31 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
       </div>
     </div>
   </article>
+
+  <!-- REAL PROJECT — colorback kitchen, builder's parents (owner interview, July 2026) -->
+  <article class="case cut rv" id="case-kitchen">
+    <div class="case-media media" data-media="case-kitchen"></div>
+    <div class="case-body">
+      <div class="eyebrow">Builder's Parents' New Build · Colorback Glass</div>
+      <h3>The kitchen everyone ends up in</h3>
+      <div class="loc">Family Kitchen — New Build, Little Rock, AR</div>
+      <div class="case-facts">
+        <div><div class="k">Scope</div><div class="v">Full backsplash run — panels up to 12 ft, seams hidden at the vent hood</div></div>
+        <div><div class="k">Systems</div><div class="v">Colorback glass — exact match to the island's accent color</div></div>
+        <div><div class="k">Client</div><div class="v">Builder partner, multi-year Top Builder — her parents' home</div></div>
+        <div><div class="k">Timeline</div><div class="v">1 week from final measure</div></div>
+      </div>
+      <div class="case-story">
+        <p><strong>Challenge</strong>This one was for our builder partner's own parents. She's a Little Rock builder who's been named Top Builder there multiple years running — and this was her mom and dad's new build, so we knew we had to kick it up a notch. They're retired, and they weren't exactly sizing down. It's a big family that always congregates at their house: lots of kids, lots of grandkids, everyone cooking, everyone serving themselves around an oversized island. With that much traffic, grout behind the counters was going to be a losing battle. And this couple likes color — being able to choose their color mattered.</p>
+        <p><strong>Approach</strong>They chose a dark green with blue undertones — a dual-tone color that can lean blue or lean green depending on the light — matched exactly to the accent color on the base of their island, so the backsplash and the island tie the room together. Measuring for these is an art form: custom cabinets in luxury homes mean you're working down to the millimeter, and installing in a finished house — freshly painted walls, freshly painted cabinets, brand-new appliances — means a tight fit with nothing you can afford to scratch. Glass panels run up to about twelve feet, so on a long counter you have to be crafty about the seams. Here, they sit at the cabinet lines flanking the vent hood: the hood holds your eye, the symmetry does the rest, and you just don't see them. We use that one a lot. Cutouts are their own discipline — every outlet, every notch under the cabinets — and where the color allows it, we back-paint glass outlet and switch covers to match exactly, so even the switches disappear into the run.</p>
+        <p><strong>Result</strong>The family was thrilled — and then they asked the question everyone asks when we present colorback glass: why don't more people choose this? Why don't people know about it? Since people always want to know what it costs, the honest answer: more than tile, less than marble or granite. The difference lives in the cutouts, the precision fit, and a paint made to stand up to heat and cold. You get what you pay for.</p>
+      </div>
+      <div class="case-quote">
+        <p>“Why don't people know about this?”</p>
+        <div class="who">The homeowners — the question every colorback client asks</div>
+      </div>
+    </div>
+  </article>
 </section>
 
 <!-- ═══ FULL PORTFOLIO GRID ═══ -->
@@ -471,11 +496,12 @@ const PROJECTS = [
    ],
    caseId:"case-greymirror",
    desc:"Statement grey mirror in an entertaining-first powder bath — noticeable, without taking focus from the art. She hired Eridion again for her next home."},
-  {name:"Chef's Kitchen Backsplash", type:"Colorback Glass", sector:"Custom Residential", location:"City, TX",
-   scope:"48 sq ft seamless backsplash, single panel runs", systems:"Colorback glass, custom color match",
-   gc:"[Builder Name]", timeline:"1 week from final measure",
-   media:[{ph:"ph-e", tag:"Sample"}],
-   desc:"Groutless, seamless backsplash color-matched to the designer's palette — wipes clean in seconds. Sample project."},
+  {layout:"wide", name:"The kitchen everyone ends up in", type:"Colorback Glass", sector:"Builder's Parents' New Build", location:"Little Rock, AR",
+   scope:"Full backsplash run — panels up to 12 ft, seams at the vent hood", systems:"Colorback glass · island-accent color match",
+   gc:"Builder partner — her parents' home", timeline:"1 week from final measure",
+   media:[{ph:"ph-e", tag:"Add photo"}],
+   caseId:"case-kitchen",
+   desc:"A dual-tone green backsplash matched to the island's accent \u2014 built for a Top Builder's own parents and a kitchen full of grandkids. Seams hidden at the vent hood."},
   {name:"Steam Shower Enclosure", type:"Showers & Wet Rooms", sector:"Custom Residential", location:"City, TX",
    scope:"Steam-rated frameless enclosure with transom", systems:"Low-iron tempered glass · steam hardware",
    gc:"[Builder Name]", timeline:"1 week from final measure",
