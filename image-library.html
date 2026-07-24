@@ -425,7 +425,7 @@ function cardEl(c) {
     '<div class="tags">' + c.chips.map(t => '<span class="tag">' + esc(t) + "</span>").join("") + "</div>" +
     '<div class="actions">' +
       '<button class="btn btn-small btn-green act-copy">Copy URL</button>' +
-      '<button class="btn btn-small btn-navy act-dl">Download</button>' +
+      '<button class="btn btn-small btn-navy act-dl" title="Download full size" aria-label="Download full size">⬇</button>' +
       '<button class="btn btn-small btn-line act-tags">Tags</button>' +
       '<button class="btn btn-small btn-danger act-del">Delete</button>' +
     "</div></div>";
