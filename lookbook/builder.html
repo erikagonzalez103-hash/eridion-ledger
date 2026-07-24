@@ -259,10 +259,37 @@ async function loadCatalog(){
   try{
     if (key || !/\.json(\?|$)/i.test(url)){
       const base = url.replace(/\/+$/,'');
-      const res = await fetch(base + '/api/manifest', { headers: key ? {'X-Library-Key': key} : {} });
+      const hdr = key ? {'X-Library-Key': key} : {};
+      const res = await fetch(base + '/api/manifest', { headers: hdr });
       if (res.status === 401) throw new Error('passphrase rejected');
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      photos = normalizeWorker(await res.json(), base);
+      const manifest = await res.json();
+      photos = normalizeWorker(manifest, base);
+      /* also surface bucket files not yet in the manifest (newly uploaded) */
+      let unfiled = 0;
+      try{
+        const lr = await fetch(base + '/api/list', { headers: hdr });
+        if (lr.ok){
+          const files = (await lr.json()).images || [];
+          const referenced = new Set(['manifest.json']);
+          const marr = Array.isArray(manifest) ? manifest
+            : manifest.images || manifest.assets || Object.values(manifest).filter(v => v && typeof v === 'object');
+          (marr || []).forEach(e => { if (e && e.web) referenced.add(e.web); if (e && e.thumb) referenced.add(e.thumb); });
+          const img = k => base + '/img/' + encodeURIComponent(k).replace(/%2F/g, '/');
+          files.forEach(f => {
+            if (referenced.has(f.key)) return;
+            const isImg = (f.contentType || '').startsWith('image/') || /\.(png|jpe?g|gif|webp|svg|avif|bmp)$/i.test(f.key);
+            const isVid = /\.(mp4|webm|mov|m4v)$/i.test(f.key);
+            if (!isImg && !isVid) return;
+            const ftags = Array.isArray(f.tags) ? f.tags : String(f.tags || '').split(/[,;]+/).map(t => t.trim()).filter(Boolean);
+            photos.push({ id: 'file:' + f.key, url: img(f.key), thumb: img(f.key),
+              tags: [...ftags.map(t => t.toLowerCase()), 'not-in-manifest'],
+              job: '', caption: f.key, grade: '', isVideo: isVid });
+            unfiled++;
+          });
+        }
+      }catch(e){ /* list is optional; manifest photos still work */ }
+      window.__unfiled = unfiled;
       localStorage.setItem('imglib:config', JSON.stringify({ url: base, key }));
     } else {
       const res = await fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(), {mode:'cors'});
@@ -270,7 +297,7 @@ async function loadCatalog(){
       photos = normalizeManifest(await res.json(), url);
     }
     state.manifestUrl = url; state.libKey = key; save();
-    setStatus(photos.length + ' photos loaded', 'ok');
+    setStatus(photos.length + ' photos loaded' + (window.__unfiled ? ' (' + window.__unfiled + ' not yet in manifest)' : ''), 'ok');
     buildFilters(); renderPhotos();
   }catch(err){
     setStatus('Load failed: ' + err.message, 'err');
@@ -545,6 +572,35 @@ document.getElementById('mapply').onclick = () => {
 
 /* ════════════════════ boot ════════════════════ */
 const DEFAULT_MANIFEST = 'https://pub-17160ed212d74341a64e62d4f71d7c34.r2.dev/manifest.json';
+/* The four real case studies ship pre-loaded — just attach photos.
+   (Seeded only when the project list is empty; your edits persist.) */
+const SEED_PROJECTS = [
+  { name:"The tile look, without the grout", type:"Colorback Glass", sector:"Luxury Custom Home", location:"DFW Metroplex, TX",
+    scope:"Primary suite wet room walls, color-matched to the tile spec", systems:"Tempered colorback glass",
+    gc:"Luxury builder partner", timeline:"1 week, measure to install", featured:true,
+    desc:"Print-featured wet room: the designer's tile aesthetic delivered in non-porous colorback glass — zero grout, 60–70% less cleaning.",
+    challenge:"", approach:"", result:"", quote:"I will not deal with grout in my shower.", quoteWho:"The homeowner's brief — honored in full", media:[] },
+  { name:"Grey mirror in a designer's own home", type:"Mirrors", sector:"Designer's Personal Home", location:"Southlake, TX",
+    scope:"60″ × 84″ grey mirror, counter to ceiling", systems:"1/4″ grey mirror · precision cutouts for wall-mounted faucet",
+    gc:"Interior designer — her own home, first of two", timeline:"Sequenced over several weeks with the full sub team", featured:true,
+    desc:"Statement grey mirror in an entertaining-first powder bath — noticeable, without taking focus from the art.",
+    challenge:"", approach:"", result:"", quote:"Designers see everyone's work up close. Getting picked for her own home told us where we stand.", quoteWho:"Owner, Eridion Glass", media:[] },
+  { name:"Privacy that didn't look like a compromise", type:"Showers & Wet Rooms", sector:"Custom Residential", location:"DFW Suburb, TX",
+    scope:"72″ × 90″ opening — 2-panel inline enclosure, 28″ pivot door", systems:"3/8″ grey-tinted tempered · dual-swing pivot · matte black hardware",
+    gc:"Builder partner", timeline:"1 week, measure to install · 2-day set", featured:true,
+    desc:"Grey-tinted enclosure giving a teenager privacy in a shared bath — recommended over satin-etch because it reads as design, not a fix.",
+    challenge:"", approach:"", result:"", quote:"Builders don't usually call about a shower. When she called to say the family loved it — that's a big deal.", quoteWho:"Owner, Eridion Glass", media:[] },
+  { name:"A staircase that looks like it's floating", type:"Specialty", sector:"Custom Residential", location:"DFW, TX",
+    scope:"241.5 sq ft · 15 panels — stair flights + both loft runs", systems:"1/2″ tempered Starphire (low-iron) · adjustable standoffs",
+    gc:"Stair contractor partner", timeline:"Templated per panel · ~1-day set", featured:true,
+    desc:"Half a ton of near-invisible low-iron glass wrapping a floating stair and loft — set by a two-man crew in about a day.",
+    challenge:"", approach:"", result:"", quote:"The ask was to make the staircase float. I think we read the assignment.", quoteWho:"Owner, Eridion Glass", media:[] }
+];
+if (!state.projects || !state.projects.length){
+  state.projects = JSON.parse(JSON.stringify(SEED_PROJECTS));
+  state.selected = 0;
+  save();
+}
 if (!state.manifestUrl){
   try{
     const shared = JSON.parse(localStorage.getItem('imglib:config'));
