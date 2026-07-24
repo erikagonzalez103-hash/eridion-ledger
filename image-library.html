@@ -23,9 +23,19 @@
   .controls { position:sticky; top:0; z-index:10; background:var(--navy); padding:0 24px 14px; box-shadow:0 2px 6px rgba(0,0,0,.15); }
   .controls input[type="search"] { width:100%; max-width:560px; padding:10px 14px; font-size:1rem; border:2px solid transparent; border-radius:8px; outline:none; }
   .controls input[type="search"]:focus { border-color:var(--green); }
-  .chips { margin-top:10px; display:flex; flex-wrap:wrap; gap:6px; max-height:104px; overflow-y:auto; }
-  .chip { border:1px solid rgba(255,255,255,.4); background:transparent; color:#fff; border-radius:999px; padding:4px 12px; font-size:.8rem; cursor:pointer; }
-  .chip.active { background:var(--green); border-color:var(--green); font-weight:600; }
+  .filterbar { margin-top:10px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .dd { position:relative; }
+  .dd-btn { border:1px solid rgba(255,255,255,.45); background:transparent; color:#fff; border-radius:8px; padding:6px 12px; font-size:.82rem; cursor:pointer; }
+  .dd.has-sel .dd-btn { background:var(--green); border-color:var(--green); font-weight:700; }
+  .dd-panel { display:none; position:absolute; top:calc(100% + 6px); left:0; z-index:30; background:#fff; color:var(--ink); border:1px solid var(--gray); border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,.2); min-width:220px; max-height:300px; overflow-y:auto; padding:8px; }
+  .dd.open .dd-panel { display:block; }
+  .dd-panel label { display:flex; align-items:center; gap:8px; font-size:.83rem; padding:4px 6px; border-radius:6px; cursor:pointer; }
+  .dd-panel label:hover { background:#eef1f4; }
+  .dd-panel label .n { margin-left:auto; color:#888; font-size:.72rem; }
+  .pills { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .pill { background:var(--green); color:#fff; border-radius:999px; padding:3px 10px; font-size:.76rem; display:flex; gap:6px; align-items:center; }
+  .pill b { font-weight:400; opacity:.8; }
+  .pill button { background:none; border:none; color:#fff; cursor:pointer; font-size:.9rem; line-height:1; padding:0; }
   .count { color:rgba(255,255,255,.75); font-size:.78rem; margin-top:8px; }
   main { max-width:1180px; margin:0 auto; padding:24px; }
   .drop { border:2px dashed var(--gray); border-radius:12px; background:var(--card); padding:18px; text-align:center; font-size:.9rem; color:#444; margin-bottom:20px; }
@@ -52,11 +62,23 @@
   .hidden { display:none !important; }
   .overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; z-index:50; padding:20px; }
   .modal { background:#fff; border-radius:12px; padding:24px; max-width:440px; width:100%; }
+  .modal.wide { max-width:680px; max-height:88vh; display:flex; flex-direction:column; }
   .modal h2 { color:var(--navy); font-size:1.1rem; margin-bottom:6px; }
   .modal p { font-size:.82rem; color:#555; margin-bottom:14px; }
   .modal label { display:block; font-size:.8rem; font-weight:600; color:var(--navy); margin:10px 0 4px; }
   .modal input { width:100%; padding:9px 12px; border:1px solid var(--gray); border-radius:8px; font-size:.9rem; }
   .modal .row { display:flex; gap:8px; justify-content:flex-end; margin-top:18px; }
+  .mgr-body { overflow-y:auto; flex:1; }
+  .sugg { border:1px solid var(--gray); border-left:4px solid var(--green); border-radius:8px; padding:8px 12px; margin-bottom:8px; display:flex; align-items:center; gap:10px; font-size:.83rem; }
+  .sugg span { flex:1; }
+  .mgr-body details { border:1px solid var(--gray); border-radius:8px; margin-bottom:8px; padding:0 12px; }
+  .mgr-body summary { font-weight:700; color:var(--navy); padding:9px 0; cursor:pointer; font-size:.9rem; }
+  .valrow { display:flex; align-items:center; gap:8px; padding:5px 0; font-size:.83rem; border-top:1px solid #eee; }
+  .valrow .v { font-weight:600; }
+  .valrow .n { color:#888; font-size:.74rem; }
+  .valrow .sp { flex:1; }
+  .mgr-foot { border-top:1px solid var(--gray); padding-top:12px; margin-top:12px; display:flex; align-items:center; gap:10px; }
+  .mgr-foot .pending { font-size:.8rem; color:#555; flex:1; }
   .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--navy); color:#fff; padding:10px 18px; border-radius:8px; font-size:.85rem; z-index:60; }
 </style>
 </head>
@@ -64,17 +86,19 @@
 <header>
   <div>
     <h1>Eridion Image Library</h1>
-    <p>Cloudflare R2 · manifest-aware · filter, search, upload, delete · copy a public URL for any image</p>
+    <p>Cloudflare R2 · manifest-aware · filter, search, upload, download, delete</p>
   </div>
-  <div style="display:flex;gap:8px">
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn btn-ghost hidden" id="mgrBtn">🏷 Manage tags</button>
     <button class="btn btn-ghost" id="settingsBtn">⚙ Settings</button>
     <button class="btn btn-green" id="refreshBtn">↻ Refresh</button>
   </div>
 </header>
 
 <div class="controls">
-  <input type="search" id="q" placeholder="Search name, caption, tag, product, space, style…" autocomplete="off">
-  <div class="chips" id="tagChips"></div>
+  <input type="search" id="q" placeholder="Search name, caption, tag, job…" autocomplete="off">
+  <div class="filterbar" id="filterbar"></div>
+  <div class="pills" id="pills"></div>
   <div class="count" id="count"></div>
 </div>
 
@@ -109,11 +133,37 @@
   </div>
 </div>
 
+<div class="overlay hidden" id="mgr">
+  <div class="modal wide">
+    <h2>Tag Manager</h2>
+    <p>Rename, merge, delete, or reassign values across every image at once. Edits apply to manifest entries; nothing is written to the bucket until you hit <b>Save changes</b>.</p>
+    <div class="mgr-body">
+      <div id="mgrSuggest"></div>
+      <div id="mgrFacets"></div>
+    </div>
+    <div class="mgr-foot">
+      <span class="pending" id="mgrPending">No pending changes</span>
+      <button class="btn btn-line" id="mgrCancel">Discard</button>
+      <button class="btn btn-green" id="mgrSave">Save changes</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const LS = "imglib:config";
 const PAGE = 200;
-let cfg = null, cards = [], activeChips = new Set(), limit = PAGE;
-let manifestRaw = null;   // parsed manifest exactly as stored — mutated in place, re-uploaded on change
+const FACETS = [
+  { key: "category", label: "Category", single: true },
+  { key: "product",  label: "Product" },
+  { key: "space",    label: "Space" },
+  { key: "style",    label: "Style" },
+  { key: "tags",     label: "Tags" },
+  { key: "job",      label: "Job", single: true },
+];
+let cfg = null, cards = [], lastFiles = [], manifestRaw = null;
+let filters = {};   // facetKey -> Set of selected values
+let limit = PAGE, pendingOps = 0;
+FACETS.forEach(f => filters[f.key] = new Set());
 
 function loadCfg() {
   try { cfg = JSON.parse(localStorage.getItem(LS)); } catch (e) { cfg = null; }
@@ -140,6 +190,21 @@ function csv(s) { return (s || "").split(",").map(t => t.trim()).filter(Boolean)
 function fmtSize(n) { return n > 1048576 ? (n/1048576).toFixed(1)+" MB" : Math.max(1, Math.round(n/1024))+" KB"; }
 function isImage(f) { return (f.contentType || "").startsWith("image/") || /\.(png|jpe?g|gif|webp|svg|avif|bmp)$/i.test(f.key); }
 
+// ---- facet access on manifest entries ----
+function facetDef(key) { return FACETS.find(f => f.key === key); }
+function getVals(e, key) {
+  if (facetDef(key).single) return e[key] ? [e[key]] : [];
+  return Array.isArray(e[key]) ? e[key] : [];
+}
+function removeVal(e, key, v) {
+  if (facetDef(key).single) { if (e[key] === v) e[key] = ""; }
+  else if (Array.isArray(e[key])) e[key] = e[key].filter(x => x !== v);
+}
+function addVal(e, key, v) {
+  if (facetDef(key).single) e[key] = e[key] || v;
+  else { if (!Array.isArray(e[key])) e[key] = []; if (!e[key].includes(v)) e[key].push(v); }
+}
+
 // ---- setup modal ----
 function openSetup(note) {
   if (cfg) { document.getElementById("cfgUrl").value = cfg.url; document.getElementById("cfgKey").value = cfg.key; }
@@ -159,7 +224,6 @@ document.getElementById("cfgSave").onclick = () => {
 };
 
 // ---- manifest handling ----
-// Manifest may be an array of entries, {images:[...]}/{assets:[...]}, or an object keyed by id.
 function manifestEntries() {
   if (!manifestRaw) return [];
   if (Array.isArray(manifestRaw)) return manifestRaw;
@@ -182,39 +246,42 @@ function saveManifest() {
   });
 }
 function fetchManifest() {
-  // Gated endpoint on the current Worker; falls back to public path for the pre-privacy Worker build
   return api("/api/manifest").catch(() =>
     fetch(base() + "/img/manifest.json", { cache: "no-store" }).then(r => r.ok ? r.json() : null).catch(() => null)
   );
 }
 
-// ---- build view models ----
-function buildCards(files) {
+// ---- view models ----
+function buildCards() {
   const out = [];
   const referenced = new Set(["manifest.json"]);
-  const fileKeys = new Set(files.map(f => f.key));
+  const fileKeys = new Set(lastFiles.map(f => f.key));
 
   for (const e of manifestEntries()) {
     if (e.web) referenced.add(e.web);
     if (e.thumb) referenced.add(e.thumb);
-    const facets = [...new Set([e.category, ...(e.tags||[]), ...(e.product||[]), ...(e.space||[]), ...(e.style||[])].filter(Boolean))];
+    const fv = {};
+    FACETS.forEach(f => fv[f.key] = getVals(e, f.key));
+    const chips = [...new Set([...fv.category, ...fv.tags, ...fv.product, ...fv.space, ...fv.style])];
     const dup = !!(e.dup_of || (e.flags || []).includes("duplicate"));
     out.push({
-      kind: "entry", ref: e,
+      kind: "entry", ref: e, fv,
       name: e.filename || e.id || e.web,
       caption: e.caption || "",
-      sub: [e.width && e.height ? e.width + "×" + e.height : "", e.orientation, e.shot, e.grade].filter(Boolean).join(" · "),
+      sub: [e.width && e.height ? e.width + "×" + e.height : "", e.orientation, e.shot, e.grade, e.job ? "job: " + e.job : ""].filter(Boolean).join(" · "),
       thumbKey: e.thumb && fileKeys.has(e.thumb) ? e.thumb : e.web,
       fullKey: e.web || e.thumb,
-      chips: facets, dup,
-      search: [e.id, e.filename, e.caption, e.notes, e.shot, e.grade, e.orientation, dup ? "duplicate" : "", facets.join(" "), (e.flags||[]).join(" ")].join(" ").toLowerCase(),
+      chips, dup,
+      search: [e.id, e.filename, e.caption, e.notes, e.shot, e.grade, e.orientation, e.job, dup ? "duplicate" : "", chips.join(" "), (e.flags||[]).join(" ")].join(" ").toLowerCase(),
     });
   }
-  for (const f of files) {
+  for (const f of lastFiles) {
     if (referenced.has(f.key) || !isImage(f)) continue;
     const tags = csv(f.tags);
+    const fv = {}; FACETS.forEach(fa => fv[fa.key] = []);
+    fv.tags = tags;
     out.push({
-      kind: "file", ref: f,
+      kind: "file", ref: f, fv,
       name: f.key, caption: "",
       sub: fmtSize(f.size) + " · " + new Date(f.uploaded).toLocaleDateString() + " · not in manifest",
       thumbKey: f.key, fullKey: f.key,
@@ -225,8 +292,109 @@ function buildCards(files) {
   return out;
 }
 
-// ---- load + render ----
-let lastFiles = [];   // raw bucket listing, kept so cards can be rebuilt after manifest edits
+// ---- filter bar (rebuilt when data changes) ----
+function facetValues(key) {
+  const counts = new Map();
+  cards.forEach(c => c.fv[key].forEach(v => counts.set(v, (counts.get(v) || 0) + 1)));
+  return [...counts.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+}
+function buildFilterBar() {
+  const bar = document.getElementById("filterbar");
+  bar.innerHTML = "";
+  for (const f of FACETS) {
+    const vals = facetValues(f.key);
+    filters[f.key] = new Set([...filters[f.key]].filter(v => vals.some(([x]) => x === v)));
+    if (!vals.length) continue;
+    const dd = document.createElement("div");
+    dd.className = "dd";
+    dd.dataset.facet = f.key;
+    const btn = document.createElement("button");
+    btn.className = "dd-btn";
+    btn.textContent = f.label + " ▾";
+    btn.onclick = e => {
+      e.stopPropagation();
+      const open = dd.classList.contains("open");
+      document.querySelectorAll(".dd.open").forEach(x => x.classList.remove("open"));
+      if (!open) dd.classList.add("open");
+    };
+    const panel = document.createElement("div");
+    panel.className = "dd-panel";
+    panel.onclick = e => e.stopPropagation();
+    for (const [v, n] of vals) {
+      const lab = document.createElement("label");
+      const cb = document.createElement("input");
+      cb.type = "checkbox"; cb.value = v;
+      cb.checked = filters[f.key].has(v);
+      cb.onchange = () => {
+        cb.checked ? filters[f.key].add(v) : filters[f.key].delete(v);
+        limit = PAGE; syncFilterUI(); renderGrid();
+      };
+      lab.appendChild(cb);
+      lab.appendChild(document.createTextNode(" " + v + " "));
+      const nn = document.createElement("span"); nn.className = "n"; nn.textContent = n;
+      lab.appendChild(nn);
+      panel.appendChild(lab);
+    }
+    dd.appendChild(btn); dd.appendChild(panel);
+    bar.appendChild(dd);
+  }
+  syncFilterUI();
+}
+document.addEventListener("click", () => document.querySelectorAll(".dd.open").forEach(x => x.classList.remove("open")));
+
+function syncFilterUI() {
+  document.querySelectorAll(".dd").forEach(dd => {
+    const key = dd.dataset.facet, sel = filters[key];
+    dd.classList.toggle("has-sel", sel.size > 0);
+    dd.querySelector(".dd-btn").textContent = facetDef(key).label + (sel.size ? " · " + sel.size : "") + " ▾";
+    dd.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = sel.has(cb.value));
+  });
+  const pills = document.getElementById("pills");
+  pills.innerHTML = "";
+  for (const f of FACETS) {
+    for (const v of filters[f.key]) {
+      const p = document.createElement("span");
+      p.className = "pill";
+      p.innerHTML = "<b>" + esc(f.label.toLowerCase()) + ":</b> " + esc(v);
+      const x = document.createElement("button");
+      x.textContent = "✕";
+      x.onclick = () => { filters[f.key].delete(v); limit = PAGE; syncFilterUI(); renderGrid(); };
+      p.appendChild(x);
+      pills.appendChild(p);
+    }
+  }
+}
+
+// ---- grid ----
+function matches(c, words) {
+  for (const f of FACETS) {
+    const sel = filters[f.key];
+    if (sel.size && ![...sel].some(v => c.fv[f.key].includes(v))) return false;   // OR within a facet
+  }
+  return words.every(w => c.search.includes(w));                                  // AND across facets + search
+}
+function renderGrid() {
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  const q = document.getElementById("q").value.trim().toLowerCase();
+  const words = q ? q.split(/\s+/) : [];
+  const hits = cards.filter(c => matches(c, words));
+  hits.slice(0, limit).forEach(c => grid.appendChild(cardEl(c)));
+  document.getElementById("msg").classList.add("hidden");
+  document.querySelector(".more").classList.toggle("hidden", hits.length <= limit);
+  document.getElementById("empty").classList.toggle("hidden", hits.length > 0 || cards.length === 0);
+  const nSel = FACETS.reduce((n, f) => n + filters[f.key].size, 0);
+  document.getElementById("count").textContent = hits.length + " of " + cards.length + " images" + (nSel ? " · " + nSel + " filter" + (nSel > 1 ? "s" : "") : "");
+  if (cards.length === 0) {
+    document.getElementById("msg").textContent = "Library is empty — drop images above to upload.";
+    document.getElementById("msg").classList.remove("hidden");
+  }
+}
+document.getElementById("moreBtn").onclick = () => { limit += PAGE; renderGrid(); };
+document.getElementById("q").addEventListener("input", () => { limit = PAGE; renderGrid(); });
+
+function buildAll() { cards = buildCards(); buildFilterBar(); renderGrid(); }
+
 function load() {
   document.getElementById("msg").textContent = "Loading…";
   document.getElementById("msg").classList.remove("hidden");
@@ -234,9 +402,9 @@ function load() {
     .then(([list, man]) => {
       manifestRaw = man || null;
       lastFiles = list.images;
-      cards = buildCards(lastFiles);
       limit = PAGE;
-      render();
+      document.getElementById("mgrBtn").classList.toggle("hidden", !manifestRaw);
+      buildAll();
     })
     .catch(e => {
       if (e.message !== "unauthorized")
@@ -244,45 +412,6 @@ function load() {
     });
 }
 document.getElementById("refreshBtn").onclick = load;
-
-function matches(c, words) {
-  return [...activeChips].every(t => c.chips.includes(t)) && words.every(w => c.search.includes(w));
-}
-
-function render() {
-  const grid = document.getElementById("grid");
-  grid.innerHTML = "";
-  const allChips = new Set();
-  cards.forEach(c => c.chips.forEach(t => allChips.add(t)));
-  activeChips = new Set([...activeChips].filter(t => allChips.has(t)));
-
-  const chipBox = document.getElementById("tagChips");
-  chipBox.innerHTML = "";
-  [...allChips].sort().forEach(t => {
-    const b = document.createElement("button");
-    b.className = "chip" + (activeChips.has(t) ? " active" : "");
-    b.textContent = t;
-    b.onclick = () => { activeChips.has(t) ? activeChips.delete(t) : activeChips.add(t); limit = PAGE; render(); };
-    chipBox.appendChild(b);
-  });
-
-  const q = document.getElementById("q").value.trim().toLowerCase();
-  const words = q ? q.split(/\s+/) : [];
-  const hits = cards.filter(c => matches(c, words));
-  hits.slice(0, limit).forEach(c => grid.appendChild(cardEl(c)));
-
-  document.getElementById("msg").classList.add("hidden");
-  document.querySelector(".more").classList.toggle("hidden", hits.length <= limit);
-  document.getElementById("empty").classList.toggle("hidden", hits.length > 0 || cards.length === 0);
-  document.getElementById("count").textContent =
-    hits.length + " of " + cards.length + " images" + (activeChips.size ? " · filters: " + [...activeChips].join(", ") : "");
-  if (cards.length === 0) {
-    document.getElementById("msg").textContent = "Library is empty — drop images above to upload.";
-    document.getElementById("msg").classList.remove("hidden");
-  }
-}
-document.getElementById("moreBtn").onclick = () => { limit += PAGE; render(); };
-document.getElementById("q").addEventListener("input", () => { limit = PAGE; render(); });
 
 function cardEl(c) {
   const el = document.createElement("div");
@@ -329,13 +458,13 @@ function editTags(c) {
   if (next === null) return;
   if (c.kind === "entry") {
     c.ref.tags = csv(next);
-    saveManifest().then(() => { cards = buildCards(lastFiles); render(); toast("Tags saved to manifest"); });
+    saveManifest().then(() => { buildAll(); toast("Tags saved to manifest"); });
   } else {
     api("/api/tags?key=" + encodeURIComponent(c.ref.key), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ tags: next }),
-    }).then(() => { c.ref.tags = next; cards = buildCards(lastFiles); render(); toast("Tags updated"); });
+    }).then(() => { c.ref.tags = next; buildAll(); toast("Tags updated"); });
   }
 }
 
@@ -347,8 +476,121 @@ function del(c) {
       lastFiles = lastFiles.filter(f => !keys.includes(f.key));
       if (c.kind === "entry") { manifestRemove(c.ref); return saveManifest(); }
     })
-    .then(() => { cards = buildCards(lastFiles); render(); toast("Deleted"); });
+    .then(() => { buildAll(); toast("Deleted"); });
 }
+
+// ---- Tag Manager ----
+function countValue(key, v) { return cards.reduce((n, c) => n + (c.fv[key].includes(v) ? 1 : 0), 0); }
+function opRename(key, from, to) {
+  manifestEntries().forEach(e => { if (getVals(e, key).includes(from)) { removeVal(e, key, from); addVal(e, key, to); } });
+}
+function opDelete(key, v) { manifestEntries().forEach(e => removeVal(e, key, v)); }
+function opMoveToJob(key, v) {
+  manifestEntries().forEach(e => { if (getVals(e, key).includes(v)) { removeVal(e, key, v); e.job = e.job || v; } });
+}
+function markPending() {
+  pendingOps++;
+  document.getElementById("mgrPending").textContent = pendingOps + " pending change" + (pendingOps > 1 ? "s" : "") + " — not saved yet";
+  buildAll();
+  buildManager();
+}
+
+function suggestions() {
+  const out = [];
+  for (const f of FACETS) {
+    if (f.key === "job") continue;
+    const vals = facetValues(f.key).map(([v]) => v);
+    for (const v of vals) {
+      if (/icloud|photos-from/i.test(v)) {
+        out.push({ label: `Delete "${v}" from ${f.label} — import junk (${countValue(f.key, v)} images)`, run: () => opDelete(f.key, v) });
+      } else if (/^\d{1,5}-[a-z]/i.test(v) && !f.single) {
+        out.push({ label: `Move "${v}" to Job field (${countValue(f.key, v)} images) — it's an address, not a tag`, run: () => opMoveToJob(f.key, v) });
+      } else if (v.endsWith("s") && vals.includes(v.slice(0, -1))) {
+        out.push({ label: `Merge "${v}" into "${v.slice(0, -1)}" in ${f.label} (${countValue(f.key, v)} images)`, run: () => opRename(f.key, v, v.slice(0, -1)) });
+      }
+    }
+  }
+  return out;
+}
+
+function buildManager() {
+  const sug = document.getElementById("mgrSuggest");
+  sug.innerHTML = "";
+  const list = suggestions();
+  if (list.length) {
+    const h = document.createElement("p");
+    h.innerHTML = "<b>Suggested cleanups</b> — apply the ones you agree with:";
+    sug.appendChild(h);
+    for (const s of list) {
+      const row = document.createElement("div");
+      row.className = "sugg";
+      const span = document.createElement("span"); span.textContent = s.label;
+      const b = document.createElement("button");
+      b.className = "btn btn-small btn-green"; b.textContent = "Apply";
+      b.onclick = () => { s.run(); markPending(); };
+      row.appendChild(span); row.appendChild(b);
+      sug.appendChild(row);
+    }
+  }
+  const box = document.getElementById("mgrFacets");
+  box.innerHTML = "";
+  for (const f of FACETS) {
+    const vals = facetValues(f.key);
+    if (!vals.length) continue;
+    const det = document.createElement("details");
+    const sum = document.createElement("summary");
+    sum.textContent = f.label + " (" + vals.length + " values)";
+    det.appendChild(sum);
+    for (const [v, n] of vals) {
+      const row = document.createElement("div");
+      row.className = "valrow";
+      row.innerHTML = '<span class="v">' + esc(v) + '</span><span class="n">' + n + " images</span><span class=\"sp\"></span>";
+      const ren = document.createElement("button");
+      ren.className = "btn btn-small btn-line"; ren.textContent = "Rename";
+      ren.onclick = () => {
+        const to = prompt('Rename "' + v + '" to (an existing name merges them):', v);
+        if (to === null || !to.trim() || to.trim() === v) return;
+        opRename(f.key, v, to.trim()); markPending();
+      };
+      row.appendChild(ren);
+      if (!f.single) {
+        const mv = document.createElement("button");
+        mv.className = "btn btn-small btn-line"; mv.textContent = "→ Job";
+        mv.onclick = () => { opMoveToJob(f.key, v); markPending(); };
+        row.appendChild(mv);
+        const dl = document.createElement("button");
+        dl.className = "btn btn-small btn-danger"; dl.textContent = "Delete";
+        dl.onclick = () => {
+          if (confirm('Remove "' + v + '" from ' + n + " image(s)? The images stay — only this value is removed.")) { opDelete(f.key, v); markPending(); }
+        };
+        row.appendChild(dl);
+      }
+      det.appendChild(row);
+    }
+    box.appendChild(det);
+  }
+}
+
+document.getElementById("mgrBtn").onclick = () => {
+  pendingOps = 0;
+  document.getElementById("mgrPending").textContent = "No pending changes";
+  buildManager();
+  document.getElementById("mgr").classList.remove("hidden");
+};
+document.getElementById("mgrCancel").onclick = () => {
+  document.getElementById("mgr").classList.add("hidden");
+  if (pendingOps) { toast("Discarded — reloading"); load(); }
+  pendingOps = 0;
+};
+document.getElementById("mgrSave").onclick = () => {
+  if (!pendingOps) { document.getElementById("mgr").classList.add("hidden"); return; }
+  saveManifest().then(() => {
+    document.getElementById("mgr").classList.add("hidden");
+    pendingOps = 0;
+    buildAll();
+    toast("Manifest saved");
+  }).catch(() => toast("Save failed — changes kept locally, try again"));
+};
 
 // ---- upload ----
 const drop = document.getElementById("drop");
