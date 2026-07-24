@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<!-- Eridion Glass — Project Lookbook. Styled per Brand Guidelines v2.0 (June 2026).
+     The wet-room case study is real (adapted from the eridionglass.com blog);
+     all other projects are SAMPLE placeholders. See lookbook/README.md -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eridion Glass — Project Lookbook</title>
+<meta name="description" content="Selected work by Eridion Glass, LLC — colorback glass, shower enclosures, mirrors, storefronts, and architectural glass for luxury builders in the DFW metroplex.">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── BRAND TOKENS — Eridion Glass Brand Guidelines v2.0
+   (headline face updated by owner decision: Jost Light replaces
+   Archivo Expanded — update the guidelines doc to match) ── */
+:root{
+  --navy:#153862;        /* primary — headlines, primary UI */
+  --deep-navy:#0E2741;   /* depth, footers, hover on navy */
+  --navy-wash:#EAEEF3;   /* tinted section backgrounds */
+  --green:#32A200;       /* brand green — accent fills/icons ONLY, never body text */
+  --black:#000000;       /* all body copy */
+  --slate:#5C6B7A;       /* secondary text, captions */
+  --divider:#C4C4C4;     /* borders, dividers (locked) */
+  --hairline:#E6E8EC;    /* subtle rules, input borders */
+  --paper:#F7F8FA;       /* page background */
+  --card:#FFFFFF;
+  --head:'Jost',sans-serif;      /* light display face — Jost (Futura-style geometry) */
+  --body:'Inter',-apple-system,Segoe UI,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--body);font-size:16px;background:var(--paper);color:var(--black);line-height:1.6;}
+img{max-width:100%;}
+a{color:inherit;}
+h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line-height:1.15;}
+.eyebrow{font-family:var(--head);font-weight:400;font-size:12px;letter-spacing:3px;text-transform:uppercase;}
+/* brand green cut-corner motif (from the mark) */
+.cut{position:relative;}
+.cut::after{content:"";position:absolute;top:0;right:0;border-top:20px solid var(--green);border-left:20px solid transparent;}
+
+/* ── TEMPLATE NOTICE ─────────────────────────────── */
+.notice{background:#FFF3D6;border-bottom:1px solid #E8D9A8;color:#6B5A1E;font-size:12px;padding:8px 24px;text-align:center;}
+.notice strong{font-weight:600;}
+.notice button{background:none;border:none;color:#6B5A1E;font-weight:600;font-size:12px;cursor:pointer;text-decoration:underline;margin-left:10px;}
+
+/* ── HEADER ──────────────────────────────────────── */
+.hdr{position:sticky;top:0;z-index:50;background:rgba(247,248,250,0.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--hairline);display:flex;align-items:center;justify-content:space-between;padding:14px 5vw;}
+.wordmark{display:flex;flex-direction:column;line-height:1.2;text-decoration:none;}
+.wordmark .name{font-family:var(--head);font-weight:700;font-size:17px;letter-spacing:.5px;color:var(--navy);}
+.wordmark .tag{font-family:var(--head);font-weight:500;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--green);}
+.hdr nav{display:flex;gap:26px;align-items:center;}
+.hdr nav a{font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;color:var(--slate);transition:color .2s;}
+.hdr nav a:hover{color:var(--navy);}
+.hdr nav a.cta{background:var(--navy);color:#fff;padding:10px 18px;}
+.hdr nav a.cta:hover{background:var(--deep-navy);color:#fff;}
+@media(max-width:720px){.hdr nav a:not(.cta){display:none;}}
+
+/* ── HERO ────────────────────────────────────────── */
+.hero{padding:10vh 5vw 8vh;max-width:1200px;margin:0 auto;}
+.hero .eyebrow{color:var(--slate);margin-bottom:20px;}
+.hero h1{font-size:44px;max-width:22ch;}
+.hero h1::after{content:"";display:block;width:56px;height:5px;background:var(--green);margin-top:18px;}
+.hero .lead{margin-top:24px;max-width:58ch;font-size:18px;font-weight:500;color:var(--black);}
+.hero .sub{margin-top:12px;max-width:58ch;font-size:16px;color:var(--black);}
+.hero .hero-cta{display:inline-block;margin-top:32px;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--navy);text-decoration:none;border-bottom:2px solid var(--navy);padding-bottom:6px;transition:color .2s,border-color .2s;}
+.hero .hero-cta:hover{color:var(--deep-navy);}
+@media(max-width:720px){.hero h1{font-size:32px;}}
+.hero-stats{display:flex;gap:0;margin:8vh auto 0;max-width:1200px;border-top:1px solid var(--divider);}
+.hero-stats .stat{flex:1;padding:26px 18px 4px;border-right:1px solid var(--hairline);}
+.hero-stats .stat:last-child{border-right:none;}
+.hero-stats .num{font-family:var(--head);font-weight:300;font-size:clamp(26px,3.2vw,38px);color:var(--navy);}
+.hero-stats .lbl{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--slate);margin-top:2px;}
+@media(max-width:720px){.hero-stats{flex-wrap:wrap;}.hero-stats .stat{flex:1 1 45%;border-right:none;}}
+
+/* ── PLACEHOLDER "PHOTOGRAPHY" ───────────────────── */
+.ph{position:relative;overflow:hidden;background:#16293F;}
+.ph::before{content:"";position:absolute;inset:0;}
+.ph::after{content:"";position:absolute;top:-30%;bottom:-30%;left:18%;width:26%;transform:skewX(-18deg);background:linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.14) 45%,rgba(255,255,255,.02) 100%);}
+.ph .ph-tag{position:absolute;right:10px;bottom:10px;z-index:2;font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.85);background:rgba(14,39,65,.6);padding:4px 9px;}
+.ph-a::before{background:linear-gradient(160deg,#2C5185 0%,#16293F 55%,#0C1828 100%);}
+.ph-b::before{background:linear-gradient(150deg,#3E6E82 0%,#1E4152 60%,#122B38 100%);}
+.ph-c::before{background:linear-gradient(155deg,#8FA8B8 0%,#54718A 50%,#2C4258 100%);}
+.ph-d::before{background:linear-gradient(160deg,#B99B6B 0%,#6E6046 55%,#33405C 100%);}
+.ph-e::before{background:linear-gradient(150deg,#4E7E5E 0%,#2C5140 60%,#15342C 100%);}
+.ph-f::before{background:linear-gradient(160deg,#5E5E80 0%,#333F5E 55%,#161F33 100%);}
+.ph .mullions{position:absolute;inset:0;background:
+  repeating-linear-gradient(90deg,rgba(10,20,35,.55) 0 2px,transparent 2px 25%),
+  repeating-linear-gradient(0deg,rgba(10,20,35,.4) 0 2px,transparent 2px 33.4%);}
+
+/* ── MEDIA: single / carousel / video ────────────── */
+.media{position:relative;overflow:hidden;}
+.case-media.media > .car{position:absolute;inset:0;}
+.case-media{position:relative;}
+.car{position:relative;overflow:hidden;height:100%;}
+.car-track{display:flex;height:100%;transition:transform .45s ease;}
+.car-slide{flex:0 0 100%;position:relative;overflow:hidden;}
+.car-slide .ph,.media-cover .ph{position:absolute;inset:0;}
+.car-slide img,.car-slide video,.media-cover img{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0;}
+.car-slide video{background:#0E2741;}
+.car-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:36px;height:36px;border:none;background:rgba(21,56,98,.85);color:#fff;font-size:15px;cursor:pointer;line-height:1;transition:background .2s;}
+.car-btn:hover{background:var(--deep-navy);}
+.car-btn:focus-visible{outline:2px solid var(--green);}
+.car-prev{left:0;}
+.car-next{right:0;}
+.car-dots{position:absolute;left:0;right:0;bottom:10px;display:flex;justify-content:center;gap:6px;z-index:3;}
+.car-dot{width:9px;height:9px;border:none;background:rgba(255,255,255,.5);cursor:pointer;padding:0;}
+.car-dot.on{background:var(--green);}
+.car-count{position:absolute;left:10px;bottom:10px;z-index:3;font-size:10px;font-weight:600;letter-spacing:1px;color:rgba(255,255,255,.9);background:rgba(14,39,65,.6);padding:3px 8px;}
+.media-cover{position:relative;height:200px;overflow:hidden;}
+.play-badge{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;}
+.play-badge span{width:44px;height:44px;background:rgba(21,56,98,.85);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.modal-media{position:relative;height:260px;}
+@media(prefers-reduced-motion:reduce){.car-track{transition:none;}}
+
+/* ── SECTION SHELL ───────────────────────────────── */
+.section{max-width:1200px;margin:0 auto;padding:8vh 5vw;}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:20px;padding-bottom:18px;margin-bottom:44px;border-bottom:1px solid var(--divider);}
+.sec-head h2{font-size:30px;}
+.sec-head h2::after{content:"";display:block;width:44px;height:4px;background:var(--green);margin-top:10px;}
+.sec-head .eyebrow{color:var(--slate);}
+@media(max-width:720px){.sec-head h2{font-size:24px;}}
+
+/* ── FEATURED CASE STUDIES ───────────────────────── */
+.case{display:grid;grid-template-columns:1.15fr .85fr;gap:0;margin-bottom:9vh;background:var(--card);border:1px solid var(--hairline);}
+.case:nth-of-type(even){grid-template-columns:.85fr 1.15fr;}
+.case:nth-of-type(even) .case-media{order:2;}
+.case-media{min-height:420px;}
+.case-body{padding:44px 42px;display:flex;flex-direction:column;}
+.case-body .eyebrow{color:var(--slate);font-size:11px;}
+.case-body h3{font-size:26px;font-weight:400;margin:10px 0 2px;}
+.case-body .loc{font-size:13px;color:var(--slate);margin-bottom:22px;}
+.case-facts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--hairline);border:1px solid var(--hairline);margin-bottom:24px;}
+.case-facts div{background:var(--card);padding:10px 14px;}
+.case-facts .k{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--slate);}
+.case-facts .v{font-size:13px;font-weight:500;margin-top:1px;color:var(--black);}
+.case-story p{font-size:14px;color:var(--black);margin-bottom:12px;}
+.case-story strong{display:block;font-family:var(--head);font-weight:400;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--navy);margin-bottom:3px;}
+.case-quote{margin-top:auto;padding-top:20px;border-top:1px solid var(--hairline);}
+.case-quote p{font-family:var(--head);font-weight:400;font-size:18px;line-height:1.4;color:var(--navy);}
+.case-quote .who{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--slate);margin-top:8px;}
+/* wide variant — full-width landscape hero above the story.
+   Add class "wide" to a .case article when its best photos are landscape;
+   the default two-column layout suits portrait and square imagery. */
+.case.wide,.case.wide:nth-of-type(even){grid-template-columns:1fr;}
+.case.wide .case-media,.case.wide:nth-of-type(even) .case-media{order:0;min-height:0;aspect-ratio:16/9;}
+.case.wide .case-facts{grid-template-columns:repeat(4,1fr);}
+.case.wide .case-story p{max-width:72ch;}
+@media(max-width:860px){.case.wide .case-facts{grid-template-columns:1fr 1fr;}.case.wide .case-media{min-height:0;}}
+@media(max-width:860px){.case,.case:nth-of-type(even){grid-template-columns:1fr;}.case:nth-of-type(even) .case-media{order:0;}.case-media{min-height:260px;}.case-body{padding:30px 24px;}}
+
+/* ── FILTER + GRID ───────────────────────────────── */
+.filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:36px;}
+.chip{font-family:var(--body);font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;background:transparent;border:1px solid var(--divider);color:var(--slate);padding:9px 18px;cursor:pointer;transition:all .2s;}
+.chip:hover{border-color:var(--navy);color:var(--navy);}
+.chip.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;}
+@media(max-width:960px){.grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.grid{grid-template-columns:1fr;}}
+.tile{background:var(--card);border:1px solid var(--hairline);cursor:pointer;transition:transform .25s,box-shadow .25s;display:flex;flex-direction:column;text-align:left;font-family:var(--body);padding:0;}
+.tile:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(21,56,98,.12);}
+.tile .ph{height:200px;}
+.tile-body{padding:16px 18px 18px;}
+.tile-body .type{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--slate);}
+.tile-body h4{font-size:22px;font-weight:400;margin:5px 0 2px;line-height:1.2;}
+.tile-body .meta{font-size:13px;color:var(--slate);}
+.tile-body .scope{font-size:13px;color:var(--black);margin-top:8px;}
+.tile.hidden{display:none;}
+
+/* ── CAPABILITIES STRIP — navy layout, brand green accents ── */
+.caps{background:var(--navy);color:#fff;}
+.caps .section{padding:9vh 5vw;}
+.caps .eyebrow{color:var(--green);}
+.caps h2{font-size:30px;color:#fff;max-width:30ch;margin-top:14px;}
+.caps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.14);margin-top:40px;}
+.caps-grid div{background:var(--navy);padding:22px 22px 24px;}
+.caps-grid .c-name{font-family:var(--head);font-weight:400;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#fff;border-left:3px solid var(--green);padding-left:10px;}
+.caps-grid p{font-size:13px;color:#C7D3E0;margin-top:10px;}
+@media(max-width:860px){.caps-grid{grid-template-columns:1fr;}.caps h2{font-size:24px;}}
+
+/* ── FOOTER CTA ──────────────────────────────────── */
+.foot{max-width:1200px;margin:0 auto;padding:10vh 5vw 8vh;text-align:center;}
+.foot h2{font-size:30px;}
+.foot p{color:var(--black);margin:18px auto 0;max-width:52ch;}
+.foot .btn{display:inline-block;margin-top:32px;background:var(--navy);color:#fff;text-decoration:none;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:16px 36px;transition:background .2s;position:relative;}
+.foot .btn::after{content:"";position:absolute;top:0;right:0;border-top:14px solid var(--green);border-left:14px solid transparent;}
+.foot .btn:hover{background:var(--deep-navy);}
+.foot .fine{margin-top:60px;padding-top:24px;border-top:1px solid var(--hairline);font-size:11px;color:var(--slate);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+
+/* ── MODAL ───────────────────────────────────────── */
+.modal-back{position:fixed;inset:0;z-index:100;background:rgba(14,39,65,.55);display:none;align-items:center;justify-content:center;padding:5vw;}
+.modal-back.open{display:flex;}
+.modal{background:var(--card);max-width:640px;width:100%;max-height:86vh;overflow-y:auto;border:1px solid var(--hairline);}
+.modal .ph{height:240px;}
+.modal-body{padding:30px 32px 34px;}
+.modal-body .type{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--slate);}
+.modal-body h3{font-size:26px;font-weight:400;margin:6px 0 0;}
+.modal-body .loc{font-size:13px;color:var(--slate);margin-bottom:20px;}
+.modal-body .desc{font-size:14px;color:var(--black);margin-top:18px;}
+.modal-close{position:sticky;top:0;float:right;margin:12px;background:var(--navy);color:#fff;border:none;width:32px;height:32px;font-size:15px;cursor:pointer;z-index:2;}
+
+/* ── REVEAL ANIMATION ────────────────────────────── */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease;}
+.rv.in{opacity:1;transform:none;}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto;}.rv{opacity:1;transform:none;transition:none;}}
+</style>
+</head>
+<body>
+
+<div class="notice" id="notice">
+  <strong>Template preview.</strong> All four featured case studies are real; some grid projects are still sample data — replace before publishing.
+  <button onclick="document.getElementById('notice').style.display='none'">Dismiss</button>
+</div>
+
+<header class="hdr">
+  <a class="wordmark" href="#top" aria-label="Eridion Glass">
+    <img src="data:image/png;base64,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" alt="Eridion Glass" style="height:44px;width:auto;display:block;">
+  </a>
+  <nav>
+    <a href="#featured">Case Studies</a>
+    <a href="#portfolio">All Projects</a>
+    <a href="#capabilities">Capabilities</a>
+    <a class="cta" href="https://www.eridionglass.com">Main Site</a>
+  </nav>
+</header>
+
+<section class="hero" id="top">
+  <div class="eyebrow rv">Glazing · Design · Craft — DFW Metroplex</div>
+  <h1 class="rv">Custom glazing, built to spec.</h1>
+  <p class="lead rv">Eridion Glass is a husband-and-wife shop fabricating and installing custom glazing for high-end homes.</p>
+  <p class="sub rv">We field-verify every opening and set each panel to spec — so the people who quote your job are the same ones who stand behind it. A selection of that work follows.</p>
+  <a class="hero-cta rv" href="#featured">View selected projects ↓</a>
+</section>
+<div class="hero-stats rv">
+  <div class="stat"><div class="num">25+</div><div class="lbl">Years Master Glazier</div></div>
+  <div class="stat"><div class="num">1 wk</div><div class="lbl">Measure to Install</div></div>
+  <div class="stat"><div class="num">$1M+</div><div class="lbl">Homes We Build For</div></div>
+  <div class="stat"><div class="num">100s</div><div class="lbl">Colorback Colors</div></div>
+</div>
+
+<!-- ═══ FEATURED CASE STUDIES ═══ -->
+<section class="section" id="featured">
+  <div class="sec-head rv">
+    <h2>Featured case studies</h2>
+    <span class="eyebrow">Selected Work</span>
+  </div>
+
+  <!-- REAL PROJECT — adapted from the eridionglass.com blog post
+       "Why Builders, Designers and Homeowners choose Colorback Glass over Tile" -->
+  <article class="case cut rv wide" id="case-wetroom">
+    <div class="case-media media" data-media="case-wetroom"></div>
+    <div class="case-body">
+      <div class="eyebrow">Luxury Custom Home · Colorback Glass</div>
+      <h3>The tile look, without the grout</h3>
+      <div class="loc">Primary Suite Wet Room — New Luxury Build, DFW Metroplex</div>
+      <div class="case-facts">
+        <div><div class="k">Scope</div><div class="v">Wet room walls, primary suite renovation</div></div>
+        <div><div class="k">Systems</div><div class="v">Tempered colorback glass, digitally color-matched to the tile spec</div></div>
+        <div><div class="k">Client</div><div class="v">Luxury builder partner + design team</div></div>
+        <div><div class="k">Timeline</div><div class="v">1 week, final measure to install</div></div>
+      </div>
+      <div class="case-story">
+        <p><strong>Challenge</strong>The designer had fallen in love with a specific tile aesthetic for the wet room walls — but the homeowner, experienced with luxury home maintenance, was adamant about not living with grout. Porous grout joints harbor mold and mildew in wet environments and never stop demanding upkeep.</p>
+        <p><strong>Approach</strong>Rather than abandon the design, we fabricated tempered colorback glass panels digitally color-matched to the exact tile shade — the aesthetic the designer loved, in a non-porous surface that meets Glass Association of North America performance standards. Installation was single-stage and fit the construction schedule without tile's multi-step process.</p>
+        <p><strong>Result</strong>The finished wet room delivers the designer's vision with none of the maintenance: non-porous glass requires 60–70% less cleaning time and chemicals than tile-and-grout systems, and there's no grout to crack, discolor, or generate builder callbacks. The completed bathroom was later featured in print editorials.</p>
+      </div>
+      <div class="case-quote">
+        <p>“I will not deal with grout in my shower.”</p>
+        <div class="who">The homeowner's brief — honored in full</div>
+      </div>
+    </div>
+  </article>
+
+  <!-- REAL PROJECT — grey mirror, designer's own home (owner interview, July 2026) -->
+  <article class="case cut rv" id="case-greymirror">
+    <div class="case-media media" data-media="case-greymirror"></div>
+    <div class="case-body">
+      <div class="eyebrow">Designer's Personal Home · Mirrors</div>
+      <h3>Grey mirror in a designer's own home</h3>
+      <div class="loc">Entry Powder Bath — Southlake, TX</div>
+      <div class="case-facts">
+        <div><div class="k">Scope</div><div class="v">60″ × 84″ grey mirror — counter toward an 11-ft ceiling</div></div>
+        <div><div class="k">Systems</div><div class="v">1/4″ grey mirror · precision cutouts for the wall-mounted faucet</div></div>
+        <div><div class="k">Client</div><div class="v">Interior designer — her own home, the first of two</div></div>
+        <div><div class="k">Timeline</div><div class="v">Sequenced over several weeks with the full sub team</div></div>
+      </div>
+      <div class="case-story">
+        <p><strong>Challenge</strong>This was the first home we did for an interior designer — her own place in Southlake, about 10,000 square feet. The entry powder bath mattered to her because she likes to entertain, and that's the room guests actually see. She wanted it to make a statement, and she wanted the mirror to be different — but she was also planning artwork for the room, and we didn't want the mirror taking too much away from that focal point.</p>
+        <p><strong>Approach</strong>Grey mirror got it done on both counts: different enough to notice, quiet enough that the art stays the focus. One panel, roughly 60 by 84 inches at a quarter inch thick, running from the countertop up toward the eleven-foot ceiling, with cutouts for the wall-mounted faucet. Cutouts make any piece of glass more fragile, especially at a quarter inch — these sat far enough from the edges to keep the piece manageable, and Dion is meticulous about his measurements. Years of measuring colorback glass will do that. Fit wasn't a problem.</p>
+        <p><strong>Result</strong>The mirror went in as part of the larger build — a lot of moving parts, several weeks, a layered team effort by all the subs. The room came out the way she wanted: the mirror gets noticed, the art keeps the room. And she hired us again for her family's next home before they moved out of state.</p>
+      </div>
+      <div class="case-quote">
+        <p>“Designers see everyone's work up close. Getting picked for her own home told us where we stand.”</p>
+        <div class="who">Owner, Eridion Glass</div>
+      </div>
+    </div>
+  </article>
+
+  <!-- REAL PROJECT — grey-glass shower, boys' bath (owner interview, July 2026) -->
+  <article class="case cut rv wide" id="case-greyshower">
+    <div class="case-media media" data-media="case-greyshower"></div>
+    <div class="case-body">
+      <div class="eyebrow">Custom Residential · Shower Enclosures</div>
+      <h3>Privacy that didn't look like a compromise</h3>
+      <div class="loc">Boys' Bath — 5-Bedroom New Build, DFW Suburb</div>
+      <div class="case-facts">
+        <div><div class="k">Scope</div><div class="v">72″ × 90″ opening — 2-panel inline, 28″ pivot door</div></div>
+        <div><div class="k">Systems</div><div class="v">3/8″ grey-tinted tempered · dual-swing pivot · matte black hardware</div></div>
+        <div><div class="k">Client</div><div class="v">Builder partner</div></div>
+        <div><div class="k">Timeline</div><div class="v">1 week, measure to install · 2-day set</div></div>
+      </div>
+      <div class="case-story">
+        <p><strong>Challenge</strong>In a five-bedroom new build, the boys' rooms shared a bathroom — no ensuite in the plan. The teenage son wanted more privacy than a clear enclosure gives, and his mom brought the request to the build team looking for recommendations, not products.</p>
+        <p><strong>Approach</strong>We recommended grey-tinted glass over the usual satin-etch. Same privacy, different message: frosted glass reads as a utility fix, while grey reads as a design decision — edgier, more modern, and right at home with the house's matte black finishes. Fabricated as a two-panel inline enclosure in 3/8-inch tempered grey glass with a 28-inch pivot door that swings both in and out.</p>
+        <p><strong>Result</strong>Set on the standard one-week measure-to-install timeline, about two days on site. The family loved it — and that word came back through the builder, which counts double.</p>
+      </div>
+      <div class="case-quote">
+        <p>“Builders don't usually call about a shower. When she called to say the family loved it — that's a big deal.”</p>
+        <div class="who">Owner, Eridion Glass</div>
+      </div>
+    </div>
+  </article>
+
+  <!-- REAL PROJECT — floating staircase, Starphire railings (owner interview, July 2026) -->
+  <article class="case cut rv" id="case-staircase">
+    <div class="case-media media" data-media="case-staircase"></div>
+    <div class="case-body">
+      <div class="eyebrow">Custom Residential · Glass Railings</div>
+      <h3>A staircase that looks like it's floating</h3>
+      <div class="loc">Two-Story Foyer — Large Custom Home, DFW</div>
+      <div class="case-facts">
+        <div><div class="k">Scope</div><div class="v">241.5 sq ft — 15 panels, stair flights + both loft runs</div></div>
+        <div><div class="k">Systems</div><div class="v">1/2″ tempered Starphire (low-iron) · adjustable standoffs</div></div>
+        <div><div class="k">Client</div><div class="v">Stair contractor partner — builds large custom homes</div></div>
+        <div><div class="k">Timeline</div><div class="v">Templated per panel · set in about a day, two-man crew</div></div>
+      </div>
+      <div class="case-story">
+        <p><strong>Challenge</strong>The ask on this one was simple to say and hard to do: make the staircase look like it's floating. Floating oak treads in a two-story foyer, glass climbing the stair and wrapping both sides of the loft above it — and the glass had to disappear. We came in through a stair contractor new to us who builds massive homes. We weren't there at the drawing stage, but on site, while the build gets finalized, we have a lot of input.</p>
+        <p><strong>Approach</strong>Starphire glass is what makes it work: half-inch tempered, low-iron — standard glass reads green at that thickness, and Starphire is almost invisible. You can tell. Fifteen panels, 241.5 square feet, a little over half a ton of glass. Every panel gets measured individually, and a template made and numbered so there's no confusion. We learned that lesson a long time ago — templates are a small expense in the long run, and worth every penny.</p>
+        <p><strong>Result</strong>Two men set it in about a day. The templates and adjustable standoffs kept the hours down — measure twice — and that kind of install speed is another reason builders choose Eridion. The staircase floats, the glass disappears, and the stair contractor has already slotted us for their next two homes.</p>
+      </div>
+      <div class="case-quote">
+        <p>“The ask was to make the staircase float. I think we read the assignment.”</p>
+        <div class="who">Owner, Eridion Glass</div>
+      </div>
+    </div>
+  </article>
+</section>
+
+<!-- ═══ FULL PORTFOLIO GRID ═══ -->
+<section class="section" id="portfolio">
+  <div class="sec-head rv">
+    <h2>All projects</h2>
+    <span class="eyebrow">Filter by type</span>
+  </div>
+  <div class="filters rv" id="filters"></div>
+  <div class="grid" id="grid"></div>
+</section>
+
+<!-- ═══ CAPABILITIES — navy layout, brand green accents ═══ -->
+<div class="caps" id="capabilities">
+  <section class="section">
+    <div class="eyebrow rv">Capabilities</div>
+    <h2 class="rv">Design consultation through fabrication and installation — a master glazier on every complex job.</h2>
+    <div class="caps-grid rv">
+      <div><div class="c-name">Colorback Glass</div><p>Digitally color-matched back-painted glass for wet room walls, backsplashes, and feature walls — the tile look with zero grout.</p></div>
+      <div><div class="c-name">Showers &amp; Wet Rooms</div><p>Frameless and steam-rated enclosures in low-iron glass, field-measured and set to spec.</p></div>
+      <div><div class="c-name">Mirrors</div><p>Full-wall, vanity, framed, and gym mirrors with polished edges and concealed mounting.</p></div>
+      <div><div class="c-name">Elevators &amp; Lobbies</div><p>Colorback glass elevator cab panels and lobby feature walls — installed off-hours, in as little as one week.</p></div>
+      <div><div class="c-name">Storefronts &amp; Entrances</div><p>Aluminum storefront framing, all-glass entrances, and commercial glass and mirror packages.</p></div>
+      <div><div class="c-name">Architectural &amp; Specialty</div><p>Wine cellar enclosures, glass stair systems, and complex architectural glass installations.</p></div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══ FOOTER CTA ═══ -->
+<footer class="foot">
+  <h2 class="rv">Have plans to send over?</h2>
+  <p class="rv">We field-measure, quote quickly, and stand behind the install. Wet room, wine cellar, stair system, or an architectural feature — send it over and we'll take a look.</p>
+  <a class="btn rv" href="https://www.eridionglass.com" title="Point this at your contact page">Send Us Your Plans</a>
+  <div class="fine">
+    <span>© Eridion Glass, LLC · DFW Metroplex</span>
+    <span>Colorback Glass · Showers · Mirrors · Elevators &amp; Lobbies · Storefronts · Specialty</span>
+  </div>
+</footer>
+
+<!-- ═══ PROJECT MODAL ═══ -->
+<div class="modal-back" id="modalBack">
+  <div class="modal" role="dialog" aria-modal="true">
+    <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+    <div class="modal-media" id="modalPh"></div>
+    <div class="modal-body">
+      <div class="type" id="modalType"></div>
+      <h3 id="modalTitle"></h3>
+      <div class="loc" id="modalLoc"></div>
+      <div class="case-facts" id="modalFacts"></div>
+      <div class="desc" id="modalDesc"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   PROJECT DATA — edit this array to update the lookbook.
+   The wet-room entry is REAL (from the eridionglass.com blog);
+   every other project is SAMPLE DATA to replace.
+
+   MEDIA — every project has a `media` array. Each item is one of:
+     {img:'images/photo.jpg', alt:'what the photo shows'}   → photo
+     {video:'images/clip.mp4', poster:'images/cover.jpg'}   → video player
+     {ph:'ph-a', tag:'Sample'}                               → gradient placeholder
+   One item  → a single image/video fills the area.
+   Two+ items → an automatic carousel with arrows, dots, and swipe.
+   Mix freely, e.g. a real project might use:
+     media: [
+       {img:'images/wetroom-1.jpg', alt:'Colorback wet room, finished'},
+       {video:'images/wetroom-walkthrough.mp4', poster:'images/wetroom-1.jpg'},
+       {img:'images/wetroom-detail.jpg', alt:'Panel joint detail'}
+     ]
+   Grid tiles show the FIRST item as a cover (videos show their
+   poster with a play badge); the full carousel appears in the
+   featured case studies and the project modal.
+
+   Other fields: name, type (must match a FILTER value), sector,
+   location, scope (one quantified line), systems, gc, timeline,
+   desc, caseId (optional — links tile to a featured case study).
+   ══════════════════════════════════════════════════════════════ */
+const FILTERS = ["All","Colorback Glass","Showers & Wet Rooms","Mirrors","Storefronts","Specialty"];
+
+const PROJECTS = [
+  {name:"The Tile Look, Without the Grout", type:"Colorback Glass", sector:"Luxury Custom Home", location:"DFW Metroplex, TX",
+   scope:"Primary suite wet room walls, color-matched to the tile spec", systems:"Tempered colorback glass",
+   gc:"Luxury builder partner", timeline:"1 week, measure to install",
+   media:[{ph:"ph-b", tag:"Add photo 1"},{ph:"ph-c", tag:"Add photo 2"},{ph:"ph-f", tag:"Add photo 3"}],
+   caseId:"case-wetroom",
+   desc:"Print-featured wet room: the designer's tile aesthetic delivered in non-porous colorback glass — zero grout, 60–70% less cleaning."},
+  {name:"Privacy that didn't look like a compromise", type:"Showers & Wet Rooms", sector:"Custom Residential", location:"DFW Suburb, TX",
+   scope:"72″ × 90″ opening — 2-panel inline, 28″ pivot door", systems:"3/8″ grey-tinted tempered · matte black",
+   gc:"Builder partner", timeline:"1 week · 2-day set",
+   media:[{ph:"ph-b", tag:"Add photo"}],
+   caseId:"case-greyshower",
+   desc:"Grey-tinted enclosure giving a teenager privacy in a shared bath — recommended over satin-etch because it reads as design, not a fix."},
+  {name:"Grey mirror in a designer's own home", type:"Mirrors", sector:"Designer's Personal Home", location:"Southlake, TX",
+   scope:"60″ × 84″ grey mirror, counter to ceiling", systems:"1/4″ grey mirror · faucet cutouts",
+   gc:"Interior designer (repeat client)", timeline:"Several weeks, with the full sub team",
+   media:[{ph:"ph-f", tag:"Add photo"}],
+   caseId:"case-greymirror",
+   desc:"Statement grey mirror in an entertaining-first powder bath — noticeable, without taking focus from the art. She hired Eridion again for her next home."},
+  {name:"Chef's Kitchen Backsplash", type:"Colorback Glass", sector:"Custom Residential", location:"City, TX",
+   scope:"48 sq ft seamless backsplash, single panel runs", systems:"Colorback glass, custom color match",
+   gc:"[Builder Name]", timeline:"1 week from final measure",
+   media:[{ph:"ph-e", tag:"Sample"}],
+   desc:"Groutless, seamless backsplash color-matched to the designer's palette — wipes clean in seconds. Sample project."},
+  {name:"Steam Shower Enclosure", type:"Showers & Wet Rooms", sector:"Custom Residential", location:"City, TX",
+   scope:"Steam-rated frameless enclosure with transom", systems:"Low-iron tempered glass · steam hardware",
+   gc:"[Builder Name]", timeline:"1 week from final measure",
+   media:[{ph:"ph-b", tag:"Sample"}],
+   desc:"Fully sealed steam enclosure with operable transom and concealed hinging. Sample project."},
+  {name:"Boutique Remodel — Frameless Shower", type:"Showers & Wet Rooms", sector:"Kitchen & Bath Remodel", location:"City, TX",
+   scope:"Frameless enclosure + custom mirror package", systems:"Low-iron glass · polished-edge mirrors",
+   gc:"Direct to homeowner", timeline:"1 week from final measure",
+   media:[{ph:"ph-c", tag:"Sample"}],
+   desc:"Remodel-scope shower and mirror package coordinated with the homeowner's contractor. Sample project."},
+  {name:"Wine Cellar Glass Enclosure", type:"Specialty", sector:"Custom Residential", location:"City, TX",
+   scope:"Climate-rated glass wall + pivot door", systems:"Insulated glass · patch fittings",
+   gc:"[Builder Name]", timeline:"Coordinated with millwork",
+   media:[{ph:"ph-a", tag:"Sample"}],
+   desc:"Full-height cellar enclosure holding temperature and humidity spec without visual bulk. Sample project."},
+  {name:"A staircase that looks like it's floating", type:"Specialty", sector:"Custom Residential", location:"DFW, TX",
+   scope:"241.5 sq ft · 15 panels — stair + both loft runs", systems:"1/2″ tempered Starphire · adjustable standoffs",
+   gc:"Stair contractor partner", timeline:"Templated per panel · ~1-day set",
+   media:[{ph:"ph-c", tag:"Add photo"}],
+   caseId:"case-staircase",
+   desc:"Half a ton of near-invisible low-iron glass wrapping a floating stair and loft — set by a two-man crew in about a day."},
+  {name:"Full-Wall Vanity Mirrors", type:"Mirrors", sector:"Luxury Custom Home", location:"City, TX",
+   scope:"6 baths, wall-to-wall mirrors with integrated lighting cutouts", systems:"Polished-edge mirror · precision cutouts",
+   gc:"[Builder Name]", timeline:"2 weeks",
+   media:[{ph:"ph-c", tag:"Sample"}],
+   desc:"Wall-to-wall vanity mirrors with precision cutouts for sconces and outlets. Sample project."},
+  {name:"Home Gym Mirror Wall", type:"Mirrors", sector:"Custom Residential", location:"City, TX",
+   scope:"320 sq ft of seamed mirror wall", systems:"Safety-backed mirror · flush seams",
+   gc:"Direct to homeowner", timeline:"1 week",
+   media:[{ph:"ph-f", tag:"Sample"}],
+   desc:"Studio-quality mirror wall with near-invisible seams and safety backing. Sample project."},
+  {name:"[Retail Storefront]", type:"Storefronts", sector:"Commercial", location:"City, TX",
+   scope:"Storefront framing + all-glass entrance", systems:"Aluminum storefront · tempered entrance",
+   gc:"[GC Name]", timeline:"6 weeks",
+   media:[{ph:"ph-a", tag:"Sample"}],
+   desc:"Commercial storefront and entrance package — sample project, replace with a real one."},
+  {name:"[Office Suite Glass Package]", type:"Storefronts", sector:"Commercial", location:"City, TX",
+   scope:"Glazed office fronts + conference wall", systems:"Interior storefront · glass partitions",
+   gc:"[GC Name]", timeline:"4 weeks",
+   media:[{ph:"ph-d", tag:"Sample"}],
+   desc:"Interior commercial glazing package — sample project, replace with a real one."}
+];
+
+function esc(v){ return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* ── Media rendering: single image/video, or carousel when 2+ ── */
+function mediaNode(m){
+  if (m.video){
+    const v = document.createElement("video");
+    v.src = m.video; v.controls = true; v.preload = "metadata"; v.playsInline = true;
+    if (m.poster) v.poster = m.poster;
+    return v;
+  }
+  if (m.img){
+    const i = document.createElement("img");
+    i.src = m.img; i.alt = m.alt || ""; i.loading = "lazy";
+    return i;
+  }
+  const d = document.createElement("div");
+  d.className = "ph " + (m.ph || "ph-a");
+  d.innerHTML = '<div class="mullions"></div><span class="ph-tag">' + esc(m.tag || "Sample") + "</span>";
+  return d;
+}
+
+function renderMedia(container, media){
+  container.innerHTML = "";
+  if (!media || !media.length) media = [{ph:"ph-a"}];
+  const car = document.createElement("div");
+  car.className = "car";
+  const track = document.createElement("div");
+  track.className = "car-track";
+  media.forEach(m => {
+    const slide = document.createElement("div");
+    slide.className = "car-slide";
+    slide.appendChild(mediaNode(m));
+    track.appendChild(slide);
+  });
+  car.appendChild(track);
+
+  if (media.length > 1){
+    let idx = 0;
+    const dots = [];
+    const go = n => {
+      idx = (n + media.length) % media.length;
+      track.style.transform = "translateX(-" + (idx * 100) + "%)";
+      dots.forEach((d, i) => d.classList.toggle("on", i === idx));
+      track.querySelectorAll("video").forEach(v => v.pause());
+    };
+    const mkBtn = (cls, glyph, label, step) => {
+      const b = document.createElement("button");
+      b.className = "car-btn " + cls;
+      b.textContent = glyph;
+      b.setAttribute("aria-label", label);
+      b.onclick = e => { e.stopPropagation(); go(idx + step); };
+      car.appendChild(b);
+    };
+    mkBtn("car-prev", "‹", "Previous image", -1);
+    mkBtn("car-next", "›", "Next image", 1);
+    const dotWrap = document.createElement("div");
+    dotWrap.className = "car-dots";
+    media.forEach((_, i) => {
+      const d = document.createElement("button");
+      d.className = "car-dot" + (i === 0 ? " on" : "");
+      d.setAttribute("aria-label", "Image " + (i + 1) + " of " + media.length);
+      d.onclick = e => { e.stopPropagation(); go(i); };
+      dots.push(d);
+      dotWrap.appendChild(d);
+    });
+    car.appendChild(dotWrap);
+    /* touch swipe */
+    let x0 = null;
+    car.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, {passive:true});
+    car.addEventListener("touchend", e => {
+      if (x0 === null) return;
+      const dx = e.changedTouches[0].clientX - x0;
+      if (Math.abs(dx) > 40) go(idx + (dx < 0 ? 1 : -1));
+      x0 = null;
+    }, {passive:true});
+  }
+  container.appendChild(car);
+}
+
+/* mount featured case-study media from PROJECTS */
+document.querySelectorAll("[data-media]").forEach(el => {
+  const proj = PROJECTS.find(x => x.caseId === el.dataset.media);
+  renderMedia(el, proj && proj.media);
+});
+
+/* ── Filters ── */
+const filtersEl = document.getElementById("filters");
+const gridEl = document.getElementById("grid");
+let active = "All";
+
+FILTERS.forEach(f => {
+  const b = document.createElement("button");
+  b.className = "chip" + (f === "All" ? " active" : "");
+  b.textContent = f;
+  b.onclick = () => {
+    active = f;
+    document.querySelectorAll(".chip").forEach(c => c.classList.toggle("active", c.textContent === f));
+    render();
+  };
+  filtersEl.appendChild(b);
+});
+
+/* ── Grid: tiles show the first media item as a cover ── */
+function coverNode(p){
+  const wrap = document.createElement("div");
+  wrap.className = "media-cover";
+  const m = (p.media && p.media[0]) || {ph:"ph-a"};
+  if (m.video){
+    if (m.poster || m.thumb){
+      const i = document.createElement("img");
+      i.src = m.poster || m.thumb; i.alt = ""; i.loading = "lazy";
+      wrap.appendChild(i);
+    } else {
+      wrap.appendChild(mediaNode({ph:"ph-a", tag:"Video"}));
+    }
+    const badge = document.createElement("div");
+    badge.className = "play-badge";
+    badge.innerHTML = "<span>▶</span>";
+    wrap.appendChild(badge);
+  } else if (m.img && m.thumb){
+    const i = document.createElement("img");
+    i.src = m.thumb; i.alt = m.alt || ""; i.loading = "lazy";
+    wrap.appendChild(i);
+  } else {
+    wrap.appendChild(mediaNode(m));
+  }
+  return wrap;
+}
+
+function render(){
+  gridEl.innerHTML = "";
+  PROJECTS.filter(p => active === "All" || p.type === active).forEach((p, i) => {
+    const t = document.createElement("button");
+    t.className = "tile rv";
+    t.appendChild(coverNode(p));
+    const body = document.createElement("div");
+    body.className = "tile-body";
+    body.innerHTML =
+      '<div class="type">' + esc(p.type) + " · " + esc(p.sector) + "</div>" +
+      "<h4>" + esc(p.name) + "</h4>" +
+      '<div class="meta">' + esc(p.location) + "</div>" +
+      '<div class="scope">' + esc(p.scope) + "</div>";
+    t.appendChild(body);
+    t.onclick = () => p.caseId ? document.getElementById(p.caseId).scrollIntoView({behavior:"smooth"}) : openModal(p);
+    gridEl.appendChild(t);
+    requestAnimationFrame(() => setTimeout(() => t.classList.add("in"), 40 * i));
+  });
+}
+render();
+
+/* ── Modal: full media carousel + facts ── */
+const back = document.getElementById("modalBack");
+function openModal(p){
+  renderMedia(document.getElementById("modalPh"), p.media);
+  document.getElementById("modalType").textContent = p.type + " · " + p.sector;
+  document.getElementById("modalTitle").textContent = p.name;
+  document.getElementById("modalLoc").textContent = p.location;
+  document.getElementById("modalFacts").innerHTML =
+    '<div><div class="k">Scope</div><div class="v">' + esc(p.scope) + '</div></div>' +
+    '<div><div class="k">Systems</div><div class="v">' + esc(p.systems) + '</div></div>' +
+    '<div><div class="k">GC / Client</div><div class="v">' + esc(p.gc) + '</div></div>' +
+    '<div><div class="k">Timeline</div><div class="v">' + esc(p.timeline) + '</div></div>';
+  document.getElementById("modalDesc").textContent = p.desc;
+  back.classList.add("open");
+}
+function closeModal(){
+  back.classList.remove("open");
+  back.querySelectorAll("video").forEach(v => v.pause());
+}
+document.getElementById("modalClose").onclick = closeModal;
+back.onclick = e => { if (e.target === back) closeModal(); };
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+
+/* ── Scroll reveal ── */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
+}, {threshold: 0.12});
+document.querySelectorAll(".rv").forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>

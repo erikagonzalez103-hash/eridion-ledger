@@ -126,6 +126,20 @@ export default {
       if (url.pathname === "/api/upload" && request.method === "POST") {
         const key = cleanKey(url.searchParams.get("key") || "");
         if (!key) return json({ error: "missing key" }, 400, cors);
+        // Safety net: before overwriting the manifest (Tag Manager saves,
+        // bulk edits), snapshot the current version so any bad save can be
+        // rolled back from manifest-backups/ in the bucket.
+        if (key === "manifest.json") {
+          try {
+            const prev = await env.IMAGES.get("manifest.json");
+            if (prev) {
+              const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+              await env.IMAGES.put("manifest-backups/" + stamp + ".json", prev.body, {
+                httpMetadata: { contentType: "application/json" },
+              });
+            }
+          } catch (e) { /* backup is best-effort; never block the save */ }
+        }
         const tags = request.headers.get("X-Image-Tags") || "";
         await env.IMAGES.put(key, request.body, {
           httpMetadata: { contentType: request.headers.get("Content-Type") || "application/octet-stream" },

@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<!-- Eridion Glass — Lookbook Builder
+     Loads the tagged photo catalog (Cloudflare R2 manifest), lets you
+     assemble lookbook projects from real photos, and exports:
+       · a PROJECTS array for lookbook/index.html
+       · projects.json
+       · a Wix CMS import CSV
+     Work is autosaved in this browser (localStorage). -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eridion — Lookbook Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#153862;--deep:#0E2741;--wash:#EAEEF3;--green:#32A200;
+  --black:#000;--slate:#5C6B7A;--div:#C4C4C4;--hair:#E6E8EC;--paper:#F7F8FA;--card:#fff;
+  --head:'Jost',sans-serif;--body:'Inter',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--body);font-size:14px;background:var(--paper);color:var(--black);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+button{font-family:var(--body);cursor:pointer;}
+input,select,textarea{font-family:var(--body);font-size:13px;border:1px solid var(--div);background:#fff;padding:7px 10px;color:var(--black);}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--navy);outline-offset:-1px;}
+
+/* ── top bar ── */
+.top{display:flex;align-items:center;gap:14px;padding:10px 18px;background:var(--navy);color:#fff;flex-wrap:wrap;}
+.top .wm{font-family:var(--head);font-weight:300;font-size:18px;letter-spacing:.5px;white-space:nowrap;}
+.top .wm b{font-weight:400;}
+.top input{flex:1;min-width:220px;border:none;}
+.btn{border:none;background:#fff;color:var(--navy);font-weight:600;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:9px 14px;}
+.btn:hover{background:var(--wash);}
+.btn.ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4);}
+.btn.ghost:hover{border-color:#fff;}
+.status{font-size:12px;color:#C7D3E0;white-space:nowrap;}
+.status.ok{color:#7DD87D;}
+.status.err{color:#F09A9A;}
+
+/* ── layout ── */
+.main{flex:1;display:flex;min-height:0;}
+.pane{display:flex;flex-direction:column;min-width:0;min-height:0;}
+.browser{flex:1.15;border-right:1px solid var(--div);}
+.assembler{flex:1;background:var(--wash);}
+.pane-head{padding:12px 16px 10px;border-bottom:1px solid var(--hair);background:var(--card);display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.pane-head .t{font-family:var(--head);font-weight:400;font-size:15px;color:var(--navy);letter-spacing:1px;text-transform:uppercase;margin-right:auto;}
+.scroll{flex:1;overflow-y:auto;min-height:0;}
+
+/* ── browser ── */
+.filters{padding:10px 16px;background:var(--card);border-bottom:1px solid var(--hair);display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.filters input[type=search]{width:180px;}
+.tagchips{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 10px;background:var(--card);border-bottom:1px solid var(--hair);max-height:84px;overflow-y:auto;}
+.chip{font-size:11px;font-weight:600;letter-spacing:.5px;background:transparent;border:1px solid var(--div);color:var(--slate);padding:4px 10px;}
+.chip:hover{border-color:var(--navy);color:var(--navy);}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff;}
+.count{font-size:12px;color:var(--slate);padding:8px 16px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;padding:0 16px 20px;}
+.thumb{position:relative;border:1px solid var(--hair);background:#fff;padding:0;aspect-ratio:4/3;overflow:hidden;}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.thumb:hover{outline:2px solid var(--green);outline-offset:-2px;}
+.thumb .vid{position:absolute;top:4px;left:4px;background:rgba(14,39,65,.8);color:#fff;font-size:9px;font-weight:600;padding:2px 5px;}
+.thumb .used{position:absolute;top:4px;right:4px;background:var(--green);color:#fff;font-size:9px;font-weight:700;padding:2px 5px;}
+.thumb .cap{position:absolute;left:0;right:0;bottom:0;background:rgba(14,39,65,.75);color:#fff;font-size:10px;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;transition:opacity .15s;}
+.thumb:hover .cap{opacity:1;}
+.empty{padding:40px 20px;text-align:center;color:var(--slate);font-size:13px;max-width:46ch;margin:0 auto;}
+
+/* ── faceted filters (mirrors image-library.html) ── */
+.filterbar{display:flex;gap:6px;flex-wrap:wrap;}
+.dd{position:relative;}
+.dd-btn{font-size:11px;font-weight:600;letter-spacing:.5px;background:#fff;border:1px solid var(--div);color:var(--slate);padding:7px 10px;}
+.dd-btn:hover{border-color:var(--navy);color:var(--navy);}
+.dd.has-sel .dd-btn{background:var(--navy);border-color:var(--navy);color:#fff;}
+.dd-panel{display:none;position:absolute;top:100%;left:0;z-index:20;background:#fff;border:1px solid var(--div);min-width:210px;max-height:260px;overflow-y:auto;padding:6px 0;box-shadow:0 10px 24px rgba(21,56,98,.18);}
+.dd.open .dd-panel{display:block;}
+.dd-panel label{display:flex;align-items:center;gap:6px;font-size:12px;padding:4px 12px;cursor:pointer;white-space:nowrap;}
+.dd-panel label:hover{background:var(--wash);}
+.dd-panel .n{margin-left:auto;color:var(--slate);font-size:10px;}
+.pills{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 8px;background:var(--card);border-bottom:1px solid var(--hair);}
+.pills:empty{display:none;}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;background:var(--wash);color:var(--navy);padding:3px 8px;}
+.pill b{font-weight:600;}
+.pill button{border:none;background:none;color:var(--slate);cursor:pointer;font-size:11px;padding:0;}
+.pill button:hover{color:#B84A48;}
+
+/* ── assembler ── */
+.projlist{display:flex;flex-direction:column;gap:10px;padding:14px 16px;}
+.proj{background:var(--card);border:1px solid var(--hair);}
+.proj.sel{border-color:var(--navy);box-shadow:0 0 0 1px var(--navy);}
+.proj-head{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;}
+.proj-head .nm{font-family:var(--head);font-weight:400;font-size:16px;color:var(--navy);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.proj-head .n{font-size:11px;color:var(--slate);white-space:nowrap;}
+.proj-head .feat{font-size:9px;font-weight:700;letter-spacing:1px;background:var(--navy);color:#fff;padding:2px 6px;}
+.proj-head .del{border:none;background:none;color:var(--slate);font-size:14px;}
+.proj-head .del:hover{color:#B84A48;}
+.proj-body{display:none;border-top:1px solid var(--hair);padding:14px;}
+.proj.sel .proj-body{display:block;}
+.frm{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.frm .full{grid-column:1/-1;}
+.frm label{display:flex;flex-direction:column;gap:3px;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--slate);}
+.frm textarea{resize:vertical;min-height:34px;}
+details.cs{grid-column:1/-1;border:1px solid var(--hair);padding:8px 10px;background:var(--paper);}
+details.cs summary{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--navy);cursor:pointer;}
+details.cs .frm{margin-top:10px;grid-template-columns:1fr;}
+.tray{margin-top:12px;}
+.tray .tl{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--slate);margin-bottom:6px;}
+.tray-items{display:flex;gap:8px;flex-wrap:wrap;}
+.titem{position:relative;width:104px;border:1px solid var(--hair);background:#fff;}
+.titem img{width:100%;height:70px;object-fit:cover;display:block;}
+.titem .cover{position:absolute;top:3px;left:3px;background:var(--green);color:#fff;font-size:8px;font-weight:700;padding:1px 5px;}
+.titem .vid{position:absolute;top:3px;right:3px;background:rgba(14,39,65,.85);color:#fff;font-size:8px;font-weight:600;padding:1px 4px;}
+.titem .ops{display:flex;}
+.titem .ops button{flex:1;border:none;background:var(--paper);color:var(--slate);font-size:11px;padding:3px 0;border-top:1px solid var(--hair);}
+.titem .ops button:hover{background:var(--navy);color:#fff;}
+.hint{font-size:12px;color:var(--slate);margin-top:8px;}
+
+/* ── modal ── */
+.mback{position:fixed;inset:0;background:rgba(14,39,65,.55);display:none;align-items:center;justify-content:center;padding:4vw;z-index:50;}
+.mback.open{display:flex;}
+.modal{background:#fff;max-width:760px;width:100%;max-height:88vh;display:flex;flex-direction:column;border:1px solid var(--hair);}
+.modal .mh{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--hair);}
+.modal .mh .t{font-family:var(--head);font-weight:400;font-size:16px;color:var(--navy);margin-right:auto;}
+.modal textarea{flex:1;margin:14px 16px 16px;min-height:320px;font-family:ui-monospace,monospace;font-size:11.5px;white-space:pre;}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <span class="wm">ERIDION <b>· Lookbook Builder</b></span>
+  <input id="manifestUrl" type="url" placeholder="Image Library worker URL (or a public manifest .json)…">
+  <input id="libKey" type="password" placeholder="Library passphrase" style="flex:0 1 180px;min-width:120px;border:none;">
+  <button class="btn" id="loadBtn">Load Catalog</button>
+  <button class="btn ghost" id="demoBtn" title="Try the builder with sample entries">Demo</button>
+  <span class="status" id="status">No catalog loaded</span>
+</div>
+
+<div class="main">
+  <!-- ═══ PHOTO BROWSER ═══ -->
+  <div class="pane browser">
+    <div class="pane-head"><span class="t">Photo Catalog</span></div>
+    <div class="filters">
+      <input type="search" id="q" placeholder="Search name, caption, tag, job…">
+      <div class="filterbar" id="filterbar"></div>
+      <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--slate);white-space:nowrap;"><input type="checkbox" id="hideSkip" checked>hide "skip" grade</label>
+    </div>
+    <div class="pills" id="pills"></div>
+    <div class="count" id="count"></div>
+    <div class="scroll"><div class="grid" id="photoGrid"></div>
+      <div class="empty" id="browserEmpty">Paste your catalog manifest URL above and click <b>Load Catalog</b> — or click <b>Demo</b> to try the builder with sample entries.<br><br>Click any photo to add it to the selected project on the right.</div>
+    </div>
+  </div>
+
+  <!-- ═══ PROJECT ASSEMBLER ═══ -->
+  <div class="pane assembler">
+    <div class="pane-head">
+      <span class="t">Projects</span>
+      <button class="btn" style="background:var(--navy);color:#fff;" id="newProj">+ New Project</button>
+      <button class="btn" id="expJs">Export JS</button>
+      <button class="btn" id="expJson">Export JSON</button>
+      <button class="btn" id="expCsv">Wix CSV</button>
+      <button class="btn" id="impJson" title="Paste previously exported JSON">Import</button>
+    </div>
+    <div class="scroll"><div class="projlist" id="projlist"></div>
+      <div class="empty" id="projEmpty">No projects yet. Click <b>+ New Project</b>, fill in the facts, then click photos on the left to build its gallery. First photo = cover. Everything autosaves in this browser.</div>
+    </div>
+  </div>
+</div>
+
+<!-- export/import modal -->
+<div class="mback" id="mback">
+  <div class="modal">
+    <div class="mh"><span class="t" id="mtitle"></span>
+      <button class="btn" id="mcopy">Copy</button>
+      <button class="btn" id="mdl">Download</button>
+      <button class="btn" id="mapply" style="display:none;background:var(--navy);color:#fff;">Import This</button>
+      <button class="btn ghost" style="color:var(--navy);border-color:var(--div);" id="mclose">Close</button>
+    </div>
+    <textarea id="mtext" spellcheck="false"></textarea>
+  </div>
+</div>
+
+<script>
+/* ════════════════════ state ════════════════════ */
+const LS_KEY = 'eridion_lookbook_builder_v1';
+const TYPES = ["Colorback Glass","Showers & Wet Rooms","Mirrors","Elevators & Lobbies","Storefronts","Specialty"];
+let photos = [];          // normalized catalog entries
+/* same facet set as image-library.html — its Tag Manager cleanups flow
+   straight through, since both apps read the same manifest */
+const FACETS = [
+  { key:'category', label:'Category', single:true },
+  { key:'product',  label:'Product' },
+  { key:'space',    label:'Space' },
+  { key:'style',    label:'Style' },
+  { key:'tags',     label:'Tags' },
+  { key:'job',      label:'Job', single:true },
+];
+let filters = {};
+FACETS.forEach(f => filters[f.key] = new Set());
+let state = { manifestUrl:'', projects: [], selected: null };
+
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+function load(){
+  try{ const s = JSON.parse(localStorage.getItem(LS_KEY)); if (s && s.projects) state = s; }catch(e){}
+  document.getElementById('manifestUrl').value = state.manifestUrl || '';
+}
+load();
+
+/* ════════════════════ manifest loading ════════════════════ */
+function setStatus(msg, cls){ const el = document.getElementById('status'); el.textContent = msg; el.className = 'status ' + (cls||''); }
+
+function mkPhoto(o){
+  const lc = a => (a || []).filter(Boolean).map(t => String(t).toLowerCase());
+  o.fv = {
+    category: lc([o.category]),
+    product: lc(o.product), space: lc(o.space), style: lc(o.style), tags: lc(o.tagList),
+    job: (o.jobName ? [o.jobName] : [])
+  };
+  o.jobLabel = o.jobName || o.category || '';
+  o.search = [o.caption, o.jobLabel, o.shot, o.grade,
+    ...o.fv.category, ...o.fv.product, ...o.fv.space, ...o.fv.style, ...o.fv.tags]
+    .filter(Boolean).join(' ').toLowerCase();
+  return o;
+}
+function normalizeManifest(data, srcUrl){
+  /* Eridion catalog schema — written by catalog.html in
+     eridion-social-campaign-studio: {assets:[{id,filename,category,
+     orientation,thumb,web,caption,notes,product[],space[],style[],
+     shot,grade,flags[],reviewed}], base?} */
+  if (data && Array.isArray(data.assets) && data.assets.length && (data.assets[0].web || data.assets[0].thumb)){
+    const dir = srcUrl ? srcUrl.replace(/[?#].*$/,'').replace(/\/[^\/]*$/, '') : '';
+    const base = ((data.base || dir) + '/').replace(/\/+$/,'/');
+    return data.assets.map((a, i) => mkPhoto({
+      id: a.id ?? i,
+      url: base + (a.web || a.thumb),
+      thumb: base + (a.thumb || a.web),
+      category: a.category, product: a.product, space: a.space, style: a.style,
+      tagList: [ ...(a.tags||[]), ...(a.flags||[]) ], jobName: a.job || '',
+      shot: a.shot, grade: a.grade || '',
+      caption: a.caption || a.filename || '',
+      isVideo: /\.(mp4|webm|mov|m4v)(\?|$)/i.test(a.web || '')
+    })).filter(p => p.url !== base);
+  }
+  /* generic fallback shapes */
+  let arr = Array.isArray(data) ? data
+    : data.photos || data.images || data.items || data.assets || data.files || data.entries || data.catalog;
+  if (!arr && data && typeof data === 'object'){
+    const vals = Object.values(data);
+    if (vals.length && typeof vals[0] === 'object' && !Array.isArray(vals[0])) arr = vals;
+  }
+  if (!Array.isArray(arr)) throw new Error('No photo array found in manifest');
+  const base = (data.base || data.baseUrl || data.base_url || '').replace(/\/$/,'');
+  return arr.map((e, i) => {
+    if (typeof e === 'string') e = { url: e };
+    let url = e.url || e.src || e.href || e.image || '';
+    if (!url && e.key) url = base ? base + '/' + e.key : e.key;
+    else if (url && !/^https?:|^data:/.test(url) && base) url = base + '/' + url;
+    let tags = e.tags || e.tag || [];
+    if (typeof tags === 'string') tags = tags.split(/[,;]+/).map(t => t.trim()).filter(Boolean);
+    return mkPhoto({
+      id: i, url,
+      thumb: e.thumb || e.thumbnail || url,
+      tagList: tags, jobName: e.job || e.project || e.album || e.folder || e.group || '',
+      grade: '', caption: e.caption || e.alt || e.title || e.name || '',
+      isVideo: e.type === 'video' || /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url)
+    });
+  }).filter(p => p.url);
+}
+
+/* Two sources supported:
+   1. Image Library worker (image-library.html's system): base URL + X-Library-Key
+      passphrase, manifest at /api/manifest, images served at /img/<key>.
+      The connection is shared with image-library.html via localStorage
+      ("imglib:config") — same browser + same site = zero setup.
+   2. Legacy public manifest: any URL ending in .json fetched directly. */
+function normalizeWorker(data, base){
+  let arr = Array.isArray(data) ? data
+    : Array.isArray(data.images) ? data.images
+    : Array.isArray(data.assets) ? data.assets
+    : Object.values(data).filter(v => v && typeof v === 'object');
+  const img = k => base + '/img/' + encodeURIComponent(k).replace(/%2F/g, '/');
+  return arr.filter(e => e && (e.web || e.thumb)).map((e, i) => mkPhoto({
+    id: e.id ?? i,
+    url: img(e.web || e.thumb),
+    thumb: img(e.thumb || e.web),
+    category: e.category, product: e.product, space: e.space, style: e.style,
+    tagList: [ ...(e.tags||[]), ...(e.flags||[]) ], jobName: e.job || '',
+    shot: e.shot, grade: e.grade || '',
+    caption: e.caption || e.filename || '',
+    isVideo: /\.(mp4|webm|mov|m4v)(\?|$)/i.test(e.web || '')
+  }));
+}
+
+let loading = false;
+async function loadCatalog(){
+  if (loading) return;
+  const url = document.getElementById('manifestUrl').value.trim();
+  const key = document.getElementById('libKey').value;
+  if (!url){ setStatus('Enter the library URL first', 'err'); return; }
+  loading = true;
+  setStatus('Loading…');
+  try{
+    if (key || !/\.json(\?|$)/i.test(url)){
+      const base = url.replace(/\/+$/,'');
+      const hdr = key ? {'X-Library-Key': key} : {};
+      const res = await fetch(base + '/api/manifest', { headers: hdr });
+      if (res.status === 401) throw new Error('passphrase rejected');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const manifest = await res.json();
+      photos = normalizeWorker(manifest, base);
+      /* also surface bucket files not yet in the manifest (newly uploaded) */
+      let unfiled = 0;
+      try{
+        const lr = await fetch(base + '/api/list', { headers: hdr });
+        if (lr.ok){
+          const files = (await lr.json()).images || [];
+          const referenced = new Set(['manifest.json']);
+          const marr = Array.isArray(manifest) ? manifest
+            : manifest.images || manifest.assets || Object.values(manifest).filter(v => v && typeof v === 'object');
+          (marr || []).forEach(e => { if (e && e.web) referenced.add(e.web); if (e && e.thumb) referenced.add(e.thumb); });
+          const img = k => base + '/img/' + encodeURIComponent(k).replace(/%2F/g, '/');
+          files.forEach(f => {
+            if (referenced.has(f.key)) return;
+            const isImg = (f.contentType || '').startsWith('image/') || /\.(png|jpe?g|gif|webp|svg|avif|bmp)$/i.test(f.key);
+            const isVid = /\.(mp4|webm|mov|m4v)$/i.test(f.key);
+            if (!isImg && !isVid) return;
+            const ftags = Array.isArray(f.tags) ? f.tags : String(f.tags || '').split(/[,;]+/).map(t => t.trim()).filter(Boolean);
+            photos.push(mkPhoto({ id: 'file:' + f.key, url: img(f.key), thumb: img(f.key),
+              tagList: [...ftags, 'not-in-manifest'],
+              jobName: '', caption: f.key, grade: '', isVideo: isVid }));
+            unfiled++;
+          });
+        }
+      }catch(e){ /* list is optional; manifest photos still work */ }
+      window.__unfiled = unfiled;
+      localStorage.setItem('imglib:config', JSON.stringify({ url: base, key }));
+    } else {
+      const res = await fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(), {mode:'cors'});
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      photos = normalizeManifest(await res.json(), url);
+    }
+    state.manifestUrl = url; state.libKey = key; save();
+    setStatus(photos.length + ' photos loaded' + (window.__unfiled ? ' (' + window.__unfiled + ' not yet in manifest)' : ''), 'ok');
+    buildFilters(); renderPhotos();
+  }catch(err){
+    setStatus('Load failed: ' + err.message, 'err');
+  }finally{
+    loading = false;
+  }
+}
+document.getElementById('loadBtn').onclick = loadCatalog;
+
+/* demo entries so the flow can be tried before wiring the real manifest */
+function svgThumb(label, c1, c2){
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="240" height="180"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient></defs><rect width="240" height="180" fill="url(#g)"/><g stroke="rgba(10,20,35,.45)" stroke-width="2"><line x1="80" y1="0" x2="80" y2="180"/><line x1="160" y1="0" x2="160" y2="180"/><line x1="0" y1="90" x2="240" y2="90"/></g><text x="12" y="168" font-family="sans-serif" font-size="13" fill="rgba(255,255,255,.9)">${label}</text></svg>`;
+  return 'data:image/svg+xml;base64,' + btoa(svg);
+}
+document.getElementById('demoBtn').onclick = () => {
+  const mk = (label,c1,c2,tags,job,cap) => ({url:svgThumb(label,c1,c2), tags, job, caption:cap});
+  photos = normalizeManifest([
+    mk('wetroom-01','#3E6E82','#122B38',['colorback','wetroom','finished','hero'],'Wet Room — Primary Suite','Colorback wet room, finished'),
+    mk('wetroom-02','#54718A','#2C4258',['colorback','wetroom','detail'],'Wet Room — Primary Suite','Panel joint detail'),
+    mk('wetroom-03','#8FA8B8','#54718A',['colorback','wetroom','install','crew'],'Wet Room — Primary Suite','Setting the second panel'),
+    mk('shower-01','#4E7E5E','#15342C',['shower','frameless','finished','hero'],'Steam Shower — Hillcrest','Frameless steam shower'),
+    mk('shower-02','#2C5140','#15342C',['shower','hardware','detail'],'Steam Shower — Hillcrest','Hinge detail'),
+    mk('mirror-01','#5E5E80','#161F33',['mirror','vanity','finished'],'Vanity Mirrors — Hillcrest','Wall-to-wall vanity mirror'),
+    mk('lobby-01','#28486E','#0C1828',['colorback','elevator','commercial','finished'],'Tower Lobby Refresh','Elevator cab, after'),
+    mk('lobby-02','#B99B6B','#33405C',['colorback','elevator','commercial','before'],'Tower Lobby Refresh','Elevator cab, before'),
+  ]);
+  setStatus(photos.length + ' demo entries loaded (not your real catalog)', 'ok');
+  buildFilters(); renderPhotos();
+};
+
+/* ════════════════════ browser — faceted filters (library pattern) ════════════════════ */
+function facetValues(key){
+  const counts = new Map();
+  photos.forEach(p => p.fv[key].forEach(v => counts.set(v, (counts.get(v) || 0) + 1)));
+  return [...counts.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+}
+function buildFilters(){
+  const bar = document.getElementById('filterbar');
+  bar.innerHTML = '';
+  for (const f of FACETS){
+    const vals = facetValues(f.key);
+    filters[f.key] = new Set([...filters[f.key]].filter(v => vals.some(([x]) => x === v)));
+    if (!vals.length) continue;
+    const dd = document.createElement('div');
+    dd.className = 'dd'; dd.dataset.facet = f.key;
+    const btn = document.createElement('button');
+    btn.className = 'dd-btn'; btn.textContent = f.label + ' ▾';
+    btn.onclick = e => {
+      e.stopPropagation();
+      const open = dd.classList.contains('open');
+      document.querySelectorAll('.dd.open').forEach(x => x.classList.remove('open'));
+      if (!open) dd.classList.add('open');
+    };
+    const panel = document.createElement('div');
+    panel.className = 'dd-panel';
+    panel.onclick = e => e.stopPropagation();
+    for (const [v, n] of vals){
+      const lab = document.createElement('label');
+      const cb = document.createElement('input');
+      cb.type = 'checkbox'; cb.value = v; cb.checked = filters[f.key].has(v);
+      cb.onchange = () => { cb.checked ? filters[f.key].add(v) : filters[f.key].delete(v); syncFilterUI(); renderPhotos(); };
+      lab.appendChild(cb);
+      lab.appendChild(document.createTextNode(' ' + v + ' '));
+      const nn = document.createElement('span'); nn.className = 'n'; nn.textContent = n;
+      lab.appendChild(nn);
+      panel.appendChild(lab);
+    }
+    dd.appendChild(btn); dd.appendChild(panel);
+    bar.appendChild(dd);
+  }
+  syncFilterUI();
+}
+document.addEventListener('click', () => document.querySelectorAll('.dd.open').forEach(x => x.classList.remove('open')));
+
+function syncFilterUI(){
+  document.querySelectorAll('.dd').forEach(dd => {
+    const key = dd.dataset.facet, sel = filters[key];
+    const label = FACETS.find(f => f.key === key).label;
+    dd.classList.toggle('has-sel', sel.size > 0);
+    dd.querySelector('.dd-btn').textContent = label + (sel.size ? ' · ' + sel.size : '') + ' ▾';
+    dd.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = sel.has(cb.value));
+  });
+  const pills = document.getElementById('pills');
+  pills.innerHTML = '';
+  for (const f of FACETS){
+    for (const v of filters[f.key]){
+      const pi = document.createElement('span');
+      pi.className = 'pill';
+      const b = document.createElement('b'); b.textContent = f.label.toLowerCase() + ':';
+      pi.appendChild(b); pi.appendChild(document.createTextNode(' ' + v + ' '));
+      const x = document.createElement('button');
+      x.textContent = '✕';
+      x.onclick = () => { filters[f.key].delete(v); syncFilterUI(); renderPhotos(); };
+      pi.appendChild(x);
+      pills.appendChild(pi);
+    }
+  }
+}
+document.getElementById('q').oninput = renderPhotos;
+document.getElementById('hideSkip').onchange = renderPhotos;
+
+function usedUrls(){
+  const s = new Set();
+  state.projects.forEach(p => p.media.forEach(m => s.add(m.url)));
+  return s;
+}
+
+function renderPhotos(){
+  const q = document.getElementById('q').value.trim().toLowerCase();
+  const words = q ? q.split(/\s+/) : [];
+  const hideSkip = document.getElementById('hideSkip').checked;
+  const used = usedUrls();
+  const list = photos.filter(p =>
+    (!hideSkip || p.grade !== 'skip') &&
+    FACETS.every(f => !filters[f.key].size || [...filters[f.key]].some(v => p.fv[f.key].includes(v))) &&
+    words.every(w => p.search.includes(w))
+  );
+  document.getElementById('count').textContent = photos.length ? `${list.length} of ${photos.length} photos` : '';
+  document.getElementById('browserEmpty').style.display = photos.length ? 'none' : 'block';
+  const g = document.getElementById('photoGrid');
+  g.innerHTML = '';
+  list.slice(0, 400).forEach(p => {
+    const b = document.createElement('button');
+    b.className = 'thumb';
+    b.title = (p.caption || p.url) + (p.jobLabel ? ' — ' + p.jobLabel : '');
+    const im = document.createElement('img');
+    im.src = p.thumb; im.loading = 'lazy'; im.alt = '';
+    b.appendChild(im);
+    const mark = (cls, txt) => { const sp = document.createElement('span'); sp.className = cls; sp.textContent = txt; b.appendChild(sp); };
+    if (p.isVideo) mark('vid', 'VIDEO');
+    if (used.has(p.url)) mark('used', '✓');
+    mark('cap', p.caption || p.jobLabel || '');
+    b.onclick = () => addToProject(p);
+    g.appendChild(b);
+  });
+  if (list.length > 400){
+    const d = document.createElement('div');
+    d.className = 'count'; d.textContent = 'Showing first 400 — narrow with tags/search';
+    g.appendChild(d);
+  }
+}
+
+/* ════════════════════ projects ════════════════════ */
+function blankProject(){
+  return { name:'Untitled project', type:TYPES[0], sector:'', location:'', scope:'', systems:'',
+    gc:'', timeline:'', desc:'', featured:false,
+    challenge:'', approach:'', result:'', quote:'', quoteWho:'', media:[] };
+}
+document.getElementById('newProj').onclick = () => {
+  state.projects.push(blankProject());
+  state.selected = state.projects.length - 1;
+  save(); renderProjects();
+};
+
+function addToProject(photo){
+  if (state.selected === null || !state.projects[state.selected]){
+    state.projects.push(blankProject());
+    state.selected = state.projects.length - 1;
+  }
+  const proj = state.projects[state.selected];
+  if (proj.media.some(m => m.url === photo.url)) return;
+  proj.media.push({ url: photo.url, thumb: photo.thumb !== photo.url ? photo.thumb : undefined,
+    caption: photo.caption, isVideo: photo.isVideo });
+  save(); renderProjects(); renderPhotos();
+}
+
+const F = [ ['name','Project name','text'], ['type','Type','select'], ['sector','Sector','text'],
+  ['location','Location','text'], ['scope','Scope (quantified)','text'], ['systems','Systems','text'],
+  ['gc','GC / Client','text'], ['timeline','Timeline','text'] ];
+
+function renderProjects(){
+  const wrap = document.getElementById('projlist');
+  document.getElementById('projEmpty').style.display = state.projects.length ? 'none' : 'block';
+  wrap.innerHTML = '';
+  state.projects.forEach((p, i) => {
+    const el = document.createElement('div');
+    el.className = 'proj' + (state.selected === i ? ' sel' : '');
+    const head = document.createElement('div');
+    head.className = 'proj-head';
+    head.innerHTML = `<span class="nm">${(p.name||'Untitled').replace(/</g,'&lt;')}</span>` +
+      (p.featured ? '<span class="feat">FEATURED</span>' : '') +
+      `<span class="n">${p.media.length} media</span>`;
+    const del = document.createElement('button');
+    del.className = 'del'; del.textContent = '✕'; del.title = 'Delete project';
+    del.onclick = e => { e.stopPropagation();
+      if (confirm('Delete "' + p.name + '"?')){
+        state.projects.splice(i,1);
+        if (state.selected >= state.projects.length) state.selected = state.projects.length ? state.projects.length - 1 : null;
+        save(); renderProjects(); renderPhotos();
+      }};
+    head.appendChild(del);
+    head.onclick = () => { state.selected = (state.selected === i ? null : i); save(); renderProjects(); };
+    el.appendChild(head);
+
+    const body = document.createElement('div');
+    body.className = 'proj-body';
+    const frm = document.createElement('div');
+    frm.className = 'frm';
+    F.forEach(([k, label, kind]) => {
+      const lab = document.createElement('label');
+      lab.textContent = label;
+      let inp;
+      if (kind === 'select'){
+        inp = document.createElement('select');
+        inp.innerHTML = TYPES.map(t => `<option${t===p.type?' selected':''}>${t}</option>`).join('');
+      } else {
+        inp = document.createElement('input'); inp.type = 'text'; inp.value = p[k] || '';
+      }
+      inp.onchange = () => { p[k] = inp.value; save(); if (k === 'name') renderProjects(); };
+      inp.onclick = e => e.stopPropagation();
+      lab.appendChild(inp); frm.appendChild(lab);
+    });
+    const descLab = document.createElement('label');
+    descLab.className = 'full'; descLab.textContent = 'Description (1–2 sentences)';
+    const descIn = document.createElement('textarea'); descIn.value = p.desc || '';
+    descIn.onchange = () => { p.desc = descIn.value; save(); };
+    descLab.appendChild(descIn); frm.appendChild(descLab);
+
+    const featLab = document.createElement('label');
+    featLab.className = 'full';
+    featLab.style.flexDirection = 'row'; featLab.style.alignItems = 'center'; featLab.style.gap = '8px';
+    const featIn = document.createElement('input'); featIn.type = 'checkbox'; featIn.checked = !!p.featured;
+    featIn.onchange = () => { p.featured = featIn.checked; save(); renderProjects(); };
+    featLab.appendChild(featIn); featLab.appendChild(document.createTextNode('Featured case study'));
+    frm.appendChild(featLab);
+
+    const cs = document.createElement('details');
+    cs.className = 'cs'; cs.open = p.featured;
+    cs.innerHTML = '<summary>Case-study fields (challenge / approach / result / quote)</summary>';
+    const csf = document.createElement('div'); csf.className = 'frm';
+    [['challenge','Challenge'],['approach','Approach'],['result','Result'],['quote','Pull quote'],['quoteWho','Quote attribution']].forEach(([k,label]) => {
+      const lab = document.createElement('label'); lab.textContent = label;
+      const ta = document.createElement(k.startsWith('quote') ? 'input' : 'textarea');
+      ta.value = p[k] || '';
+      ta.onchange = () => { p[k] = ta.value; save(); };
+      lab.appendChild(ta); csf.appendChild(lab);
+    });
+    cs.appendChild(csf); frm.appendChild(cs);
+    body.appendChild(frm);
+
+    const tray = document.createElement('div');
+    tray.className = 'tray';
+    tray.innerHTML = '<div class="tl">Gallery — first item is the cover · click photos on the left to add</div>';
+    const ti = document.createElement('div'); ti.className = 'tray-items';
+    p.media.forEach((m, mi) => {
+      const it = document.createElement('div');
+      it.className = 'titem';
+      it.innerHTML = `<img src="${m.url}" loading="lazy" alt="">` +
+        (mi === 0 ? '<span class="cover">COVER</span>' : '') +
+        (m.isVideo ? '<span class="vid">VID</span>' : '');
+      const ops = document.createElement('div'); ops.className = 'ops';
+      const mk = (txt, title, fn) => { const b = document.createElement('button'); b.textContent = txt; b.title = title; b.onclick = fn; ops.appendChild(b); };
+      mk('◀','Move earlier', () => { if (mi > 0){ [p.media[mi-1], p.media[mi]] = [p.media[mi], p.media[mi-1]]; save(); renderProjects(); }});
+      mk('✕','Remove', () => { p.media.splice(mi,1); save(); renderProjects(); renderPhotos(); });
+      mk('▶','Move later', () => { if (mi < p.media.length-1){ [p.media[mi+1], p.media[mi]] = [p.media[mi], p.media[mi+1]]; save(); renderProjects(); }});
+      it.appendChild(ops); ti.appendChild(it);
+    });
+    tray.appendChild(ti);
+    if (!p.media.length) tray.innerHTML += '<div class="hint">No media yet — click photos in the catalog to add them here.</div>';
+    body.appendChild(tray);
+    el.appendChild(body);
+    wrap.appendChild(el);
+  });
+}
+
+/* ════════════════════ exports ════════════════════ */
+function toLookbookProjects(){
+  return state.projects.map(p => ({
+    name: p.name, type: p.type, sector: p.sector, location: p.location,
+    scope: p.scope, systems: p.systems, gc: p.gc, timeline: p.timeline,
+    ...(p.featured ? { featured: true } : {}),
+    media: p.media.map(m => {
+      const entry = m.isVideo ? { video: m.url } : { img: m.url, alt: m.caption || p.name };
+      if (m.thumb) entry.thumb = m.thumb;
+      return entry;
+    }),
+    desc: p.desc
+  }));
+}
+function csvEsc(v){ v = String(v ?? ''); return /[",\n]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v; }
+
+let modalFile = 'export.txt';
+function showModal(title, text, filename, applyBtn){
+  document.getElementById('mtitle').textContent = title;
+  document.getElementById('mtext').value = text;
+  document.getElementById('mtext').readOnly = !applyBtn;
+  document.getElementById('mapply').style.display = applyBtn ? '' : 'none';
+  modalFile = filename;
+  document.getElementById('mback').classList.add('open');
+}
+document.getElementById('mclose').onclick = () => document.getElementById('mback').classList.remove('open');
+document.getElementById('mcopy').onclick = () => { navigator.clipboard.writeText(document.getElementById('mtext').value); };
+document.getElementById('mdl').onclick = () => {
+  const blob = new Blob([document.getElementById('mtext').value], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = modalFile; a.click();
+};
+
+document.getElementById('expJs').onclick = () => {
+  const js = 'const PROJECTS = ' + JSON.stringify(toLookbookProjects(), null, 2) + ';';
+  showModal('PROJECTS array — paste into lookbook/index.html (replacing the existing const PROJECTS)', js, 'projects.js');
+};
+document.getElementById('expJson').onclick = () => {
+  showModal('projects.json — full builder state (re-importable)', JSON.stringify(state.projects, null, 2), 'projects.json');
+};
+document.getElementById('expCsv').onclick = () => {
+  const cols = ['Title','Type','Sector','Location','Scope','Systems','Client','Timeline','Description','Featured','Challenge','Approach','Result','Quote','QuoteWho'];
+  const rows = state.projects.map(p => [p.name,p.type,p.sector,p.location,p.scope,p.systems,p.gc,p.timeline,p.desc,
+    p.featured?'Yes':'No',p.challenge,p.approach,p.result,p.quote,p.quoteWho].map(csvEsc).join(','));
+  showModal('Wix CMS import CSV (media added in Wix afterward)', cols.join(',') + '\n' + rows.join('\n'), 'wix-projects.csv');
+};
+document.getElementById('impJson').onclick = () => {
+  showModal('Paste projects JSON (from a previous Export JSON), then click "Import This"', '', 'import.json', true);
+};
+document.getElementById('mapply').onclick = () => {
+  try{
+    const arr = JSON.parse(document.getElementById('mtext').value);
+    if (!Array.isArray(arr)) throw new Error('expected an array');
+    state.projects = arr; state.selected = arr.length ? 0 : null;
+    save(); renderProjects(); renderPhotos();
+    document.getElementById('mback').classList.remove('open');
+  }catch(err){ alert('Import failed: ' + err.message); }
+};
+
+/* ════════════════════ boot ════════════════════ */
+const DEFAULT_MANIFEST = 'https://pub-17160ed212d74341a64e62d4f71d7c34.r2.dev/manifest.json';
+/* The four real case studies ship pre-loaded — just attach photos.
+   (Seeded only when the project list is empty; your edits persist.) */
+const SEED_PROJECTS = [
+  { name:"The tile look, without the grout", type:"Colorback Glass", sector:"Luxury Custom Home", location:"DFW Metroplex, TX",
+    scope:"Primary suite wet room walls, color-matched to the tile spec", systems:"Tempered colorback glass",
+    gc:"Luxury builder partner", timeline:"1 week, measure to install", featured:true,
+    desc:"Print-featured wet room: the designer's tile aesthetic delivered in non-porous colorback glass — zero grout, 60–70% less cleaning.",
+    challenge:"The designer had fallen in love with a specific tile aesthetic for the wet room walls \u2014 but the homeowner, experienced with luxury home maintenance, was adamant about not living with grout. Porous grout joints harbor mold and mildew in wet environments and never stop demanding upkeep.", approach:"Rather than abandon the design, we fabricated tempered colorback glass panels digitally color-matched to the exact tile shade \u2014 the aesthetic the designer loved, in a non-porous surface that meets Glass Association of North America performance standards. Installation was single-stage and fit the construction schedule without tile's multi-step process.", result:"The finished wet room delivers the designer's vision with none of the maintenance: non-porous glass requires 60\u201370% less cleaning time and chemicals than tile-and-grout systems, and there's no grout to crack, discolor, or generate builder callbacks. The completed bathroom was later featured in print editorials.", quote:"I will not deal with grout in my shower.", quoteWho:"The homeowner's brief — honored in full", media:[] },
+  { name:"Grey mirror in a designer's own home", type:"Mirrors", sector:"Designer's Personal Home", location:"Southlake, TX",
+    scope:"60″ × 84″ grey mirror, counter to ceiling", systems:"1/4″ grey mirror · precision cutouts for wall-mounted faucet",
+    gc:"Interior designer — her own home, first of two", timeline:"Sequenced over several weeks with the full sub team", featured:true,
+    desc:"Statement grey mirror in an entertaining-first powder bath — noticeable, without taking focus from the art.",
+    challenge:"This was the first home we did for an interior designer \u2014 her own place in Southlake, about 10,000 square feet. The entry powder bath mattered to her because she likes to entertain, and that's the room guests actually see. She wanted it to make a statement, and she wanted the mirror to be different \u2014 but she was also planning artwork for the room, and we didn't want the mirror taking too much away from that focal point.", approach:"Grey mirror got it done on both counts: different enough to notice, quiet enough that the art stays the focus. One panel, roughly 60 by 84 inches at a quarter inch thick, running from the countertop up toward the eleven-foot ceiling, with cutouts for the wall-mounted faucet. Cutouts make any piece of glass more fragile, especially at a quarter inch \u2014 these sat far enough from the edges to keep the piece manageable, and Dion is meticulous about his measurements. Years of measuring colorback glass will do that. Fit wasn't a problem.", result:"The mirror went in as part of the larger build \u2014 a lot of moving parts, several weeks, a layered team effort by all the subs. The room came out the way she wanted: the mirror gets noticed, the art keeps the room. And she hired us again for her family's next home before they moved out of state.", quote:"Designers see everyone's work up close. Getting picked for her own home told us where we stand.", quoteWho:"Owner, Eridion Glass", media:[] },
+  { name:"Privacy that didn't look like a compromise", type:"Showers & Wet Rooms", sector:"Custom Residential", location:"DFW Suburb, TX",
+    scope:"72″ × 90″ opening — 2-panel inline enclosure, 28″ pivot door", systems:"3/8″ grey-tinted tempered · dual-swing pivot · matte black hardware",
+    gc:"Builder partner", timeline:"1 week, measure to install · 2-day set", featured:true,
+    desc:"Grey-tinted enclosure giving a teenager privacy in a shared bath — recommended over satin-etch because it reads as design, not a fix.",
+    challenge:"In a five-bedroom new build, the boys' rooms shared a bathroom \u2014 no ensuite in the plan. The teenage son wanted more privacy than a clear enclosure gives, and his mom brought the request to the build team looking for recommendations, not products.", approach:"We recommended grey-tinted glass over the usual satin-etch. Same privacy, different message: frosted glass reads as a utility fix, while grey reads as a design decision \u2014 edgier, more modern, and right at home with the house's matte black finishes. Fabricated as a two-panel inline enclosure in 3/8-inch tempered grey glass with a 28-inch pivot door that swings both in and out.", result:"Set on the standard one-week measure-to-install timeline, about two days on site. The family loved it \u2014 and that word came back through the builder, which counts double.", quote:"Builders don't usually call about a shower. When she called to say the family loved it — that's a big deal.", quoteWho:"Owner, Eridion Glass", media:[] },
+  { name:"A staircase that looks like it's floating", type:"Specialty", sector:"Custom Residential", location:"DFW, TX",
+    scope:"241.5 sq ft · 15 panels — stair flights + both loft runs", systems:"1/2″ tempered Starphire (low-iron) · adjustable standoffs",
+    gc:"Stair contractor partner", timeline:"Templated per panel · ~1-day set", featured:true,
+    desc:"Half a ton of near-invisible low-iron glass wrapping a floating stair and loft — set by a two-man crew in about a day.",
+    challenge:"The ask on this one was simple to say and hard to do: make the staircase look like it's floating. Floating oak treads in a two-story foyer, glass climbing the stair and wrapping both sides of the loft above it \u2014 and the glass had to disappear. We came in through a stair contractor new to us who builds massive homes. We weren't there at the drawing stage, but on site, while the build gets finalized, we have a lot of input.", approach:"Starphire glass is what makes it work: half-inch tempered, low-iron \u2014 standard glass reads green at that thickness, and Starphire is almost invisible. You can tell. Fifteen panels, 241.5 square feet, a little over half a ton of glass. Every panel gets measured individually, and a template made and numbered so there's no confusion. We learned that lesson a long time ago \u2014 templates are a small expense in the long run, and worth every penny.", result:"Two men set it in about a day. The templates and adjustable standoffs kept the hours down \u2014 measure twice \u2014 and that kind of install speed is another reason builders choose Eridion. The staircase floats, the glass disappears, and the stair contractor has already slotted us for their next two homes.", quote:"The ask was to make the staircase float. I think we read the assignment.", quoteWho:"Owner, Eridion Glass", media:[] }
+];
+if (!state.projects || !state.projects.length){
+  state.projects = JSON.parse(JSON.stringify(SEED_PROJECTS));
+  state.selected = 0;
+  save();
+} else {
+  /* backfill: earlier seeds shipped with empty narrative fields — fill any
+     still-empty ones from the current seed text without touching edits */
+  let healed = false;
+  state.projects.forEach(pr => {
+    const seed = SEED_PROJECTS.find(sp => sp.name === pr.name);
+    if (!seed) return;
+    ['challenge','approach','result','quote','quoteWho'].forEach(k => {
+      if (!pr[k] && seed[k]){ pr[k] = seed[k]; healed = true; }
+    });
+  });
+  if (healed) save();
+}
+if (!state.manifestUrl){
+  try{
+    const shared = JSON.parse(localStorage.getItem('imglib:config'));
+    if (shared && shared.url){ state.manifestUrl = shared.url; state.libKey = shared.key || ''; }
+  }catch(e){}
+}
+if (!state.manifestUrl) state.manifestUrl = DEFAULT_MANIFEST;
+document.getElementById('manifestUrl').value = state.manifestUrl;
+document.getElementById('libKey').value = state.libKey || '';
+renderProjects();
+if (state.manifestUrl) loadCatalog();
+</script>
+</body>
+</html>
