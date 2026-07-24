@@ -165,6 +165,28 @@ details.cs .frm{margin-top:10px;grid-template-columns:1fr;}
   </div>
 </div>
 
+<!-- crop/position adjust modal -->
+<div class="mback" id="adjBack">
+  <div class="modal" style="max-width:720px;">
+    <div class="mh"><span class="t">Adjust crop</span>
+      <select id="adjAspect" title="Preview frame shape">
+        <option value="1.7778">Wide hero (16:9)</option>
+        <option value="0.55">Tall column</option>
+        <option value="1.6">Grid tile</option>
+      </select>
+      <label style="font-size:11px;display:flex;align-items:center;gap:6px;color:var(--slate);">Zoom <input type="range" id="adjZoom" min="100" max="250" value="100" style="width:110px;padding:0;border:none;"></label>
+      <button class="btn" id="adjReset">Reset</button>
+      <button class="btn" style="background:var(--navy);color:#fff;" id="adjDone">Done</button>
+    </div>
+    <div style="padding:14px 16px 4px;">
+      <div id="adjStage" style="position:relative;overflow:hidden;background:#0E2741;cursor:grab;width:100%;touch-action:none;">
+        <img id="adjImg" alt="" draggable="false" style="width:100%;height:100%;object-fit:cover;display:block;user-select:none;">
+      </div>
+    </div>
+    <div style="text-align:center;font-size:12px;color:var(--slate);padding:8px 16px 14px;">Drag the photo to position it inside the frame · switch frame shapes to check each crop · same settings apply everywhere the photo appears</div>
+  </div>
+</div>
+
 <!-- export/import modal -->
 <div class="mback" id="mback">
   <div class="modal">
@@ -586,12 +608,14 @@ function renderProjects(){
     p.media.forEach((m, mi) => {
       const it = document.createElement('div');
       it.className = 'titem';
-      it.innerHTML = `<img src="${m.url}" loading="lazy" alt="">` +
+      const fo = m.focus || {x:50,y:50};
+      it.innerHTML = `<img src="${m.thumb || m.url}" loading="lazy" alt="" style="object-position:${fo.x}% ${fo.y}%">` +
         (mi === 0 ? '<span class="cover">COVER</span>' : '') +
         (m.isVideo ? '<span class="vid">VID</span>' : '');
       const ops = document.createElement('div'); ops.className = 'ops';
       const mk = (txt, title, fn) => { const b = document.createElement('button'); b.textContent = txt; b.title = title; b.onclick = fn; ops.appendChild(b); };
       mk('◀','Move earlier', () => { if (mi > 0){ [p.media[mi-1], p.media[mi]] = [p.media[mi], p.media[mi-1]]; save(); renderProjects(); }});
+      mk('⛶','Adjust crop / position', () => openAdjust(p, mi));
       mk('✕','Remove', () => { p.media.splice(mi,1); save(); renderProjects(); renderPhotos(); });
       mk('▶','Move later', () => { if (mi < p.media.length-1){ [p.media[mi+1], p.media[mi]] = [p.media[mi], p.media[mi+1]]; save(); renderProjects(); }});
       it.appendChild(ops); ti.appendChild(it);
@@ -604,6 +628,69 @@ function renderProjects(){
   });
 }
 
+/* ════════════════════ crop / position adjust ════════════════════ */
+let adj = null;   // {proj, mi}
+const adjStage = document.getElementById('adjStage');
+const adjImg = document.getElementById('adjImg');
+
+function adjApply(){
+  const m = adj.proj.media[adj.mi];
+  const f = m.focus || {x:50, y:50};
+  const z = m.zoom || 1;
+  adjImg.style.objectPosition = f.x + '% ' + f.y + '%';
+  adjImg.style.transform = 'scale(' + z + ')';
+  adjImg.style.transformOrigin = f.x + '% ' + f.y + '%';
+}
+function adjSize(){
+  const aspect = parseFloat(document.getElementById('adjAspect').value);
+  adjStage.style.height = Math.round(adjStage.clientWidth / aspect) + 'px';
+}
+function openAdjust(proj, mi){
+  adj = {proj, mi};
+  const m = proj.media[mi];
+  adjImg.src = m.url;
+  document.getElementById('adjZoom').value = Math.round((m.zoom || 1) * 100);
+  document.getElementById('adjBack').classList.add('open');
+  requestAnimationFrame(() => { adjSize(); adjApply(); });
+}
+document.getElementById('adjAspect').onchange = () => { adjSize(); };
+document.getElementById('adjZoom').oninput = e => {
+  adj.proj.media[adj.mi].zoom = Math.round(e.target.value) / 100;
+  adjApply();
+};
+document.getElementById('adjReset').onclick = () => {
+  const m = adj.proj.media[adj.mi];
+  delete m.focus; delete m.zoom;
+  document.getElementById('adjZoom').value = 100;
+  adjApply();
+};
+document.getElementById('adjDone').onclick = () => {
+  save(); renderProjects();
+  document.getElementById('adjBack').classList.remove('open');
+};
+let drag = null;
+adjStage.addEventListener('pointerdown', e => {
+  if (!adj) return;
+  const m = adj.proj.media[adj.mi];
+  const f = m.focus || {x:50, y:50};
+  drag = { sx: e.clientX, sy: e.clientY, fx: f.x, fy: f.y };
+  adjStage.setPointerCapture(e.pointerId);
+  adjStage.style.cursor = 'grabbing';
+});
+adjStage.addEventListener('pointermove', e => {
+  if (!drag || !adj) return;
+  const m = adj.proj.media[adj.mi];
+  const z = m.zoom || 1;
+  const dx = (e.clientX - drag.sx) / adjStage.clientWidth * 100 / z;
+  const dy = (e.clientY - drag.sy) / adjStage.clientHeight * 100 / z;
+  m.focus = {
+    x: Math.min(100, Math.max(0, Math.round(drag.fx - dx))),
+    y: Math.min(100, Math.max(0, Math.round(drag.fy - dy)))
+  };
+  adjApply();
+});
+['pointerup','pointercancel'].forEach(ev => adjStage.addEventListener(ev, () => { drag = null; adjStage.style.cursor = 'grab'; }));
+
 /* ════════════════════ exports ════════════════════ */
 function toLookbookProjects(){
   return state.projects.map(p => ({
@@ -613,6 +700,8 @@ function toLookbookProjects(){
     media: p.media.map(m => {
       const entry = m.isVideo ? { video: m.url } : { img: m.url, alt: m.caption || p.name };
       if (m.thumb) entry.thumb = m.thumb;
+      if (m.focus && (m.focus.x !== 50 || m.focus.y !== 50)) entry.focus = m.focus.x + '% ' + m.focus.y + '%';
+      if (m.zoom && m.zoom !== 1) entry.zoom = m.zoom;
       return entry;
     }),
     desc: p.desc

@@ -496,6 +496,14 @@ const PROJECTS = [
 function esc(v){ return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 /* ── Media rendering: single image/video, or carousel when 2+ ── */
+function applyCrop(el, m){
+  if (m.focus) el.style.objectPosition = m.focus;
+  if (m.zoom && m.zoom !== 1){
+    el.style.transform = "scale(" + m.zoom + ")";
+    el.style.transformOrigin = m.focus || "center";
+  }
+  return el;
+}
 function mediaNode(m){
   if (m.video){
     const v = document.createElement("video");
@@ -506,7 +514,7 @@ function mediaNode(m){
   if (m.img){
     const i = document.createElement("img");
     i.src = m.img; i.alt = m.alt || ""; i.loading = "lazy";
-    return i;
+    return applyCrop(i, m);
   }
   const d = document.createElement("div");
   d.className = "ph " + (m.ph || "ph-a");
@@ -615,7 +623,7 @@ function coverNode(p){
   } else if (m.img && m.thumb){
     const i = document.createElement("img");
     i.src = m.thumb; i.alt = m.alt || ""; i.loading = "lazy";
-    wrap.appendChild(i);
+    wrap.appendChild(applyCrop(i, m));
   } else {
     wrap.appendChild(mediaNode(m));
   }
