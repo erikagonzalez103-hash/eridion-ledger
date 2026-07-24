@@ -114,6 +114,47 @@ details.cs .frm{margin-top:10px;grid-template-columns:1fr;}
 .titem .ops button:hover{background:var(--navy);color:#fff;}
 .hint{font-size:12px;color:var(--slate);margin-top:8px;}
 
+/* ── lookbook preview (mirrors lookbook/index.html rendering) ── */
+.pvback{position:fixed;inset:0;background:rgba(14,39,65,.6);display:none;align-items:flex-start;justify-content:center;z-index:60;overflow-y:auto;padding:3vh 2vw;}
+.pvback.open{display:flex;}
+.pvmodal{background:var(--paper);width:min(1150px,96vw);border:1px solid var(--hair);}
+.pvhead{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--navy);color:#fff;}
+.pvhead .t{font-family:var(--head);font-weight:300;font-size:16px;margin-right:auto;}
+.pvhead .lay{display:flex;gap:0;}
+.pvhead .lay button{border:1px solid rgba(255,255,255,.4);background:transparent;color:#fff;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:8px 14px;}
+.pvhead .lay button.on{background:#fff;color:var(--navy);border-color:#fff;}
+.pv-note{font-size:12px;color:var(--slate);padding:10px 18px 0;}
+.pv-case{display:grid;grid-template-columns:1.15fr .85fr;background:#fff;border:1px solid var(--hair);position:relative;margin:14px 18px 22px;}
+.pv-case::after{content:"";position:absolute;top:0;right:0;border-top:20px solid var(--green);border-left:20px solid transparent;}
+.pv-case.wide{grid-template-columns:1fr;}
+.pv-case:not(.wide){align-items:start;}
+.pv-media{position:relative;overflow:hidden;background:#0E2741;}
+.pv-case:not(.wide) .pv-media{aspect-ratio:11/20;}
+.pv-case.wide .pv-media{aspect-ratio:16/9;}
+.pv-track{display:flex;height:100%;transition:transform .35s ease;position:absolute;inset:0;}
+.pv-slide{flex:0 0 100%;position:relative;overflow:hidden;}
+.pv-slide img,.pv-slide video{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0;}
+.pv-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:34px;height:34px;border:none;background:rgba(21,56,98,.85);color:#fff;font-size:15px;cursor:pointer;}
+.pv-prev{left:0;}.pv-next{right:0;}
+.pv-dots{position:absolute;left:0;right:0;bottom:10px;display:flex;justify-content:center;gap:6px;z-index:3;}
+.pv-dot{width:9px;height:9px;border:none;background:rgba(255,255,255,.5);cursor:pointer;padding:0;}
+.pv-dot.on{background:var(--green);}
+.pv-body{padding:38px 36px;}
+.pv-eyebrow{font-family:var(--head);font-weight:400;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--slate);}
+.pv-body h3{font-family:var(--head);font-weight:400;font-size:26px;color:var(--navy);margin:10px 0 2px;line-height:1.15;}
+.pv-loc{font-size:13px;color:var(--slate);margin-bottom:22px;}
+.pv-facts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--hair);border:1px solid var(--hair);margin-bottom:22px;}
+.pv-case.wide .pv-facts{grid-template-columns:repeat(4,1fr);}
+.pv-facts div{background:#fff;padding:10px 14px;}
+.pv-facts .k{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--slate);}
+.pv-facts .v{font-size:13px;font-weight:500;margin-top:1px;}
+.pv-story p{font-size:14px;margin-bottom:12px;max-width:72ch;}
+.pv-story strong{display:block;font-family:var(--head);font-weight:400;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--navy);margin-bottom:3px;}
+.pv-quote{margin-top:16px;padding-top:18px;border-top:1px solid var(--hair);}
+.pv-quote p{font-family:var(--head);font-weight:400;font-size:18px;line-height:1.4;color:var(--navy);}
+.pv-quote .who{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--slate);margin-top:8px;}
+@media(max-width:860px){.pv-case,.pv-case.wide{grid-template-columns:1fr;}}
+
 /* ── modal ── */
 .mback{position:fixed;inset:0;background:rgba(14,39,65,.55);display:none;align-items:center;justify-content:center;padding:4vw;z-index:50;}
 .mback.open{display:flex;}
@@ -163,6 +204,22 @@ details.cs .frm{margin-top:10px;grid-template-columns:1fr;}
     <div class="scroll"><div class="projlist" id="projlist"></div>
       <div class="empty" id="projEmpty">No projects yet. Click <b>+ New Project</b>, fill in the facts, then click photos on the left to build its gallery. First photo = cover. Everything autosaves in this browser.</div>
     </div>
+  </div>
+</div>
+
+<!-- lookbook preview modal -->
+<div class="pvback" id="pvBack">
+  <div class="pvmodal">
+    <div class="pvhead">
+      <span class="t">Lookbook preview — exactly how this case study will render</span>
+      <span class="lay">
+        <button id="pvWide">Wide hero</button>
+        <button id="pvTall">Tall column</button>
+      </span>
+      <button class="btn" id="pvClose">Close</button>
+    </div>
+    <div class="pv-note">Switching layout here saves it to the project — the exported lookbook uses whichever is selected. Photos honor your ⛶ crop settings.</div>
+    <div id="pvCase"></div>
   </div>
 </div>
 
@@ -544,6 +601,10 @@ function renderProjects(){
     head.innerHTML = `<span class="nm">${(p.name||'Untitled').replace(/</g,'&lt;')}</span>` +
       (p.featured ? '<span class="feat">FEATURED</span>' : '') +
       `<span class="n">${p.media.length} media</span>`;
+    const pvb = document.createElement('button');
+    pvb.className = 'del'; pvb.textContent = '👁'; pvb.title = 'Preview how this case study renders in the lookbook';
+    pvb.onclick = e => { e.stopPropagation(); openPreview(p); };
+    head.appendChild(pvb);
     const del = document.createElement('button');
     del.className = 'del'; del.textContent = '✕'; del.title = 'Delete project';
     del.onclick = e => { e.stopPropagation();
@@ -650,6 +711,91 @@ function renderProjects(){
     wrap.appendChild(el);
   });
 }
+
+/* ════════════════════ lookbook preview ════════════════════ */
+let pvProj = null;
+function pvMediaEl(m){
+  let el;
+  if (m.isVideo){ el = document.createElement('video'); el.src = m.url; el.controls = true; el.preload = 'metadata'; }
+  else { el = document.createElement('img'); el.src = m.url; el.alt = m.caption || ''; el.loading = 'lazy'; }
+  const f = m.focus;
+  if (f) el.style.objectPosition = f.x + '% ' + f.y + '%';
+  if (m.zoom && m.zoom !== 1){ el.style.transform = 'scale(' + m.zoom + ')'; el.style.transformOrigin = f ? f.x + '% ' + f.y + '%' : 'center'; }
+  return el;
+}
+function renderPreview(){
+  const p = pvProj;
+  document.getElementById('pvWide').classList.toggle('on', p.layout !== 'tall');
+  document.getElementById('pvTall').classList.toggle('on', p.layout === 'tall');
+  const wrap = document.getElementById('pvCase');
+  wrap.innerHTML = '';
+  const art = document.createElement('article');
+  art.className = 'pv-case' + (p.layout !== 'tall' ? ' wide' : '');
+
+  const mediaBox = document.createElement('div');
+  mediaBox.className = 'pv-media';
+  const media = p.media.length ? p.media : null;
+  if (media){
+    const track = document.createElement('div'); track.className = 'pv-track';
+    media.forEach(m => { const sl = document.createElement('div'); sl.className = 'pv-slide'; sl.appendChild(pvMediaEl(m)); track.appendChild(sl); });
+    mediaBox.appendChild(track);
+    if (media.length > 1){
+      let idx = 0; const dots = [];
+      const go = n => { idx = (n + media.length) % media.length; track.style.transform = 'translateX(-' + idx*100 + '%)'; dots.forEach((d,i)=>d.classList.toggle('on', i===idx)); };
+      [['pv-prev','‹',-1],['pv-next','›',1]].forEach(([cls,g,step]) => { const b = document.createElement('button'); b.className = 'pv-btn ' + cls; b.textContent = g; b.onclick = () => go(idx+step); mediaBox.appendChild(b); });
+      const dw = document.createElement('div'); dw.className = 'pv-dots';
+      media.forEach((_,i) => { const d = document.createElement('button'); d.className = 'pv-dot' + (i?'':' on'); d.onclick = () => go(i); dots.push(d); dw.appendChild(d); });
+      mediaBox.appendChild(dw);
+    }
+  } else {
+    mediaBox.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#C7D3E0;font-size:13px;">No photos yet — click photos in the catalog first</div>';
+  }
+  art.appendChild(mediaBox);
+
+  const body = document.createElement('div');
+  body.className = 'pv-body';
+  const eEl = document.createElement('div'); eEl.className = 'pv-eyebrow'; eEl.textContent = [p.sector, p.type].filter(Boolean).join(' · ');
+  const hEl = document.createElement('h3'); hEl.textContent = p.name;
+  const lEl = document.createElement('div'); lEl.className = 'pv-loc'; lEl.textContent = p.location || '';
+  body.appendChild(eEl); body.appendChild(hEl); body.appendChild(lEl);
+  const facts = document.createElement('div'); facts.className = 'pv-facts';
+  [['Scope', p.scope], ['Systems', p.systems], ['Client', p.gc], ['Timeline', p.timeline]].forEach(([k, v]) => {
+    const d = document.createElement('div');
+    const kk = document.createElement('div'); kk.className = 'k'; kk.textContent = k;
+    const vv = document.createElement('div'); vv.className = 'v'; vv.textContent = v || '—';
+    d.appendChild(kk); d.appendChild(vv); facts.appendChild(d);
+  });
+  body.appendChild(facts);
+  const story = document.createElement('div'); story.className = 'pv-story';
+  [['Challenge', p.challenge], ['Approach', p.approach], ['Result', p.result]].forEach(([k, v]) => {
+    if (!v) return;
+    const para = document.createElement('p');
+    const st = document.createElement('strong'); st.textContent = k;
+    para.appendChild(st); para.appendChild(document.createTextNode(v));
+    story.appendChild(para);
+  });
+  body.appendChild(story);
+  if (p.quote){
+    const q = document.createElement('div'); q.className = 'pv-quote';
+    const qp = document.createElement('p'); qp.textContent = '“' + p.quote + '”';
+    const qw = document.createElement('div'); qw.className = 'who'; qw.textContent = p.quoteWho || '';
+    q.appendChild(qp); q.appendChild(qw); body.appendChild(q);
+  }
+  art.appendChild(body);
+  wrap.appendChild(art);
+}
+function openPreview(p){
+  pvProj = p;
+  renderPreview();
+  document.getElementById('pvBack').classList.add('open');
+}
+document.getElementById('pvWide').onclick = () => { pvProj.layout = 'wide'; save(); renderPreview(); renderProjects(); };
+document.getElementById('pvTall').onclick = () => { pvProj.layout = 'tall'; save(); renderPreview(); renderProjects(); };
+document.getElementById('pvClose').onclick = () => {
+  document.getElementById('pvBack').classList.remove('open');
+  document.querySelectorAll('#pvCase video').forEach(v => v.pause());
+};
+document.getElementById('pvBack').onclick = e => { if (e.target === document.getElementById('pvBack')) document.getElementById('pvClose').click(); };
 
 /* ════════════════════ crop / position adjust ════════════════════ */
 let adj = null;   // {proj, mi}
