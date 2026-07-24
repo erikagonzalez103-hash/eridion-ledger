@@ -179,7 +179,8 @@ export default {
           "You are tagging a photo for the image library of Eridion Glass, a custom glass company " +
           "(shower enclosures, mirrors, colorback-glass backsplashes, glass partitions, railings, wine rooms). " +
           "Classify this photo. Reuse the existing vocabulary below wherever it fits — only introduce a new " +
-          "value when nothing existing applies. Use lowercase-hyphenated values.\n" +
+          "value when nothing existing applies. Use lowercase-hyphenated, SINGULAR values (bathroom, not " +
+          "bathrooms; mirror, not mirrors). Never emit both a singular and plural form of the same word.\n" +
           "Existing categories: " + list(vocab.category) + "\n" +
           "Existing products: " + list(vocab.product) + "\n" +
           "Existing spaces: " + list(vocab.space) + "\n" +

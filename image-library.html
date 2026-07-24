@@ -239,12 +239,34 @@ function manifestRemove(entry) {
   }
   for (const k of Object.keys(manifestRaw)) if (manifestRaw[k] === entry) { delete manifestRaw[k]; return; }
 }
-function saveManifest() {
-  return api("/api/upload?key=manifest.json", {
+let manifestBaseline = null;   // stringified server state as of last load/save — stale-save detection
+async function saveManifest(opts = {}) {
+  // Every client holds the whole manifest in memory and saves are last-write-wins,
+  // so check whether another tab/app saved since we loaded before overwriting.
+  try {
+    const current = await fetchManifest();
+    if (current && manifestBaseline !== null && JSON.stringify(current) !== manifestBaseline) {
+      if (opts.mergeEntries) {
+        // Uploads only append — re-apply them on top of the newest version
+        manifestRaw = current;
+        opts.mergeEntries.forEach(manifestAdd);
+      } else if (!confirm(
+        "Heads up: the library was changed by another tab or app after you loaded it " +
+        "(another browser tab, the Lookbook Builder, …).\n\nSave anyway and overwrite " +
+        "those changes?\n\nCancel keeps theirs — then Refresh and redo your edits.")) {
+        throw new Error("stale-manifest");
+      }
+    }
+  } catch (e) {
+    if (e.message === "stale-manifest") throw e;
+    // stale-check fetch failed — proceed with the save rather than blocking
+  }
+  await api("/api/upload?key=manifest.json", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(manifestRaw),
   });
+  manifestBaseline = JSON.stringify(manifestRaw);
 }
 function fetchManifest() {
   return api("/api/manifest").catch(() =>
@@ -407,6 +429,7 @@ function load() {
   Promise.all([api("/api/list"), fetchManifest()])
     .then(([list, man]) => {
       manifestRaw = man || null;
+      manifestBaseline = man ? JSON.stringify(man) : null;
       lastFiles = list.images;
       freshKeys = new Set();
       limit = PAGE;
@@ -466,7 +489,9 @@ function editTags(c) {
   if (next === null) return;
   if (c.kind === "entry") {
     c.ref.tags = csv(next);
-    saveManifest().then(() => { buildAll(); toast("Tags saved to manifest"); });
+    saveManifest()
+      .then(() => { buildAll(); toast("Tags saved to manifest"); })
+      .catch(() => toast("Save cancelled — refresh to get the latest library"));
   } else {
     api("/api/tags?key=" + encodeURIComponent(c.ref.key), {
       method: "PATCH",
@@ -484,7 +509,8 @@ function del(c) {
       lastFiles = lastFiles.filter(f => !keys.includes(f.key));
       if (c.kind === "entry") { manifestRemove(c.ref); return saveManifest(); }
     })
-    .then(() => { buildAll(); toast("Deleted"); });
+    .then(() => { buildAll(); toast("Deleted"); })
+    .catch(() => toast("Manifest save cancelled — files removed; refresh to get the latest library"));
 }
 
 // ---- Tag Manager ----
@@ -646,6 +672,7 @@ async function uploadFiles(files) {
   const imgs = files.filter(f => f.type.startsWith("image/"));
   if (!imgs.length) return;
   const manualTags = csv(document.getElementById("uploadTags").value);
+  const newEntries = [];
   const putBlob = (key, blob) =>
     api("/api/upload?key=" + encodeURIComponent(key), {
       method: "POST",
@@ -699,7 +726,7 @@ async function uploadFiles(files) {
         }
       }
 
-      manifestAdd({
+      const entry = {
         id: slug,
         filename: f.name,
         category: ai ? ai.category : "",
@@ -716,7 +743,9 @@ async function uploadFiles(files) {
         shot: ai ? ai.shot : "",
         grade: "ok",
         reviewed: false,
-      });
+      };
+      manifestAdd(entry);
+      newEntries.push(entry);
     } catch (e) {
       if (e.message === "unauthorized") return;
       toast("Upload failed: " + f.name);
@@ -724,7 +753,7 @@ async function uploadFiles(files) {
   }
 
   if (manifestRaw) {
-    try { await saveManifest(); } catch (e) { toast("Manifest save failed — refresh and retry"); }
+    try { await saveManifest({ mergeEntries: newEntries }); } catch (e) { toast("Manifest save failed — refresh and retry"); }
     buildAll();
     document.getElementById("grid").scrollIntoView({ behavior: "smooth", block: "start" });
     toast("Upload complete" + (autotagDown ? "" : " — AI tagged"));
