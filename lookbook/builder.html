@@ -64,6 +64,24 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--navy);outline-of
 .thumb:hover .cap{opacity:1;}
 .empty{padding:40px 20px;text-align:center;color:var(--slate);font-size:13px;max-width:46ch;margin:0 auto;}
 
+/* ── faceted filters (mirrors image-library.html) ── */
+.filterbar{display:flex;gap:6px;flex-wrap:wrap;}
+.dd{position:relative;}
+.dd-btn{font-size:11px;font-weight:600;letter-spacing:.5px;background:#fff;border:1px solid var(--div);color:var(--slate);padding:7px 10px;}
+.dd-btn:hover{border-color:var(--navy);color:var(--navy);}
+.dd.has-sel .dd-btn{background:var(--navy);border-color:var(--navy);color:#fff;}
+.dd-panel{display:none;position:absolute;top:100%;left:0;z-index:20;background:#fff;border:1px solid var(--div);min-width:210px;max-height:260px;overflow-y:auto;padding:6px 0;box-shadow:0 10px 24px rgba(21,56,98,.18);}
+.dd.open .dd-panel{display:block;}
+.dd-panel label{display:flex;align-items:center;gap:6px;font-size:12px;padding:4px 12px;cursor:pointer;white-space:nowrap;}
+.dd-panel label:hover{background:var(--wash);}
+.dd-panel .n{margin-left:auto;color:var(--slate);font-size:10px;}
+.pills{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 8px;background:var(--card);border-bottom:1px solid var(--hair);}
+.pills:empty{display:none;}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;background:var(--wash);color:var(--navy);padding:3px 8px;}
+.pill b{font-weight:600;}
+.pill button{border:none;background:none;color:var(--slate);cursor:pointer;font-size:11px;padding:0;}
+.pill button:hover{color:#B84A48;}
+
 /* ── assembler ── */
 .projlist{display:flex;flex-direction:column;gap:10px;padding:14px 16px;}
 .proj{background:var(--card);border:1px solid var(--hair);}
@@ -120,12 +138,11 @@ details.cs .frm{margin-top:10px;grid-template-columns:1fr;}
   <div class="pane browser">
     <div class="pane-head"><span class="t">Photo Catalog</span></div>
     <div class="filters">
-      <input type="search" id="q" placeholder="Search caption / category / tag…">
-      <select id="jobSel"><option value="">All jobs</option></select>
-      <button class="chip" id="clearTags" title="Clear tag filters">✕ tags</button>
-      <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--slate);"><input type="checkbox" id="hideSkip" checked>hide "skip" grade</label>
+      <input type="search" id="q" placeholder="Search name, caption, tag, job…">
+      <div class="filterbar" id="filterbar"></div>
+      <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--slate);white-space:nowrap;"><input type="checkbox" id="hideSkip" checked>hide "skip" grade</label>
     </div>
-    <div class="tagchips" id="tagchips"></div>
+    <div class="pills" id="pills"></div>
     <div class="count" id="count"></div>
     <div class="scroll"><div class="grid" id="photoGrid"></div>
       <div class="empty" id="browserEmpty">Paste your catalog manifest URL above and click <b>Load Catalog</b> — or click <b>Demo</b> to try the builder with sample entries.<br><br>Click any photo to add it to the selected project on the right.</div>
@@ -166,7 +183,18 @@ details.cs .frm{margin-top:10px;grid-template-columns:1fr;}
 const LS_KEY = 'eridion_lookbook_builder_v1';
 const TYPES = ["Colorback Glass","Showers & Wet Rooms","Mirrors","Elevators & Lobbies","Storefronts","Specialty"];
 let photos = [];          // normalized catalog entries
-let activeTags = new Set();
+/* same facet set as image-library.html — its Tag Manager cleanups flow
+   straight through, since both apps read the same manifest */
+const FACETS = [
+  { key:'category', label:'Category', single:true },
+  { key:'product',  label:'Product' },
+  { key:'space',    label:'Space' },
+  { key:'style',    label:'Style' },
+  { key:'tags',     label:'Tags' },
+  { key:'job',      label:'Job', single:true },
+];
+let filters = {};
+FACETS.forEach(f => filters[f.key] = new Set());
 let state = { manifestUrl:'', projects: [], selected: null };
 
 function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
@@ -179,6 +207,19 @@ load();
 /* ════════════════════ manifest loading ════════════════════ */
 function setStatus(msg, cls){ const el = document.getElementById('status'); el.textContent = msg; el.className = 'status ' + (cls||''); }
 
+function mkPhoto(o){
+  const lc = a => (a || []).filter(Boolean).map(t => String(t).toLowerCase());
+  o.fv = {
+    category: lc([o.category]),
+    product: lc(o.product), space: lc(o.space), style: lc(o.style), tags: lc(o.tagList),
+    job: (o.jobName ? [o.jobName] : [])
+  };
+  o.jobLabel = o.jobName || o.category || '';
+  o.search = [o.caption, o.jobLabel, o.shot, o.grade,
+    ...o.fv.category, ...o.fv.product, ...o.fv.space, ...o.fv.style, ...o.fv.tags]
+    .filter(Boolean).join(' ').toLowerCase();
+  return o;
+}
 function normalizeManifest(data, srcUrl){
   /* Eridion catalog schema — written by catalog.html in
      eridion-social-campaign-studio: {assets:[{id,filename,category,
@@ -187,15 +228,14 @@ function normalizeManifest(data, srcUrl){
   if (data && Array.isArray(data.assets) && data.assets.length && (data.assets[0].web || data.assets[0].thumb)){
     const dir = srcUrl ? srcUrl.replace(/[?#].*$/,'').replace(/\/[^\/]*$/, '') : '';
     const base = ((data.base || dir) + '/').replace(/\/+$/,'/');
-    return data.assets.map((a, i) => ({
+    return data.assets.map((a, i) => mkPhoto({
       id: a.id ?? i,
       url: base + (a.web || a.thumb),
       thumb: base + (a.thumb || a.web),
-      tags: [ ...(a.product||[]), ...(a.space||[]), ...(a.style||[]),
-              a.shot, a.grade, ...(a.flags||[]) ].filter(Boolean).map(t => String(t).toLowerCase()),
-      job: a.category || '',
+      category: a.category, product: a.product, space: a.space, style: a.style,
+      tagList: [ ...(a.tags||[]), ...(a.flags||[]) ], jobName: a.job || '',
+      shot: a.shot, grade: a.grade || '',
       caption: a.caption || a.filename || '',
-      grade: a.grade || '',
       isVideo: /\.(mp4|webm|mov|m4v)(\?|$)/i.test(a.web || '')
     })).filter(p => p.url !== base);
   }
@@ -215,14 +255,13 @@ function normalizeManifest(data, srcUrl){
     else if (url && !/^https?:|^data:/.test(url) && base) url = base + '/' + url;
     let tags = e.tags || e.tag || [];
     if (typeof tags === 'string') tags = tags.split(/[,;]+/).map(t => t.trim()).filter(Boolean);
-    return {
+    return mkPhoto({
       id: i, url,
       thumb: e.thumb || e.thumbnail || url,
-      tags: tags.map(t => String(t).toLowerCase()),
-      job: e.job || e.project || e.album || e.folder || e.group || '',
-      caption: e.caption || e.alt || e.title || e.name || '',
+      tagList: tags, jobName: e.job || e.project || e.album || e.folder || e.group || '',
+      grade: '', caption: e.caption || e.alt || e.title || e.name || '',
       isVideo: e.type === 'video' || /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url)
-    };
+    });
   }).filter(p => p.url);
 }
 
@@ -238,23 +277,25 @@ function normalizeWorker(data, base){
     : Array.isArray(data.assets) ? data.assets
     : Object.values(data).filter(v => v && typeof v === 'object');
   const img = k => base + '/img/' + encodeURIComponent(k).replace(/%2F/g, '/');
-  return arr.filter(e => e && (e.web || e.thumb)).map((e, i) => ({
+  return arr.filter(e => e && (e.web || e.thumb)).map((e, i) => mkPhoto({
     id: e.id ?? i,
     url: img(e.web || e.thumb),
     thumb: img(e.thumb || e.web),
-    tags: [ ...(e.product||[]), ...(e.space||[]), ...(e.style||[]), ...(e.tags||[]),
-            e.category, e.shot, e.grade, ...(e.flags||[]) ].filter(Boolean).map(t => String(t).toLowerCase()),
-    job: e.job || e.category || '',
+    category: e.category, product: e.product, space: e.space, style: e.style,
+    tagList: [ ...(e.tags||[]), ...(e.flags||[]) ], jobName: e.job || '',
+    shot: e.shot, grade: e.grade || '',
     caption: e.caption || e.filename || '',
-    grade: e.grade || '',
     isVideo: /\.(mp4|webm|mov|m4v)(\?|$)/i.test(e.web || '')
   }));
 }
 
+let loading = false;
 async function loadCatalog(){
+  if (loading) return;
   const url = document.getElementById('manifestUrl').value.trim();
   const key = document.getElementById('libKey').value;
   if (!url){ setStatus('Enter the library URL first', 'err'); return; }
+  loading = true;
   setStatus('Loading…');
   try{
     if (key || !/\.json(\?|$)/i.test(url)){
@@ -282,9 +323,9 @@ async function loadCatalog(){
             const isVid = /\.(mp4|webm|mov|m4v)$/i.test(f.key);
             if (!isImg && !isVid) return;
             const ftags = Array.isArray(f.tags) ? f.tags : String(f.tags || '').split(/[,;]+/).map(t => t.trim()).filter(Boolean);
-            photos.push({ id: 'file:' + f.key, url: img(f.key), thumb: img(f.key),
-              tags: [...ftags.map(t => t.toLowerCase()), 'not-in-manifest'],
-              job: '', caption: f.key, grade: '', isVideo: isVid });
+            photos.push(mkPhoto({ id: 'file:' + f.key, url: img(f.key), thumb: img(f.key),
+              tagList: [...ftags, 'not-in-manifest'],
+              jobName: '', caption: f.key, grade: '', isVideo: isVid }));
             unfiled++;
           });
         }
@@ -301,6 +342,8 @@ async function loadCatalog(){
     buildFilters(); renderPhotos();
   }catch(err){
     setStatus('Load failed: ' + err.message, 'err');
+  }finally{
+    loading = false;
   }
 }
 document.getElementById('loadBtn').onclick = loadCatalog;
@@ -326,32 +369,75 @@ document.getElementById('demoBtn').onclick = () => {
   buildFilters(); renderPhotos();
 };
 
-/* ════════════════════ browser ════════════════════ */
-function buildFilters(){
-  const jobs = [...new Set(photos.map(p => p.job).filter(Boolean))].sort();
-  const sel = document.getElementById('jobSel');
-  sel.innerHTML = '<option value="">All jobs (' + jobs.length + ')</option>' +
-    jobs.map(j => `<option>${j.replace(/</g,'&lt;')}</option>`).join('');
-  const freq = {};
-  photos.forEach(p => p.tags.forEach(t => freq[t] = (freq[t]||0) + 1));
-  const top = Object.entries(freq).sort((a,b) => b[1]-a[1]).slice(0, 40);
-  const tc = document.getElementById('tagchips');
-  tc.innerHTML = '';
-  activeTags.clear();
-  top.forEach(([t, n]) => {
-    const b = document.createElement('button');
-    b.className = 'chip'; b.textContent = `${t} (${n})`; b.dataset.tag = t;
-    b.onclick = () => { b.classList.toggle('on'); b.classList.contains('on') ? activeTags.add(t) : activeTags.delete(t); renderPhotos(); };
-    tc.appendChild(b);
-  });
+/* ════════════════════ browser — faceted filters (library pattern) ════════════════════ */
+function facetValues(key){
+  const counts = new Map();
+  photos.forEach(p => p.fv[key].forEach(v => counts.set(v, (counts.get(v) || 0) + 1)));
+  return [...counts.entries()].sort((a, b) => a[0].localeCompare(b[0]));
 }
-document.getElementById('clearTags').onclick = () => {
-  activeTags.clear();
-  document.querySelectorAll('#tagchips .chip.on').forEach(c => c.classList.remove('on'));
-  renderPhotos();
-};
+function buildFilters(){
+  const bar = document.getElementById('filterbar');
+  bar.innerHTML = '';
+  for (const f of FACETS){
+    const vals = facetValues(f.key);
+    filters[f.key] = new Set([...filters[f.key]].filter(v => vals.some(([x]) => x === v)));
+    if (!vals.length) continue;
+    const dd = document.createElement('div');
+    dd.className = 'dd'; dd.dataset.facet = f.key;
+    const btn = document.createElement('button');
+    btn.className = 'dd-btn'; btn.textContent = f.label + ' ▾';
+    btn.onclick = e => {
+      e.stopPropagation();
+      const open = dd.classList.contains('open');
+      document.querySelectorAll('.dd.open').forEach(x => x.classList.remove('open'));
+      if (!open) dd.classList.add('open');
+    };
+    const panel = document.createElement('div');
+    panel.className = 'dd-panel';
+    panel.onclick = e => e.stopPropagation();
+    for (const [v, n] of vals){
+      const lab = document.createElement('label');
+      const cb = document.createElement('input');
+      cb.type = 'checkbox'; cb.value = v; cb.checked = filters[f.key].has(v);
+      cb.onchange = () => { cb.checked ? filters[f.key].add(v) : filters[f.key].delete(v); syncFilterUI(); renderPhotos(); };
+      lab.appendChild(cb);
+      lab.appendChild(document.createTextNode(' ' + v + ' '));
+      const nn = document.createElement('span'); nn.className = 'n'; nn.textContent = n;
+      lab.appendChild(nn);
+      panel.appendChild(lab);
+    }
+    dd.appendChild(btn); dd.appendChild(panel);
+    bar.appendChild(dd);
+  }
+  syncFilterUI();
+}
+document.addEventListener('click', () => document.querySelectorAll('.dd.open').forEach(x => x.classList.remove('open')));
+
+function syncFilterUI(){
+  document.querySelectorAll('.dd').forEach(dd => {
+    const key = dd.dataset.facet, sel = filters[key];
+    const label = FACETS.find(f => f.key === key).label;
+    dd.classList.toggle('has-sel', sel.size > 0);
+    dd.querySelector('.dd-btn').textContent = label + (sel.size ? ' · ' + sel.size : '') + ' ▾';
+    dd.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = sel.has(cb.value));
+  });
+  const pills = document.getElementById('pills');
+  pills.innerHTML = '';
+  for (const f of FACETS){
+    for (const v of filters[f.key]){
+      const pi = document.createElement('span');
+      pi.className = 'pill';
+      const b = document.createElement('b'); b.textContent = f.label.toLowerCase() + ':';
+      pi.appendChild(b); pi.appendChild(document.createTextNode(' ' + v + ' '));
+      const x = document.createElement('button');
+      x.textContent = '✕';
+      x.onclick = () => { filters[f.key].delete(v); syncFilterUI(); renderPhotos(); };
+      pi.appendChild(x);
+      pills.appendChild(pi);
+    }
+  }
+}
 document.getElementById('q').oninput = renderPhotos;
-document.getElementById('jobSel').onchange = renderPhotos;
 document.getElementById('hideSkip').onchange = renderPhotos;
 
 function usedUrls(){
@@ -361,15 +447,14 @@ function usedUrls(){
 }
 
 function renderPhotos(){
-  const q = document.getElementById('q').value.toLowerCase();
-  const job = document.getElementById('jobSel').value;
+  const q = document.getElementById('q').value.trim().toLowerCase();
+  const words = q ? q.split(/\s+/) : [];
   const hideSkip = document.getElementById('hideSkip').checked;
   const used = usedUrls();
   const list = photos.filter(p =>
     (!hideSkip || p.grade !== 'skip') &&
-    (!job || p.job === job) &&
-    (![...activeTags].some(t => !p.tags.includes(t))) &&
-    (!q || p.caption.toLowerCase().includes(q) || p.job.toLowerCase().includes(q) || p.tags.some(t => t.includes(q)))
+    FACETS.every(f => !filters[f.key].size || [...filters[f.key]].some(v => p.fv[f.key].includes(v))) &&
+    words.every(w => p.search.includes(w))
   );
   document.getElementById('count').textContent = photos.length ? `${list.length} of ${photos.length} photos` : '';
   document.getElementById('browserEmpty').style.display = photos.length ? 'none' : 'block';
@@ -378,7 +463,7 @@ function renderPhotos(){
   list.slice(0, 400).forEach(p => {
     const b = document.createElement('button');
     b.className = 'thumb';
-    b.title = (p.caption || p.url) + (p.job ? ' — ' + p.job : '');
+    b.title = (p.caption || p.url) + (p.jobLabel ? ' — ' + p.jobLabel : '');
     b.innerHTML = `<img src="${p.thumb}" loading="lazy" alt="">` +
       (p.isVideo ? '<span class="vid">VIDEO</span>' : '') +
       (used.has(p.url) ? '<span class="used">✓</span>' : '') +
