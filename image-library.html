@@ -296,6 +296,7 @@ function cardEl(c) {
     '<div class="tags">' + c.chips.map(t => '<span class="tag">' + esc(t) + "</span>").join("") + "</div>" +
     '<div class="actions">' +
       '<button class="btn btn-small btn-green act-copy">Copy URL</button>' +
+      '<button class="btn btn-small btn-navy act-dl">Download</button>' +
       '<button class="btn btn-small btn-line act-tags">Tags</button>' +
       '<button class="btn btn-small btn-danger act-del">Delete</button>' +
     "</div></div>";
@@ -304,6 +305,19 @@ function cardEl(c) {
   };
   el.querySelector(".act-copy").onclick = () =>
     navigator.clipboard.writeText(imgUrl(c.fullKey)).then(() => toast("Public URL copied (full size)"));
+  el.querySelector(".act-dl").onclick = () => {
+    toast("Downloading…");
+    fetch(imgUrl(c.fullKey))
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.blob(); })
+      .then(b => {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(b);
+        a.download = (c.name || c.fullKey).split("/").pop();
+        a.click();
+        URL.revokeObjectURL(a.href);
+      })
+      .catch(() => toast("Download failed"));
+  };
   el.querySelector(".act-tags").onclick = () => editTags(c);
   el.querySelector(".act-del").onclick = () => del(c);
   return el;
