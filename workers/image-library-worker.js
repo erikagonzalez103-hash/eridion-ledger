@@ -8,7 +8,10 @@
  *        Variable name: IMAGES   ·   Bucket: <your image library bucket>
  *   3. Worker → Settings → Variables & Secrets → Add → Secret:
  *        Name: LIBRARY_KEY   ·   Value: <choose a passphrase>
- *   4. Redeploy. The Worker URL (…workers.dev) + passphrase go into the
+ *   4. (For AI auto-tagging on upload) Add a second Secret:
+ *        Name: ANTHROPIC_API_KEY   ·   Value: <key from console.anthropic.com>
+ *      Without it, uploads still work — they just aren't auto-tagged.
+ *   5. Redeploy. The Worker URL (…workers.dev) + passphrase go into the
  *      frontend's setup panel (image-library.html).
  *
  * ENDPOINTS:
@@ -19,6 +22,9 @@
  *   POST   /api/upload?key=<k>   gated  — body = file bytes; headers: Content-Type, X-Image-Tags
  *   PATCH  /api/tags?key=<k>     gated  — JSON body {"tags":"a,b,c"} (rewrites object metadata)
  *   DELETE /api/image?key=<k>    gated  — deletes the object
+ *   POST   /api/autotag          gated  — JSON body {"key": "web/...", "vocab": {...}};
+ *                                         Claude looks at the image and returns
+ *                                         {category, tags, product, space, style, caption, shot}
  *   Gate: header  X-Library-Key: <LIBRARY_KEY>
  */
 
@@ -153,6 +159,90 @@ export default {
           customMetadata: { tags: String(body.tags || "") },
         });
         return json({ ok: true, key }, 200, cors);
+      }
+
+      if (url.pathname === "/api/autotag" && request.method === "POST") {
+        if (!env.ANTHROPIC_API_KEY) {
+          return json({ error: "autotag not configured — add the ANTHROPIC_API_KEY secret" }, 501, cors);
+        }
+        const { key, vocab = {} } = await request.json();
+        const obj = await env.IMAGES.get(key || "");
+        if (!obj) return json({ error: "not found" }, 404, cors);
+
+        const bytes = new Uint8Array(await obj.arrayBuffer());
+        let bin = "";
+        for (let i = 0; i < bytes.length; i += 32768) {
+          bin += String.fromCharCode(...bytes.subarray(i, i + 32768));
+        }
+        const list = (a) => (Array.isArray(a) && a.length ? a.join(", ") : "(none yet)");
+        const prompt =
+          "You are tagging a photo for the image library of Eridion Glass, a custom glass company " +
+          "(shower enclosures, mirrors, colorback-glass backsplashes, glass partitions, railings, wine rooms). " +
+          "Classify this photo. Reuse the existing vocabulary below wherever it fits — only introduce a new " +
+          "value when nothing existing applies. Use lowercase-hyphenated, SINGULAR values (bathroom, not " +
+          "bathrooms; mirror, not mirrors). Never emit both a singular and plural form of the same word.\n" +
+          "Existing categories: " + list(vocab.category) + "\n" +
+          "Existing products: " + list(vocab.product) + "\n" +
+          "Existing spaces: " + list(vocab.space) + "\n" +
+          "Existing styles: " + list(vocab.style) + "\n" +
+          "Existing tags: " + list(vocab.tags) + "\n" +
+          "Existing shot types: " + list(vocab.shot) + "\n" +
+          "Write the caption as one sentence describing the glass work shown, suitable for marketing use.";
+
+        // Model string per TOOLS.md shared-infrastructure standard
+        const apiResp = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": env.ANTHROPIC_API_KEY,
+            "anthropic-version": "2023-06-01",
+          },
+          body: JSON.stringify({
+            model: "claude-sonnet-4-6",
+            max_tokens: 1024,
+            tools: [{
+              name: "record_image_tags",
+              description: "Record the classification of the photo for the image library manifest.",
+              strict: true,
+              input_schema: {
+                type: "object",
+                additionalProperties: false,
+                required: ["category", "tags", "product", "space", "style", "caption", "shot"],
+                properties: {
+                  category: { type: "string", description: "Single primary category" },
+                  tags: { type: "array", items: { type: "string" } },
+                  product: { type: "array", items: { type: "string" }, description: "Glass products visible" },
+                  space: { type: "array", items: { type: "string" }, description: "Room/space types" },
+                  style: { type: "array", items: { type: "string" }, description: "Glass style attributes" },
+                  caption: { type: "string", description: "One-sentence marketing-ready description" },
+                  shot: { type: "string", description: "Shot type, e.g. install-wide or detail-macro" },
+                },
+              },
+            }],
+            tool_choice: { type: "tool", name: "record_image_tags" },
+            messages: [{
+              role: "user",
+              content: [
+                {
+                  type: "image",
+                  source: {
+                    type: "base64",
+                    media_type: obj.httpMetadata?.contentType || "image/jpeg",
+                    data: btoa(bin),
+                  },
+                },
+                { type: "text", text: prompt },
+              ],
+            }],
+          }),
+        });
+        if (!apiResp.ok) {
+          return json({ error: "anthropic api error", detail: (await apiResp.text()).slice(0, 500) }, 502, cors);
+        }
+        const data = await apiResp.json();
+        const toolUse = (data.content || []).find((b) => b.type === "tool_use");
+        if (!toolUse) return json({ error: "no classification returned" }, 502, cors);
+        return json({ ok: true, ...toolUse.input }, 200, cors);
       }
 
       if (url.pathname === "/api/image" && request.method === "DELETE") {

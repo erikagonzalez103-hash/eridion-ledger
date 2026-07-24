@@ -89,8 +89,25 @@
 - **Worker:** https://eridion-image-library.erikagonzalez103.workers.dev (deployed July 24, 2026) — public image URLs are `…workers.dev/img/<filename>`; list/upload/tag/delete gated by `LIBRARY_KEY`
 - **Purpose:** Manifest-aware image library (1,013 photos / 1,879 bucket objects — verified live July 24, 2026). `manifest.json` in the bucket is the source of truth: per-image id, filename, caption, category, tags, product/space/style facets, web+thumb paths, orientation, shot, grade, duplicate flags. App shows one card per photo (thumbnail preview, **Copy URL** = full-size `web/` link), filter chips across all facets, search over names/captions/notes, tag edits and deletes update the manifest itself
 - **Privacy:** individual images are public by design (that's Copy URL); the manifest (captions + client addresses) is blocked from public serving and only available via the gated `/api/manifest` — requires Worker script ≥ July 24, 2026 build
+- **AI auto-tagging (July 2026):** uploads are resized client-side into the `web/` + `thumb/` structure, then Claude (`claude-sonnet-4-6`, called by the Worker) looks at each photo and fills in category/tags/product/space/style/caption/shot using the library's existing vocabulary; the result is written to the manifest automatically. Requires the `ANTHROPIC_API_KEY` secret on the Worker — without it, uploads still work but arrive untagged
 - **First open:** enter the Worker URL + passphrase in the app's ⚙ Settings (stored in that browser only)
 - **Manual fallback:** dash.cloudflare.com → R2 → `eridion-assets` → click an image → Download
+
+---
+
+### Project Lookbook 🔵
+- **Location:** [`erikagonzalez103-hash/eridion-ledger`](https://github.com/erikagonzalez103-hash/eridion-ledger) → `lookbook/index.html` (single-file, no build step)
+- **URL:** erikagonzalez103-hash.github.io/eridion-ledger/lookbook/
+- **Purpose:** Portfolio site for GCs/builders/architects — hero + stats, 3 featured case studies (Challenge → Approach → Result), filterable 12-project grid by service line, photo carousels + video support
+- **Status:** 1 real case study (colorback wet room) + sample placeholders — replace before publishing publicly; ships with a Wix native-rebuild guide (`WIX-BUILD-GUIDE.md`), CMS import CSV, and a plan to publish at `lookbook.eridionglass.com` via GitHub Pages custom domain
+
+### Lookbook Builder 🔵
+- **Location:** `lookbook/builder.html` in this repo
+- **Purpose:** Assembles lookbook projects from the Image Library photo catalog — connects to the `eridion-image-library` Worker and reuses the library's faceted filter system to pick photos per case study
+
+### Brand Guidelines v2.1 🟢 (July 2026)
+- **Location:** `brand/brand-guidelines.html` in this repo (web document) · logo at `lookbook/images/eridion-logo.png`
+- **Purpose:** Brand identity reference — v2.1 switches the headline face to Jost Light (owner decision, supersedes v2.0)
 
 ---
 
