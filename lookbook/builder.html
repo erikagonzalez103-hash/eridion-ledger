@@ -108,7 +108,8 @@ details.cs .frm{margin-top:10px;grid-template-columns:1fr;}
 
 <div class="top">
   <span class="wm">ERIDION <b>· Lookbook Builder</b></span>
-  <input id="manifestUrl" type="url" placeholder="Paste the public catalog manifest URL (Cloudflare R2)…">
+  <input id="manifestUrl" type="url" placeholder="Image Library worker URL (or a public manifest .json)…">
+  <input id="libKey" type="password" placeholder="Library passphrase" style="flex:0 1 180px;min-width:120px;border:none;">
   <button class="btn" id="loadBtn">Load Catalog</button>
   <button class="btn ghost" id="demoBtn" title="Try the builder with sample entries">Demo</button>
   <span class="status" id="status">No catalog loaded</span>
@@ -120,7 +121,7 @@ details.cs .frm{margin-top:10px;grid-template-columns:1fr;}
     <div class="pane-head"><span class="t">Photo Catalog</span></div>
     <div class="filters">
       <input type="search" id="q" placeholder="Search caption / category / tag…">
-      <select id="jobSel"><option value="">All categories</option></select>
+      <select id="jobSel"><option value="">All jobs</option></select>
       <button class="chip" id="clearTags" title="Clear tag filters">✕ tags</button>
       <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--slate);"><input type="checkbox" id="hideSkip" checked>hide "skip" grade</label>
     </div>
@@ -225,15 +226,50 @@ function normalizeManifest(data, srcUrl){
   }).filter(p => p.url);
 }
 
+/* Two sources supported:
+   1. Image Library worker (image-library.html's system): base URL + X-Library-Key
+      passphrase, manifest at /api/manifest, images served at /img/<key>.
+      The connection is shared with image-library.html via localStorage
+      ("imglib:config") — same browser + same site = zero setup.
+   2. Legacy public manifest: any URL ending in .json fetched directly. */
+function normalizeWorker(data, base){
+  let arr = Array.isArray(data) ? data
+    : Array.isArray(data.images) ? data.images
+    : Array.isArray(data.assets) ? data.assets
+    : Object.values(data).filter(v => v && typeof v === 'object');
+  const img = k => base + '/img/' + encodeURIComponent(k).replace(/%2F/g, '/');
+  return arr.filter(e => e && (e.web || e.thumb)).map((e, i) => ({
+    id: e.id ?? i,
+    url: img(e.web || e.thumb),
+    thumb: img(e.thumb || e.web),
+    tags: [ ...(e.product||[]), ...(e.space||[]), ...(e.style||[]), ...(e.tags||[]),
+            e.category, e.shot, e.grade, ...(e.flags||[]) ].filter(Boolean).map(t => String(t).toLowerCase()),
+    job: e.job || e.category || '',
+    caption: e.caption || e.filename || '',
+    grade: e.grade || '',
+    isVideo: /\.(mp4|webm|mov|m4v)(\?|$)/i.test(e.web || '')
+  }));
+}
+
 async function loadCatalog(){
   const url = document.getElementById('manifestUrl').value.trim();
-  if (!url){ setStatus('Enter a manifest URL first', 'err'); return; }
+  const key = document.getElementById('libKey').value;
+  if (!url){ setStatus('Enter the library URL first', 'err'); return; }
   setStatus('Loading…');
   try{
-    const res = await fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(), {mode:'cors'});
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    photos = normalizeManifest(await res.json(), url);
-    state.manifestUrl = url; save();
+    if (key || !/\.json(\?|$)/i.test(url)){
+      const base = url.replace(/\/+$/,'');
+      const res = await fetch(base + '/api/manifest', { headers: key ? {'X-Library-Key': key} : {} });
+      if (res.status === 401) throw new Error('passphrase rejected');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      photos = normalizeWorker(await res.json(), base);
+      localStorage.setItem('imglib:config', JSON.stringify({ url: base, key }));
+    } else {
+      const res = await fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(), {mode:'cors'});
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      photos = normalizeManifest(await res.json(), url);
+    }
+    state.manifestUrl = url; state.libKey = key; save();
     setStatus(photos.length + ' photos loaded', 'ok');
     buildFilters(); renderPhotos();
   }catch(err){
@@ -267,7 +303,7 @@ document.getElementById('demoBtn').onclick = () => {
 function buildFilters(){
   const jobs = [...new Set(photos.map(p => p.job).filter(Boolean))].sort();
   const sel = document.getElementById('jobSel');
-  sel.innerHTML = '<option value="">All categories (' + jobs.length + ')</option>' +
+  sel.innerHTML = '<option value="">All jobs (' + jobs.length + ')</option>' +
     jobs.map(j => `<option>${j.replace(/</g,'&lt;')}</option>`).join('');
   const freq = {};
   photos.forEach(p => p.tags.forEach(t => freq[t] = (freq[t]||0) + 1));
@@ -509,7 +545,15 @@ document.getElementById('mapply').onclick = () => {
 
 /* ════════════════════ boot ════════════════════ */
 const DEFAULT_MANIFEST = 'https://pub-17160ed212d74341a64e62d4f71d7c34.r2.dev/manifest.json';
-if (!state.manifestUrl){ state.manifestUrl = DEFAULT_MANIFEST; document.getElementById('manifestUrl').value = DEFAULT_MANIFEST; }
+if (!state.manifestUrl){
+  try{
+    const shared = JSON.parse(localStorage.getItem('imglib:config'));
+    if (shared && shared.url){ state.manifestUrl = shared.url; state.libKey = shared.key || ''; }
+  }catch(e){}
+}
+if (!state.manifestUrl) state.manifestUrl = DEFAULT_MANIFEST;
+document.getElementById('manifestUrl').value = state.manifestUrl;
+document.getElementById('libKey').value = state.libKey || '';
 renderProjects();
 if (state.manifestUrl) loadCatalog();
 </script>
