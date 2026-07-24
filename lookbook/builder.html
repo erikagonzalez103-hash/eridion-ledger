@@ -672,27 +672,39 @@ const SEED_PROJECTS = [
     scope:"Primary suite wet room walls, color-matched to the tile spec", systems:"Tempered colorback glass",
     gc:"Luxury builder partner", timeline:"1 week, measure to install", featured:true,
     desc:"Print-featured wet room: the designer's tile aesthetic delivered in non-porous colorback glass — zero grout, 60–70% less cleaning.",
-    challenge:"", approach:"", result:"", quote:"I will not deal with grout in my shower.", quoteWho:"The homeowner's brief — honored in full", media:[] },
+    challenge:"The designer had fallen in love with a specific tile aesthetic for the wet room walls \u2014 but the homeowner, experienced with luxury home maintenance, was adamant about not living with grout. Porous grout joints harbor mold and mildew in wet environments and never stop demanding upkeep.", approach:"Rather than abandon the design, we fabricated tempered colorback glass panels digitally color-matched to the exact tile shade \u2014 the aesthetic the designer loved, in a non-porous surface that meets Glass Association of North America performance standards. Installation was single-stage and fit the construction schedule without tile's multi-step process.", result:"The finished wet room delivers the designer's vision with none of the maintenance: non-porous glass requires 60\u201370% less cleaning time and chemicals than tile-and-grout systems, and there's no grout to crack, discolor, or generate builder callbacks. The completed bathroom was later featured in print editorials.", quote:"I will not deal with grout in my shower.", quoteWho:"The homeowner's brief — honored in full", media:[] },
   { name:"Grey mirror in a designer's own home", type:"Mirrors", sector:"Designer's Personal Home", location:"Southlake, TX",
     scope:"60″ × 84″ grey mirror, counter to ceiling", systems:"1/4″ grey mirror · precision cutouts for wall-mounted faucet",
     gc:"Interior designer — her own home, first of two", timeline:"Sequenced over several weeks with the full sub team", featured:true,
     desc:"Statement grey mirror in an entertaining-first powder bath — noticeable, without taking focus from the art.",
-    challenge:"", approach:"", result:"", quote:"Designers see everyone's work up close. Getting picked for her own home told us where we stand.", quoteWho:"Owner, Eridion Glass", media:[] },
+    challenge:"This was the first home we did for an interior designer \u2014 her own place in Southlake, about 10,000 square feet. The entry powder bath mattered to her because she likes to entertain, and that's the room guests actually see. She wanted it to make a statement, and she wanted the mirror to be different \u2014 but she was also planning artwork for the room, and we didn't want the mirror taking too much away from that focal point.", approach:"Grey mirror got it done on both counts: different enough to notice, quiet enough that the art stays the focus. One panel, roughly 60 by 84 inches at a quarter inch thick, running from the countertop up toward the eleven-foot ceiling, with cutouts for the wall-mounted faucet. Cutouts make any piece of glass more fragile, especially at a quarter inch \u2014 these sat far enough from the edges to keep the piece manageable, and Dion is meticulous about his measurements. Years of measuring colorback glass will do that. Fit wasn't a problem.", result:"The mirror went in as part of the larger build \u2014 a lot of moving parts, several weeks, a layered team effort by all the subs. The room came out the way she wanted: the mirror gets noticed, the art keeps the room. And she hired us again for her family's next home before they moved out of state.", quote:"Designers see everyone's work up close. Getting picked for her own home told us where we stand.", quoteWho:"Owner, Eridion Glass", media:[] },
   { name:"Privacy that didn't look like a compromise", type:"Showers & Wet Rooms", sector:"Custom Residential", location:"DFW Suburb, TX",
     scope:"72″ × 90″ opening — 2-panel inline enclosure, 28″ pivot door", systems:"3/8″ grey-tinted tempered · dual-swing pivot · matte black hardware",
     gc:"Builder partner", timeline:"1 week, measure to install · 2-day set", featured:true,
     desc:"Grey-tinted enclosure giving a teenager privacy in a shared bath — recommended over satin-etch because it reads as design, not a fix.",
-    challenge:"", approach:"", result:"", quote:"Builders don't usually call about a shower. When she called to say the family loved it — that's a big deal.", quoteWho:"Owner, Eridion Glass", media:[] },
+    challenge:"In a five-bedroom new build, the boys' rooms shared a bathroom \u2014 no ensuite in the plan. The teenage son wanted more privacy than a clear enclosure gives, and his mom brought the request to the build team looking for recommendations, not products.", approach:"We recommended grey-tinted glass over the usual satin-etch. Same privacy, different message: frosted glass reads as a utility fix, while grey reads as a design decision \u2014 edgier, more modern, and right at home with the house's matte black finishes. Fabricated as a two-panel inline enclosure in 3/8-inch tempered grey glass with a 28-inch pivot door that swings both in and out.", result:"Set on the standard one-week measure-to-install timeline, about two days on site. The family loved it \u2014 and that word came back through the builder, which counts double.", quote:"Builders don't usually call about a shower. When she called to say the family loved it — that's a big deal.", quoteWho:"Owner, Eridion Glass", media:[] },
   { name:"A staircase that looks like it's floating", type:"Specialty", sector:"Custom Residential", location:"DFW, TX",
     scope:"241.5 sq ft · 15 panels — stair flights + both loft runs", systems:"1/2″ tempered Starphire (low-iron) · adjustable standoffs",
     gc:"Stair contractor partner", timeline:"Templated per panel · ~1-day set", featured:true,
     desc:"Half a ton of near-invisible low-iron glass wrapping a floating stair and loft — set by a two-man crew in about a day.",
-    challenge:"", approach:"", result:"", quote:"The ask was to make the staircase float. I think we read the assignment.", quoteWho:"Owner, Eridion Glass", media:[] }
+    challenge:"The ask on this one was simple to say and hard to do: make the staircase look like it's floating. Floating oak treads in a two-story foyer, glass climbing the stair and wrapping both sides of the loft above it \u2014 and the glass had to disappear. We came in through a stair contractor new to us who builds massive homes. We weren't there at the drawing stage, but on site, while the build gets finalized, we have a lot of input.", approach:"Starphire glass is what makes it work: half-inch tempered, low-iron \u2014 standard glass reads green at that thickness, and Starphire is almost invisible. You can tell. Fifteen panels, 241.5 square feet, a little over half a ton of glass. Every panel gets measured individually, and a template made and numbered so there's no confusion. We learned that lesson a long time ago \u2014 templates are a small expense in the long run, and worth every penny.", result:"Two men set it in about a day. The templates and adjustable standoffs kept the hours down \u2014 measure twice \u2014 and that kind of install speed is another reason builders choose Eridion. The staircase floats, the glass disappears, and the stair contractor has already slotted us for their next two homes.", quote:"The ask was to make the staircase float. I think we read the assignment.", quoteWho:"Owner, Eridion Glass", media:[] }
 ];
 if (!state.projects || !state.projects.length){
   state.projects = JSON.parse(JSON.stringify(SEED_PROJECTS));
   state.selected = 0;
   save();
+} else {
+  /* backfill: earlier seeds shipped with empty narrative fields — fill any
+     still-empty ones from the current seed text without touching edits */
+  let healed = false;
+  state.projects.forEach(pr => {
+    const seed = SEED_PROJECTS.find(sp => sp.name === pr.name);
+    if (!seed) return;
+    ['challenge','approach','result','quote','quoteWho'].forEach(k => {
+      if (!pr[k] && seed[k]){ pr[k] = seed[k]; healed = true; }
+    });
+  });
+  if (healed) save();
 }
 if (!state.manifestUrl){
   try{
