@@ -179,8 +179,8 @@ details.cs .frm{margin-top:10px;grid-template-columns:1fr;}
       <button class="btn" id="adjReset">Reset</button>
       <button class="btn" style="background:var(--navy);color:#fff;" id="adjDone">Done</button>
     </div>
-    <div style="padding:14px 16px 4px;">
-      <div id="adjStage" style="position:relative;overflow:hidden;background:#0E2741;cursor:grab;width:100%;touch-action:none;">
+    <div style="padding:14px 16px 4px;overflow-y:auto;">
+      <div id="adjStage" style="position:relative;overflow:hidden;background:#0E2741;cursor:grab;margin:0 auto;touch-action:none;">
         <img id="adjImg" alt="" draggable="false" style="width:100%;height:100%;object-fit:cover;display:block;user-select:none;">
       </div>
     </div>
@@ -666,8 +666,17 @@ function adjApply(){
 }
 function adjSize(){
   const aspect = parseFloat(document.getElementById('adjAspect').value);
-  adjStage.style.height = Math.round(adjStage.clientWidth / aspect) + 'px';
+  const wrap = adjStage.parentElement;
+  const maxW = Math.max(220, wrap.clientWidth - 4);
+  const maxH = Math.max(240, window.innerHeight - 210);   /* leave room for the header + hint */
+  let w = maxW, h = w / aspect;
+  if (h > maxH){ h = maxH; w = h * aspect; }
+  adjStage.style.width = Math.round(w) + 'px';
+  adjStage.style.height = Math.round(h) + 'px';
 }
+window.addEventListener('resize', () => {
+  if (document.getElementById('adjBack').classList.contains('open')) adjSize();
+});
 function openAdjust(proj, mi){
   adj = {proj, mi};
   const m = proj.media[mi];
