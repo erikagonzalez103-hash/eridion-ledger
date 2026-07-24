@@ -157,7 +157,12 @@ function load() {
   document.getElementById("msg").textContent = "Loading…";
   document.getElementById("msg").classList.remove("hidden");
   api("/api/list")
-    .then(d => { images = d.images; render(); })
+    .then(d => {
+      // Gallery shows images only — index/manifest files and other objects stay out of view
+      images = d.images.filter(im =>
+        (im.contentType || "").startsWith("image/") || /\.(png|jpe?g|gif|webp|svg|avif|bmp)$/i.test(im.key));
+      render();
+    })
     .catch(e => {
       if (e.message !== "unauthorized")
         document.getElementById("msg").textContent = "Couldn't reach the Worker (" + e.message + "). Check the URL in ⚙ Settings.";
