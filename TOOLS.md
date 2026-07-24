@@ -87,7 +87,8 @@
 - **Location:** R2 bucket `eridion-assets` (storage) · Worker `eridion-image-library` (API) · frontend `image-library.html` + Worker source `workers/image-library-worker.js` in [`erikagonzalez103-hash/eridion-ledger`](https://github.com/erikagonzalez103-hash/eridion-ledger)
 - **URL:** erikagonzalez103-hash.github.io/eridion-ledger/image-library.html
 - **Worker:** https://eridion-image-library.erikagonzalez103.workers.dev (deployed July 24, 2026) — public image URLs are `…workers.dev/img/<filename>`; list/upload/tag/delete gated by `LIBRARY_KEY`
-- **Purpose:** Tagged image library — filter by tag chips, search, upload w/ tags, edit tags, delete, and **Copy URL** for a stable public link per image
+- **Purpose:** Manifest-aware image library (1,879 images, July 2026). `manifest.json` in the bucket is the source of truth: per-image id, filename, caption, category, tags, product/space/style facets, web+thumb paths, orientation, shot, grade, duplicate flags. App shows one card per photo (thumbnail preview, **Copy URL** = full-size `web/` link), filter chips across all facets, search over names/captions/notes, tag edits and deletes update the manifest itself
+- **Privacy:** individual images are public by design (that's Copy URL); the manifest (captions + client addresses) is blocked from public serving and only available via the gated `/api/manifest` — requires Worker script ≥ July 24, 2026 build
 - **First open:** enter the Worker URL + passphrase in the app's ⚙ Settings (stored in that browser only)
 - **Manual fallback:** dash.cloudflare.com → R2 → `eridion-assets` → click an image → Download
 

@@ -18,10 +18,12 @@
   .btn-ghost { background:transparent; color:#fff; border:1px solid rgba(255,255,255,.5); }
   .btn-danger { background:#C02626; color:#fff; }
   .btn-small { padding:4px 10px; font-size:.75rem; }
+  .btn-navy { background:var(--navy); color:#fff; }
+  .btn-line { background:#fff; color:var(--navy); border:1px solid var(--gray); }
   .controls { position:sticky; top:0; z-index:10; background:var(--navy); padding:0 24px 14px; box-shadow:0 2px 6px rgba(0,0,0,.15); }
   .controls input[type="search"] { width:100%; max-width:560px; padding:10px 14px; font-size:1rem; border:2px solid transparent; border-radius:8px; outline:none; }
   .controls input[type="search"]:focus { border-color:var(--green); }
-  .chips { margin-top:10px; display:flex; flex-wrap:wrap; gap:6px; }
+  .chips { margin-top:10px; display:flex; flex-wrap:wrap; gap:6px; max-height:104px; overflow-y:auto; }
   .chip { border:1px solid rgba(255,255,255,.4); background:transparent; color:#fff; border-radius:999px; padding:4px 12px; font-size:.8rem; cursor:pointer; }
   .chip.active { background:var(--green); border-color:var(--green); font-weight:600; }
   .count { color:rgba(255,255,255,.75); font-size:.78rem; margin-top:8px; }
@@ -31,23 +33,23 @@
   .drop input[type="file"] { display:none; }
   .drop .row { display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap; margin-top:10px; }
   .drop input[type="text"] { padding:8px 12px; border:1px solid var(--gray); border-radius:8px; font-size:.85rem; min-width:240px; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; }
-  .imgcard { background:var(--card); border:1px solid var(--gray); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px; }
+  .imgcard { background:var(--card); border:1px solid var(--gray); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; position:relative; }
   .thumb { aspect-ratio:4/3; background:#eef1f4; display:flex; align-items:center; justify-content:center; overflow:hidden; }
   .thumb img { width:100%; height:100%; object-fit:cover; }
   .thumb span { color:#888; font-size:.8rem; padding:8px; word-break:break-all; }
+  .dupbadge { position:absolute; top:8px; right:8px; background:#C98A00; color:#fff; font-size:.68rem; font-weight:700; border-radius:999px; padding:2px 8px; }
   .meta { padding:10px 12px; display:flex; flex-direction:column; gap:6px; flex:1; }
-  .meta .name { font-size:.82rem; font-weight:700; color:var(--navy); word-break:break-all; }
+  .meta .name { font-size:.82rem; font-weight:700; color:var(--navy); word-break:break-word; }
+  .meta .caption { font-size:.74rem; color:#555; font-style:italic; }
   .meta .sub { font-size:.72rem; color:#666; }
   .tags { display:flex; flex-wrap:wrap; gap:4px; }
   .tag { background:#eef1f4; border:1px solid var(--gray); border-radius:999px; padding:1px 8px; font-size:.7rem; }
   .actions { display:flex; gap:6px; margin-top:auto; padding-top:6px; flex-wrap:wrap; }
   .actions .btn { flex:1; min-width:0; }
-  .btn-navy { background:var(--navy); color:#fff; }
-  .btn-line { background:#fff; color:var(--navy); border:1px solid var(--gray); }
   .empty, #msg { text-align:center; color:#555; padding:40px 0; font-size:.95rem; }
+  .more { text-align:center; margin:20px 0; }
   .hidden { display:none !important; }
-  /* setup modal */
   .overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; z-index:50; padding:20px; }
   .modal { background:#fff; border-radius:12px; padding:24px; max-width:440px; width:100%; }
   .modal h2 { color:var(--navy); font-size:1.1rem; margin-bottom:6px; }
@@ -62,7 +64,7 @@
 <header>
   <div>
     <h1>Eridion Image Library</h1>
-    <p>Cloudflare R2 · filter, search, upload, delete · copy a public URL for any image</p>
+    <p>Cloudflare R2 · manifest-aware · filter, search, upload, delete · copy a public URL for any image</p>
   </div>
   <div style="display:flex;gap:8px">
     <button class="btn btn-ghost" id="settingsBtn">⚙ Settings</button>
@@ -71,7 +73,7 @@
 </header>
 
 <div class="controls">
-  <input type="search" id="q" placeholder="Search by name or tag…" autocomplete="off">
+  <input type="search" id="q" placeholder="Search name, caption, tag, product, space, style…" autocomplete="off">
   <div class="chips" id="tagChips"></div>
   <div class="count" id="count"></div>
 </div>
@@ -88,13 +90,14 @@
   </div>
   <div id="msg">Loading…</div>
   <div class="grid" id="grid"></div>
-  <div class="empty hidden" id="empty">No images match — try fewer words or clear the tag filter.</div>
+  <div class="more hidden"><button class="btn btn-navy" id="moreBtn">Show more</button></div>
+  <div class="empty hidden" id="empty">No images match — try fewer words or clear the filters.</div>
 </main>
 
 <div class="overlay hidden" id="setup">
   <div class="modal">
     <h2>Connect to the library</h2>
-    <p>Enter the Worker URL and passphrase (set once in Cloudflare — see workers/image-library-worker.js in the eridion-ledger repo for deploy steps). Saved only in this browser.</p>
+    <p>Enter the Worker URL and passphrase (see workers/image-library-worker.js in the eridion-ledger repo). Saved only in this browser.</p>
     <label for="cfgUrl">Worker URL</label>
     <input type="url" id="cfgUrl" placeholder="https://eridion-image-library.….workers.dev">
     <label for="cfgKey">Passphrase</label>
@@ -108,7 +111,9 @@
 
 <script>
 const LS = "imglib:config";
-let cfg = null, images = [], activeTags = new Set();
+const PAGE = 200;
+let cfg = null, cards = [], activeChips = new Set(), limit = PAGE;
+let manifestRaw = null;   // parsed manifest exactly as stored — mutated in place, re-uploaded on change
 
 function loadCfg() {
   try { cfg = JSON.parse(localStorage.getItem(LS)); } catch (e) { cfg = null; }
@@ -124,15 +129,16 @@ function api(path, opts = {}) {
   });
 }
 function imgUrl(key) { return base() + "/img/" + encodeURIComponent(key).replace(/%2F/g, "/"); }
-function esc(s) { return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 function toast(text) {
   const t = document.createElement("div");
   t.className = "toast"; t.textContent = text;
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 2200);
 }
-function tagList(s) { return (s || "").split(",").map(t => t.trim()).filter(Boolean); }
+function csv(s) { return (s || "").split(",").map(t => t.trim()).filter(Boolean); }
 function fmtSize(n) { return n > 1048576 ? (n/1048576).toFixed(1)+" MB" : Math.max(1, Math.round(n/1024))+" KB"; }
+function isImage(f) { return (f.contentType || "").startsWith("image/") || /\.(png|jpe?g|gif|webp|svg|avif|bmp)$/i.test(f.key); }
 
 // ---- setup modal ----
 function openSetup(note) {
@@ -152,15 +158,84 @@ document.getElementById("cfgSave").onclick = () => {
   load();
 };
 
+// ---- manifest handling ----
+// Manifest may be an array of entries, {images:[...]}/{assets:[...]}, or an object keyed by id.
+function manifestEntries() {
+  if (!manifestRaw) return [];
+  if (Array.isArray(manifestRaw)) return manifestRaw;
+  if (Array.isArray(manifestRaw.images)) return manifestRaw.images;
+  if (Array.isArray(manifestRaw.assets)) return manifestRaw.assets;
+  return Object.values(manifestRaw).filter(v => v && typeof v === "object");
+}
+function manifestRemove(entry) {
+  if (Array.isArray(manifestRaw)) { manifestRaw.splice(manifestRaw.indexOf(entry), 1); return; }
+  for (const k of ["images", "assets"]) {
+    if (Array.isArray(manifestRaw[k])) { manifestRaw[k].splice(manifestRaw[k].indexOf(entry), 1); return; }
+  }
+  for (const k of Object.keys(manifestRaw)) if (manifestRaw[k] === entry) { delete manifestRaw[k]; return; }
+}
+function saveManifest() {
+  return api("/api/upload?key=manifest.json", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(manifestRaw),
+  });
+}
+function fetchManifest() {
+  // Gated endpoint on the current Worker; falls back to public path for the pre-privacy Worker build
+  return api("/api/manifest").catch(() =>
+    fetch(base() + "/img/manifest.json", { cache: "no-store" }).then(r => r.ok ? r.json() : null).catch(() => null)
+  );
+}
+
+// ---- build view models ----
+function buildCards(files) {
+  const out = [];
+  const referenced = new Set(["manifest.json"]);
+  const fileKeys = new Set(files.map(f => f.key));
+
+  for (const e of manifestEntries()) {
+    if (e.web) referenced.add(e.web);
+    if (e.thumb) referenced.add(e.thumb);
+    const facets = [...new Set([e.category, ...(e.tags||[]), ...(e.product||[]), ...(e.space||[]), ...(e.style||[])].filter(Boolean))];
+    const dup = !!(e.dup_of || (e.flags || []).includes("duplicate"));
+    out.push({
+      kind: "entry", ref: e,
+      name: e.filename || e.id || e.web,
+      caption: e.caption || "",
+      sub: [e.width && e.height ? e.width + "×" + e.height : "", e.orientation, e.shot, e.grade].filter(Boolean).join(" · "),
+      thumbKey: e.thumb && fileKeys.has(e.thumb) ? e.thumb : e.web,
+      fullKey: e.web || e.thumb,
+      chips: facets, dup,
+      search: [e.id, e.filename, e.caption, e.notes, e.shot, e.grade, e.orientation, dup ? "duplicate" : "", facets.join(" "), (e.flags||[]).join(" ")].join(" ").toLowerCase(),
+    });
+  }
+  for (const f of files) {
+    if (referenced.has(f.key) || !isImage(f)) continue;
+    const tags = csv(f.tags);
+    out.push({
+      kind: "file", ref: f,
+      name: f.key, caption: "",
+      sub: fmtSize(f.size) + " · " + new Date(f.uploaded).toLocaleDateString() + " · not in manifest",
+      thumbKey: f.key, fullKey: f.key,
+      chips: tags, dup: false,
+      search: (f.key + " " + tags.join(" ")).toLowerCase(),
+    });
+  }
+  return out;
+}
+
 // ---- load + render ----
+let lastFiles = [];   // raw bucket listing, kept so cards can be rebuilt after manifest edits
 function load() {
   document.getElementById("msg").textContent = "Loading…";
   document.getElementById("msg").classList.remove("hidden");
-  api("/api/list")
-    .then(d => {
-      // Gallery shows images only — index/manifest files and other objects stay out of view
-      images = d.images.filter(im =>
-        (im.contentType || "").startsWith("image/") || /\.(png|jpe?g|gif|webp|svg|avif|bmp)$/i.test(im.key));
+  Promise.all([api("/api/list"), fetchManifest()])
+    .then(([list, man]) => {
+      manifestRaw = man || null;
+      lastFiles = list.images;
+      cards = buildCards(lastFiles);
+      limit = PAGE;
       render();
     })
     .catch(e => {
@@ -170,73 +245,96 @@ function load() {
 }
 document.getElementById("refreshBtn").onclick = load;
 
+function matches(c, words) {
+  return [...activeChips].every(t => c.chips.includes(t)) && words.every(w => c.search.includes(w));
+}
+
 function render() {
   const grid = document.getElementById("grid");
   grid.innerHTML = "";
-  const allTags = new Set();
-  images.forEach(im => tagList(im.tags).forEach(t => allTags.add(t)));
-  activeTags = new Set([...activeTags].filter(t => allTags.has(t)));
+  const allChips = new Set();
+  cards.forEach(c => c.chips.forEach(t => allChips.add(t)));
+  activeChips = new Set([...activeChips].filter(t => allChips.has(t)));
 
-  const chips = document.getElementById("tagChips");
-  chips.innerHTML = "";
-  [...allTags].sort().forEach(t => {
+  const chipBox = document.getElementById("tagChips");
+  chipBox.innerHTML = "";
+  [...allChips].sort().forEach(t => {
     const b = document.createElement("button");
-    b.className = "chip" + (activeTags.has(t) ? " active" : "");
+    b.className = "chip" + (activeChips.has(t) ? " active" : "");
     b.textContent = t;
-    b.onclick = () => { activeTags.has(t) ? activeTags.delete(t) : activeTags.add(t); render(); };
-    chips.appendChild(b);
+    b.onclick = () => { activeChips.has(t) ? activeChips.delete(t) : activeChips.add(t); limit = PAGE; render(); };
+    chipBox.appendChild(b);
   });
 
   const q = document.getElementById("q").value.trim().toLowerCase();
   const words = q ? q.split(/\s+/) : [];
-  let shown = 0;
-  images.forEach(im => {
-    const tags = tagList(im.tags);
-    const hay = (im.key + " " + tags.join(" ")).toLowerCase();
-    if (![...activeTags].every(t => tags.includes(t))) return;
-    if (!words.every(w => hay.includes(w))) return;
-    shown++;
-    const card = document.createElement("div");
-    card.className = "imgcard";
-    card.innerHTML =
-      '<div class="thumb"><img loading="lazy" src="' + imgUrl(im.key) + '" alt="' + esc(im.key) + '" onerror="this.replaceWith(Object.assign(document.createElement(\'span\'),{textContent:\'preview unavailable\'}))"></div>' +
-      '<div class="meta"><div class="name">' + esc(im.key) + "</div>" +
-      '<div class="sub">' + fmtSize(im.size) + " · " + new Date(im.uploaded).toLocaleDateString() + "</div>" +
-      '<div class="tags">' + tags.map(t => '<span class="tag">' + esc(t) + "</span>").join("") + "</div>" +
-      '<div class="actions">' +
-        '<button class="btn btn-small btn-green act-copy">Copy URL</button>' +
-        '<button class="btn btn-small btn-line act-tags">Tags</button>' +
-        '<button class="btn btn-small btn-danger act-del">Delete</button>' +
-      "</div></div>";
-    card.querySelector(".act-copy").onclick = () =>
-      navigator.clipboard.writeText(imgUrl(im.key)).then(() => toast("Public URL copied"));
-    card.querySelector(".act-tags").onclick = () => {
-      const next = prompt("Tags for " + im.key + " (comma-separated):", im.tags || "");
-      if (next === null) return;
-      api("/api/tags?key=" + encodeURIComponent(im.key), {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tags: next }),
-      }).then(() => { im.tags = next; render(); toast("Tags updated"); });
-    };
-    card.querySelector(".act-del").onclick = () => {
-      if (!confirm("Delete " + im.key + "? This cannot be undone.")) return;
-      api("/api/image?key=" + encodeURIComponent(im.key), { method: "DELETE" })
-        .then(() => { images = images.filter(x => x.key !== im.key); render(); toast("Deleted"); });
-    };
-    grid.appendChild(card);
-  });
+  const hits = cards.filter(c => matches(c, words));
+  hits.slice(0, limit).forEach(c => grid.appendChild(cardEl(c)));
 
   document.getElementById("msg").classList.add("hidden");
-  document.getElementById("empty").classList.toggle("hidden", shown > 0 || images.length === 0);
+  document.querySelector(".more").classList.toggle("hidden", hits.length <= limit);
+  document.getElementById("empty").classList.toggle("hidden", hits.length > 0 || cards.length === 0);
   document.getElementById("count").textContent =
-    shown + " of " + images.length + " images" + (activeTags.size ? " · tags: " + [...activeTags].join(", ") : "");
-  if (images.length === 0) {
+    hits.length + " of " + cards.length + " images" + (activeChips.size ? " · filters: " + [...activeChips].join(", ") : "");
+  if (cards.length === 0) {
     document.getElementById("msg").textContent = "Library is empty — drop images above to upload.";
     document.getElementById("msg").classList.remove("hidden");
   }
 }
-document.getElementById("q").addEventListener("input", render);
+document.getElementById("moreBtn").onclick = () => { limit += PAGE; render(); };
+document.getElementById("q").addEventListener("input", () => { limit = PAGE; render(); });
+
+function cardEl(c) {
+  const el = document.createElement("div");
+  el.className = "imgcard";
+  el.innerHTML =
+    '<div class="thumb"><img loading="lazy" src="' + imgUrl(c.thumbKey) + '" alt="' + esc(c.name) + '"></div>' +
+    (c.dup ? '<span class="dupbadge">dup</span>' : "") +
+    '<div class="meta"><div class="name">' + esc(c.name) + "</div>" +
+    (c.caption ? '<div class="caption">' + esc(c.caption) + "</div>" : "") +
+    '<div class="sub">' + esc(c.sub) + "</div>" +
+    '<div class="tags">' + c.chips.map(t => '<span class="tag">' + esc(t) + "</span>").join("") + "</div>" +
+    '<div class="actions">' +
+      '<button class="btn btn-small btn-green act-copy">Copy URL</button>' +
+      '<button class="btn btn-small btn-line act-tags">Tags</button>' +
+      '<button class="btn btn-small btn-danger act-del">Delete</button>' +
+    "</div></div>";
+  el.querySelector(".thumb img").onerror = function () {
+    this.replaceWith(Object.assign(document.createElement("span"), { textContent: "preview unavailable" }));
+  };
+  el.querySelector(".act-copy").onclick = () =>
+    navigator.clipboard.writeText(imgUrl(c.fullKey)).then(() => toast("Public URL copied (full size)"));
+  el.querySelector(".act-tags").onclick = () => editTags(c);
+  el.querySelector(".act-del").onclick = () => del(c);
+  return el;
+}
+
+function editTags(c) {
+  const current = c.kind === "entry" ? (c.ref.tags || []).join(", ") : c.ref.tags || "";
+  const next = prompt("Tags for " + c.name + " (comma-separated):", current);
+  if (next === null) return;
+  if (c.kind === "entry") {
+    c.ref.tags = csv(next);
+    saveManifest().then(() => { cards = buildCards(lastFiles); render(); toast("Tags saved to manifest"); });
+  } else {
+    api("/api/tags?key=" + encodeURIComponent(c.ref.key), {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tags: next }),
+    }).then(() => { c.ref.tags = next; cards = buildCards(lastFiles); render(); toast("Tags updated"); });
+  }
+}
+
+function del(c) {
+  if (!confirm("Delete " + c.name + "? This removes the image" + (c.kind === "entry" ? ", its thumbnail, and its manifest entry" : "") + " — it cannot be undone.")) return;
+  const keys = c.kind === "entry" ? [...new Set([c.ref.web, c.ref.thumb].filter(Boolean))] : [c.ref.key];
+  Promise.all(keys.map(k => api("/api/image?key=" + encodeURIComponent(k), { method: "DELETE" }).catch(() => null)))
+    .then(() => {
+      lastFiles = lastFiles.filter(f => !keys.includes(f.key));
+      if (c.kind === "entry") { manifestRemove(c.ref); return saveManifest(); }
+    })
+    .then(() => { cards = buildCards(lastFiles); render(); toast("Deleted"); });
+}
 
 // ---- upload ----
 const drop = document.getElementById("drop");

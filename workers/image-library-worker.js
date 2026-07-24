@@ -12,7 +12,9 @@
  *      frontend's setup panel (image-library.html).
  *
  * ENDPOINTS:
- *   GET    /img/<key>            public — serves the image (this is the shareable URL)
+ *   GET    /img/<key>            public — serves the image (this is the shareable URL);
+ *                                         manifest.json is NOT served here (contains client addresses)
+ *   GET    /api/manifest         gated  — the manifest.json contents
  *   GET    /api/list             gated  — all objects w/ tags [{key,size,uploaded,tags,contentType}]
  *   POST   /api/upload?key=<k>   gated  — body = file bytes; headers: Content-Type, X-Image-Tags
  *   PATCH  /api/tags?key=<k>     gated  — JSON body {"tags":"a,b,c"} (rewrites object metadata)
@@ -67,6 +69,8 @@ export default {
     // ---- Public image serving ----
     if (url.pathname.startsWith("/img/") && request.method === "GET") {
       const key = decodeURIComponent(url.pathname.slice(5));
+      // The manifest aggregates captions/filenames with client addresses — never serve it publicly
+      if (key === "manifest.json") return json({ error: "manifest is private — use /api/manifest" }, 403, cors);
       const obj = await env.IMAGES.get(key);
       if (!obj) return new Response("Not found", { status: 404, headers: cors });
       const headers = new Headers(cors);
@@ -81,6 +85,14 @@ export default {
     if (url.pathname.startsWith("/api/")) {
       if (request.headers.get("X-Library-Key") !== env.LIBRARY_KEY) {
         return json({ error: "unauthorized" }, 401, cors);
+      }
+
+      if (url.pathname === "/api/manifest" && request.method === "GET") {
+        const obj = await env.IMAGES.get("manifest.json");
+        if (!obj) return json({ error: "not found" }, 404, cors);
+        return new Response(obj.body, {
+          headers: { "Content-Type": "application/json", "Cache-Control": "no-store", ...cors },
+        });
       }
 
       if (url.pathname === "/api/list" && request.method === "GET") {
