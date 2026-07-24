@@ -139,7 +139,7 @@ export default {
     }
 
     return new Response("Eridion Image Library Worker — see /img/<key> or the management app.", {
-      headers: { "Content-Type": "text/plain", ...cors },
+      headers: { "Content-Type": "text/plain; charset=utf-8", ...cors },
     });
   },
 };
