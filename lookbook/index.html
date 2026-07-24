@@ -121,7 +121,7 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
 @media(max-width:720px){.sec-head h2{font-size:24px;}}
 
 /* ── FEATURED CASE STUDIES ───────────────────────── */
-.case{display:grid;grid-template-columns:1.15fr .85fr;gap:0;margin-bottom:9vh;background:var(--card);border:1px solid var(--hairline);}
+.case{display:grid;grid-template-columns:1.15fr .85fr;gap:0;background:var(--card);border:1px solid var(--hairline);}
 .case:nth-of-type(even){grid-template-columns:.85fr 1.15fr;}
 .case:nth-of-type(even) .case-media{order:2;}
 .case-media{min-height:420px;}
@@ -147,6 +147,20 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
 .case.wide .case-story p{max-width:72ch;}
 @media(max-width:860px){.case.wide .case-facts{grid-template-columns:1fr 1fr;}.case.wide .case-media{min-height:0;}}
 @media(max-width:860px){.case,.case:nth-of-type(even){grid-template-columns:1fr;}.case:nth-of-type(even) .case-media{order:0;}.case-media{min-height:260px;}.case-body{padding:30px 24px;}}
+
+/* ── collapsible case bars ── */
+.case-bar{display:flex;align-items:center;gap:18px;width:100%;grid-column:1/-1;background:none;border:none;font-family:var(--body);text-align:left;padding:18px 24px;cursor:pointer;}
+.case-bar:hover .cb-title{color:var(--deep-navy);}
+.case:not(.collapsed) .case-bar{border-bottom:1px solid var(--hairline);}
+.cb-eyebrow{font-family:var(--head);font-weight:400;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--slate);display:block;}
+.cb-title{font-family:var(--head);font-weight:400;font-size:21px;color:var(--navy);line-height:1.2;}
+.cb-loc{font-size:12px;color:var(--slate);margin-left:auto;white-space:nowrap;}
+.chev{font-size:13px;color:var(--navy);transition:transform .25s;flex-shrink:0;}
+.case:not(.collapsed) .chev{transform:rotate(180deg);}
+.case.collapsed .case-media,.case.collapsed .case-body{display:none;}
+.case{margin-bottom:16px;}
+.case:not(.collapsed){margin-bottom:6vh;}
+@media(max-width:720px){.cb-loc{display:none;}.case-bar{padding:14px 16px;}.cb-title{font-size:18px;}}
 
 /* ── FILTER + GRID ───────────────────────────────── */
 .filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:36px;}
@@ -427,7 +441,7 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
 const FILTERS = ["All","Colorback Glass","Showers & Wet Rooms","Mirrors","Storefronts","Specialty"];
 
 const PROJECTS = [
-  {name:"The Tile Look, Without the Grout", type:"Colorback Glass", sector:"Luxury Custom Home", location:"DFW Metroplex, TX",
+  {layout:"wide", name:"The Tile Look, Without the Grout", type:"Colorback Glass", sector:"Luxury Custom Home", location:"DFW Metroplex, TX",
    scope:"Primary suite wet room walls, color-matched to the tile spec", systems:"Tempered colorback glass",
    gc:"Luxury builder partner", timeline:"1 week, measure to install",
    media:[
@@ -438,7 +452,7 @@ const PROJECTS = [
    ],
    caseId:"case-wetroom",
    desc:"Print-featured wet room: the designer's tile aesthetic delivered in non-porous colorback glass — zero grout, 60–70% less cleaning."},
-  {name:"Privacy that didn't look like a compromise", type:"Showers & Wet Rooms", sector:"Custom Residential", location:"DFW Suburb, TX",
+  {layout:"wide", name:"Privacy that didn't look like a compromise", type:"Showers & Wet Rooms", sector:"Custom Residential", location:"DFW Suburb, TX",
    scope:"72″ × 90″ opening — 2-panel inline, 28″ pivot door", systems:"3/8″ grey-tinted tempered · matte black",
    gc:"Builder partner", timeline:"1 week · 2-day set",
    media:[
@@ -446,7 +460,7 @@ const PROJECTS = [
    ],
    caseId:"case-greyshower",
    desc:"Grey-tinted enclosure giving a teenager privacy in a shared bath — recommended over satin-etch because it reads as design, not a fix."},
-  {name:"Grey mirror in a designer's own home", type:"Mirrors", sector:"Designer's Personal Home", location:"Southlake, TX",
+  {layout:"tall", name:"Grey mirror in a designer's own home", type:"Mirrors", sector:"Designer's Personal Home", location:"Southlake, TX",
    scope:"60″ × 84″ grey mirror, counter to ceiling", systems:"1/4″ grey mirror · faucet cutouts",
    gc:"Interior designer (repeat client)", timeline:"Several weeks, with the full sub team",
    media:[
@@ -475,7 +489,7 @@ const PROJECTS = [
    gc:"[Builder Name]", timeline:"Coordinated with millwork",
    media:[{ph:"ph-a", tag:"Sample"}],
    desc:"Full-height cellar enclosure holding temperature and humidity spec without visual bulk. Sample project."},
-  {name:"A staircase that looks like it's floating", type:"Specialty", sector:"Custom Residential", location:"DFW, TX",
+  {layout:"tall", name:"A staircase that looks like it's floating", type:"Specialty", sector:"Custom Residential", location:"DFW, TX",
    scope:"241.5 sq ft · 15 panels — stair + both loft runs", systems:"1/2″ tempered Starphire · adjustable standoffs",
    gc:"Stair contractor partner", timeline:"Templated per panel · ~1-day set",
    media:[
@@ -600,11 +614,41 @@ function renderMedia(container, media){
   container.appendChild(car);
 }
 
-/* mount featured case-study media from PROJECTS */
+/* mount featured case-study media from PROJECTS; layout comes from data */
 document.querySelectorAll("[data-media]").forEach(el => {
   const proj = PROJECTS.find(x => x.caseId === el.dataset.media);
   renderMedia(el, proj && proj.media);
+  const art = el.closest(".case");
+  if (art && proj && proj.layout) art.classList.toggle("wide", proj.layout === "wide");
 });
+
+/* collapsible case-study bars */
+document.querySelectorAll("#featured .case").forEach(a => {
+  const grab = sel => a.querySelector(".case-body " + sel)?.textContent || "";
+  const bar = document.createElement("button");
+  bar.className = "case-bar";
+  bar.setAttribute("aria-expanded", "false");
+  const left = document.createElement("span");
+  const eb = document.createElement("span"); eb.className = "cb-eyebrow"; eb.textContent = grab(".eyebrow");
+  const tt = document.createElement("span"); tt.className = "cb-title"; tt.textContent = grab("h3");
+  left.appendChild(eb); left.appendChild(tt);
+  const lc = document.createElement("span"); lc.className = "cb-loc"; lc.textContent = grab(".loc");
+  const ch = document.createElement("span"); ch.className = "chev"; ch.textContent = "▾";
+  bar.appendChild(left); bar.appendChild(lc); bar.appendChild(ch);
+  a.prepend(bar);
+  a.classList.add("collapsed");
+  bar.onclick = () => {
+    a.classList.toggle("collapsed");
+    bar.setAttribute("aria-expanded", String(!a.classList.contains("collapsed")));
+    if (!a.classList.contains("collapsed")) a.querySelectorAll("video").forEach(v => v.pause());
+  };
+});
+function expandCase(id){
+  const a = document.getElementById(id);
+  if (!a) return;
+  a.classList.remove("collapsed");
+  a.querySelector(".case-bar")?.setAttribute("aria-expanded", "true");
+}
 
 /* ── Filters ── */
 const filtersEl = document.getElementById("filters");
@@ -664,7 +708,10 @@ function render(){
       '<div class="meta">' + esc(p.location) + "</div>" +
       '<div class="scope">' + esc(p.scope) + "</div>";
     t.appendChild(body);
-    t.onclick = () => p.caseId ? document.getElementById(p.caseId).scrollIntoView({behavior:"smooth"}) : openModal(p);
+    t.onclick = () => {
+      if (p.caseId){ expandCase(p.caseId); document.getElementById(p.caseId).scrollIntoView({behavior:"smooth"}); }
+      else openModal(p);
+    };
     gridEl.appendChild(t);
     requestAnimationFrame(() => setTimeout(() => t.classList.add("in"), 40 * i));
   });

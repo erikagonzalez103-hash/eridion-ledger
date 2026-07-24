@@ -108,6 +108,7 @@ details.cs .frm{margin-top:10px;grid-template-columns:1fr;}
 .titem img{width:100%;height:70px;object-fit:cover;display:block;}
 .titem .cover{position:absolute;top:3px;left:3px;background:var(--green);color:#fff;font-size:8px;font-weight:700;padding:1px 5px;}
 .titem .vid{position:absolute;top:3px;right:3px;background:rgba(14,39,65,.85);color:#fff;font-size:8px;font-weight:600;padding:1px 4px;}
+.titem .warnb{position:absolute;bottom:24px;right:3px;background:#B87A00;color:#fff;font-size:10px;padding:0 4px;cursor:help;}
 .titem .ops{display:flex;}
 .titem .ops button{flex:1;border:none;background:var(--paper);color:var(--slate);font-size:11px;padding:3px 0;border-top:1px solid var(--hair);}
 .titem .ops button:hover{background:var(--navy);color:#fff;}
@@ -505,7 +506,7 @@ function renderPhotos(){
 
 /* ════════════════════ projects ════════════════════ */
 function blankProject(){
-  return { name:'Untitled project', type:TYPES[0], sector:'', location:'', scope:'', systems:'',
+  return { name:'Untitled project', type:TYPES[0], layout:'wide', sector:'', location:'', scope:'', systems:'',
     gc:'', timeline:'', desc:'', featured:false,
     challenge:'', approach:'', result:'', quote:'', quoteWho:'', media:[] };
 }
@@ -529,7 +530,7 @@ function addToProject(photo){
 
 const F = [ ['name','Project name','text'], ['type','Type','select'], ['sector','Sector','text'],
   ['location','Location','text'], ['scope','Scope (quantified)','text'], ['systems','Systems','text'],
-  ['gc','GC / Client','text'], ['timeline','Timeline','text'] ];
+  ['gc','GC / Client','text'], ['timeline','Timeline','text'], ['layout','Hero layout','layout'] ];
 
 function renderProjects(){
   const wrap = document.getElementById('projlist');
@@ -566,6 +567,11 @@ function renderProjects(){
       if (kind === 'select'){
         inp = document.createElement('select');
         inp.innerHTML = TYPES.map(t => `<option${t===p.type?' selected':''}>${t}</option>`).join('');
+      } else if (kind === 'layout'){
+        inp = document.createElement('select');
+        inp.innerHTML = '<option value="wide"' + (p.layout !== 'tall' ? ' selected' : '') + '>Wide hero — landscape photos (16:9)</option>' +
+                        '<option value="tall"' + (p.layout === 'tall' ? ' selected' : '') + '>Tall column — portrait photos</option>';
+        inp.onchange = () => { p.layout = inp.value; save(); renderProjects(); };
       } else {
         inp = document.createElement('input'); inp.type = 'text'; inp.value = p[k] || '';
       }
@@ -612,6 +618,23 @@ function renderProjects(){
       it.innerHTML = `<img src="${m.thumb || m.url}" loading="lazy" alt="" style="object-position:${fo.x}% ${fo.y}%">` +
         (mi === 0 ? '<span class="cover">COVER</span>' : '') +
         (m.isVideo ? '<span class="vid">VID</span>' : '');
+      /* crop-risk auto-detect: photo shape vs the frame this case uses */
+      if (!m.isVideo){
+        const probe = it.querySelector('img');
+        probe.addEventListener('load', () => {
+          if (!probe.naturalWidth) return;
+          const ia = probe.naturalWidth / probe.naturalHeight;
+          const fa = p.layout === 'tall' ? 0.55 : 16/9;
+          const mismatch = Math.max(ia/fa, fa/ia);
+          if (mismatch > 1.75 && !m.focus && !m.zoom){
+            const w = document.createElement('span');
+            w.className = 'warnb'; w.textContent = '⚠';
+            w.title = 'This ' + (ia >= 1 ? 'landscape' : 'portrait') + ' photo will crop hard in the ' +
+              (p.layout === 'tall' ? 'tall column' : 'wide hero') + ' frame — click ⛶ to position it.';
+            it.appendChild(w);
+          }
+        }, {once:true});
+      }
       const ops = document.createElement('div'); ops.className = 'ops';
       const mk = (txt, title, fn) => { const b = document.createElement('button'); b.textContent = txt; b.title = title; b.onclick = fn; ops.appendChild(b); };
       mk('◀','Move earlier', () => { if (mi > 0){ [p.media[mi-1], p.media[mi]] = [p.media[mi], p.media[mi-1]]; save(); renderProjects(); }});
@@ -649,6 +672,7 @@ function openAdjust(proj, mi){
   adj = {proj, mi};
   const m = proj.media[mi];
   adjImg.src = m.url;
+  document.getElementById('adjAspect').value = proj.layout === 'tall' ? '0.55' : '1.7778';
   document.getElementById('adjZoom').value = Math.round((m.zoom || 1) * 100);
   document.getElementById('adjBack').classList.add('open');
   requestAnimationFrame(() => { adjSize(); adjApply(); });
@@ -694,7 +718,7 @@ adjStage.addEventListener('pointermove', e => {
 /* ════════════════════ exports ════════════════════ */
 function toLookbookProjects(){
   return state.projects.map(p => ({
-    name: p.name, type: p.type, sector: p.sector, location: p.location,
+    name: p.name, type: p.type, layout: p.layout || 'wide', sector: p.sector, location: p.location,
     scope: p.scope, systems: p.systems, gc: p.gc, timeline: p.timeline,
     ...(p.featured ? { featured: true } : {}),
     media: p.media.map(m => {
@@ -757,22 +781,22 @@ const DEFAULT_MANIFEST = 'https://pub-17160ed212d74341a64e62d4f71d7c34.r2.dev/ma
 /* The four real case studies ship pre-loaded — just attach photos.
    (Seeded only when the project list is empty; your edits persist.) */
 const SEED_PROJECTS = [
-  { name:"The tile look, without the grout", type:"Colorback Glass", sector:"Luxury Custom Home", location:"DFW Metroplex, TX",
+  { layout:"wide", name:"The tile look, without the grout", type:"Colorback Glass", sector:"Luxury Custom Home", location:"DFW Metroplex, TX",
     scope:"Primary suite wet room walls, color-matched to the tile spec", systems:"Tempered colorback glass",
     gc:"Luxury builder partner", timeline:"1 week, measure to install", featured:true,
     desc:"Print-featured wet room: the designer's tile aesthetic delivered in non-porous colorback glass — zero grout, 60–70% less cleaning.",
     challenge:"The designer had fallen in love with a specific tile aesthetic for the wet room walls \u2014 but the homeowner, experienced with luxury home maintenance, was adamant about not living with grout. Porous grout joints harbor mold and mildew in wet environments and never stop demanding upkeep.", approach:"Rather than abandon the design, we fabricated tempered colorback glass panels digitally color-matched to the exact tile shade \u2014 the aesthetic the designer loved, in a non-porous surface that meets Glass Association of North America performance standards. Installation was single-stage and fit the construction schedule without tile's multi-step process.", result:"The finished wet room delivers the designer's vision with none of the maintenance: non-porous glass requires 60\u201370% less cleaning time and chemicals than tile-and-grout systems, and there's no grout to crack, discolor, or generate builder callbacks. The completed bathroom was later featured in print editorials.", quote:"I will not deal with grout in my shower.", quoteWho:"The homeowner's brief — honored in full", media:[] },
-  { name:"Grey mirror in a designer's own home", type:"Mirrors", sector:"Designer's Personal Home", location:"Southlake, TX",
+  { layout:"tall", name:"Grey mirror in a designer's own home", type:"Mirrors", sector:"Designer's Personal Home", location:"Southlake, TX",
     scope:"60″ × 84″ grey mirror, counter to ceiling", systems:"1/4″ grey mirror · precision cutouts for wall-mounted faucet",
     gc:"Interior designer — her own home, first of two", timeline:"Sequenced over several weeks with the full sub team", featured:true,
     desc:"Statement grey mirror in an entertaining-first powder bath — noticeable, without taking focus from the art.",
     challenge:"This was the first home we did for an interior designer \u2014 her own place in Southlake, about 10,000 square feet. The entry powder bath mattered to her because she likes to entertain, and that's the room guests actually see. She wanted it to make a statement, and she wanted the mirror to be different \u2014 but she was also planning artwork for the room, and we didn't want the mirror taking too much away from that focal point.", approach:"Grey mirror got it done on both counts: different enough to notice, quiet enough that the art stays the focus. One panel, roughly 60 by 84 inches at a quarter inch thick, running from the countertop up toward the eleven-foot ceiling, with cutouts for the wall-mounted faucet. Cutouts make any piece of glass more fragile, especially at a quarter inch \u2014 these sat far enough from the edges to keep the piece manageable, and Dion is meticulous about his measurements. Years of measuring colorback glass will do that. Fit wasn't a problem.", result:"The mirror went in as part of the larger build \u2014 a lot of moving parts, several weeks, a layered team effort by all the subs. The room came out the way she wanted: the mirror gets noticed, the art keeps the room. And she hired us again for her family's next home before they moved out of state.", quote:"Designers see everyone's work up close. Getting picked for her own home told us where we stand.", quoteWho:"Owner, Eridion Glass", media:[] },
-  { name:"Privacy that didn't look like a compromise", type:"Showers & Wet Rooms", sector:"Custom Residential", location:"DFW Suburb, TX",
+  { layout:"wide", name:"Privacy that didn't look like a compromise", type:"Showers & Wet Rooms", sector:"Custom Residential", location:"DFW Suburb, TX",
     scope:"72″ × 90″ opening — 2-panel inline enclosure, 28″ pivot door", systems:"3/8″ grey-tinted tempered · dual-swing pivot · matte black hardware",
     gc:"Builder partner", timeline:"1 week, measure to install · 2-day set", featured:true,
     desc:"Grey-tinted enclosure giving a teenager privacy in a shared bath — recommended over satin-etch because it reads as design, not a fix.",
     challenge:"In a five-bedroom new build, the boys' rooms shared a bathroom \u2014 no ensuite in the plan. The teenage son wanted more privacy than a clear enclosure gives, and his mom brought the request to the build team looking for recommendations, not products.", approach:"We recommended grey-tinted glass over the usual satin-etch. Same privacy, different message: frosted glass reads as a utility fix, while grey reads as a design decision \u2014 edgier, more modern, and right at home with the house's matte black finishes. Fabricated as a two-panel inline enclosure in 3/8-inch tempered grey glass with a 28-inch pivot door that swings both in and out.", result:"Set on the standard one-week measure-to-install timeline, about two days on site. The family loved it \u2014 and that word came back through the builder, which counts double.", quote:"Builders don't usually call about a shower. When she called to say the family loved it — that's a big deal.", quoteWho:"Owner, Eridion Glass", media:[] },
-  { name:"A staircase that looks like it's floating", type:"Specialty", sector:"Custom Residential", location:"DFW, TX",
+  { layout:"tall", name:"A staircase that looks like it's floating", type:"Specialty", sector:"Custom Residential", location:"DFW, TX",
     scope:"241.5 sq ft · 15 panels — stair flights + both loft runs", systems:"1/2″ tempered Starphire (low-iron) · adjustable standoffs",
     gc:"Stair contractor partner", timeline:"Templated per panel · ~1-day set", featured:true,
     desc:"Half a ton of near-invisible low-iron glass wrapping a floating stair and loft — set by a two-man crew in about a day.",
@@ -789,7 +813,7 @@ if (!state.projects || !state.projects.length){
   state.projects.forEach(pr => {
     const seed = SEED_PROJECTS.find(sp => sp.name === pr.name);
     if (!seed) return;
-    ['challenge','approach','result','quote','quoteWho'].forEach(k => {
+    ['challenge','approach','result','quote','quoteWho','layout'].forEach(k => {
       if (!pr[k] && seed[k]){ pr[k] = seed[k]; healed = true; }
     });
   });
