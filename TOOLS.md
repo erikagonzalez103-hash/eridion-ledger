@@ -95,6 +95,22 @@
 
 ---
 
+### Project Lookbook 🔵
+- **Location:** [`erikagonzalez103-hash/eridion-ledger`](https://github.com/erikagonzalez103-hash/eridion-ledger) → `lookbook/index.html` (single-file, no build step)
+- **URL:** erikagonzalez103-hash.github.io/eridion-ledger/lookbook/
+- **Purpose:** Portfolio site for GCs/builders/architects — hero + stats, 3 featured case studies (Challenge → Approach → Result), filterable 12-project grid by service line, photo carousels + video support
+- **Status:** 1 real case study (colorback wet room) + sample placeholders — replace before publishing publicly; ships with a Wix native-rebuild guide (`WIX-BUILD-GUIDE.md`), CMS import CSV, and a plan to publish at `lookbook.eridionglass.com` via GitHub Pages custom domain
+
+### Lookbook Builder 🔵
+- **Location:** `lookbook/builder.html` in this repo
+- **Purpose:** Assembles lookbook projects from the Image Library photo catalog — connects to the `eridion-image-library` Worker and reuses the library's faceted filter system to pick photos per case study
+
+### Brand Guidelines v2.1 🟢 (July 2026)
+- **Location:** `brand/brand-guidelines.html` in this repo (web document) · logo at `lookbook/images/eridion-logo.png`
+- **Purpose:** Brand identity reference — v2.1 switches the headline face to Jost Light (owner decision, supersedes v2.0)
+
+---
+
 ## 3. Francisco / Agent Infrastructure
 
 ### Francisco — Morning Brief / Command Center 🟡
