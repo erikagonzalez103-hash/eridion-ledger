@@ -24,6 +24,7 @@
 | Hosting | GitHub Pages (`erikagonzalez103-hash.github.io`) — push = live |
 | Primary Worker | Cloudflare `frosty-base-f01e` (Francisco, message bus, snapshot API) |
 | Ledger Worker | `eridion-xero-worker` (Xero OAuth + sanitized data endpoints) |
+| Image Worker | `eridion-image-library` — public image serving + passphrase-gated management for R2 bucket `eridion-assets` (deployed July 24, 2026) |
 | Storage | Cloudflare KV namespace `ERIDION_KV` (note: eridion-xero-worker has its own namespace — token copy issue resolved April 2026) |
 | AI model string | `claude-sonnet-4-6` (never the deprecated `claude-sonnet-4`) |
 | Front-end standard | Single-file vanilla HTML/CSS/JS, no build step |
@@ -82,12 +83,13 @@
 - **Purpose:** Weekly blog + social content generator with built-in research
 - **v3.0 roadmap:** Instagram format, SEO package generator, blog header fix, Canva spec generator, voice training, LinkedIn OAuth direct posting, Instagram API, Wix API blog auto-publish, MP4 upload, session persistence, automated cross-posting, post lifespan extender
 
-### Image Library 🟡 (July 2026 — storage live, management app awaiting Worker deploy)
-- **Location:** Cloudflare R2 bucket (storage, name TBD) · frontend `image-library.html` + Worker script `workers/image-library-worker.js`, both in [`erikagonzalez103-hash/eridion-ledger`](https://github.com/erikagonzalez103-hash/eridion-ledger)
+### Image Library 🟢 (July 2026)
+- **Location:** R2 bucket `eridion-assets` (storage) · Worker `eridion-image-library` (API) · frontend `image-library.html` + Worker source `workers/image-library-worker.js` in [`erikagonzalez103-hash/eridion-ledger`](https://github.com/erikagonzalez103-hash/eridion-ledger)
 - **URL:** erikagonzalez103-hash.github.io/eridion-ledger/image-library.html
-- **Purpose:** Tagged image library — filter by tag chips, search, upload w/ tags, edit tags, delete, and **Copy URL** for a stable public link per image (Worker serves `/img/<key>`)
-- **Setup remaining (Erika, one time):** deploy the Worker per the steps at the top of `workers/image-library-worker.js` (paste script → bind R2 bucket as `IMAGES` → set `LIBRARY_KEY` secret), then enter the Worker URL + passphrase in the app's ⚙ Settings
-- **Manual fallback:** dash.cloudflare.com → R2 → open bucket → click an image → Download
+- **Worker:** https://eridion-image-library.erikagonzalez103.workers.dev (deployed July 24, 2026) — public image URLs are `…workers.dev/img/<filename>`; list/upload/tag/delete gated by `LIBRARY_KEY`
+- **Purpose:** Tagged image library — filter by tag chips, search, upload w/ tags, edit tags, delete, and **Copy URL** for a stable public link per image
+- **First open:** enter the Worker URL + passphrase in the app's ⚙ Settings (stored in that browser only)
+- **Manual fallback:** dash.cloudflare.com → R2 → `eridion-assets` → click an image → Download
 
 ---
 
