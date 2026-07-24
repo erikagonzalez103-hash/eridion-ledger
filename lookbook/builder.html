@@ -464,10 +464,13 @@ function renderPhotos(){
     const b = document.createElement('button');
     b.className = 'thumb';
     b.title = (p.caption || p.url) + (p.jobLabel ? ' — ' + p.jobLabel : '');
-    b.innerHTML = `<img src="${p.thumb}" loading="lazy" alt="">` +
-      (p.isVideo ? '<span class="vid">VIDEO</span>' : '') +
-      (used.has(p.url) ? '<span class="used">✓</span>' : '') +
-      `<span class="cap">${(p.caption || p.job || '').replace(/</g,'&lt;')}</span>`;
+    const im = document.createElement('img');
+    im.src = p.thumb; im.loading = 'lazy'; im.alt = '';
+    b.appendChild(im);
+    const mark = (cls, txt) => { const sp = document.createElement('span'); sp.className = cls; sp.textContent = txt; b.appendChild(sp); };
+    if (p.isVideo) mark('vid', 'VIDEO');
+    if (used.has(p.url)) mark('used', '✓');
+    mark('cap', p.caption || p.jobLabel || '');
     b.onclick = () => addToProject(p);
     g.appendChild(b);
   });
@@ -497,7 +500,8 @@ function addToProject(photo){
   }
   const proj = state.projects[state.selected];
   if (proj.media.some(m => m.url === photo.url)) return;
-  proj.media.push({ url: photo.url, caption: photo.caption, isVideo: photo.isVideo });
+  proj.media.push({ url: photo.url, thumb: photo.thumb !== photo.url ? photo.thumb : undefined,
+    caption: photo.caption, isVideo: photo.isVideo });
   save(); renderProjects(); renderPhotos();
 }
 
@@ -606,7 +610,11 @@ function toLookbookProjects(){
     name: p.name, type: p.type, sector: p.sector, location: p.location,
     scope: p.scope, systems: p.systems, gc: p.gc, timeline: p.timeline,
     ...(p.featured ? { featured: true } : {}),
-    media: p.media.map(m => m.isVideo ? { video: m.url } : { img: m.url, alt: m.caption || p.name }),
+    media: p.media.map(m => {
+      const entry = m.isVideo ? { video: m.url } : { img: m.url, alt: m.caption || p.name };
+      if (m.thumb) entry.thumb = m.thumb;
+      return entry;
+    }),
     desc: p.desc
   }));
 }

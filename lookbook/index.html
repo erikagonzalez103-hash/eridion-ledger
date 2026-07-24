@@ -493,6 +493,8 @@ const PROJECTS = [
    desc:"Interior commercial glazing package — sample project, replace with a real one."}
 ];
 
+function esc(v){ return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
 /* ── Media rendering: single image/video, or carousel when 2+ ── */
 function mediaNode(m){
   if (m.video){
@@ -508,7 +510,7 @@ function mediaNode(m){
   }
   const d = document.createElement("div");
   d.className = "ph " + (m.ph || "ph-a");
-  d.innerHTML = '<div class="mullions"></div><span class="ph-tag">' + (m.tag || "Sample") + "</span>";
+  d.innerHTML = '<div class="mullions"></div><span class="ph-tag">' + esc(m.tag || "Sample") + "</span>";
   return d;
 }
 
@@ -599,9 +601,9 @@ function coverNode(p){
   wrap.className = "media-cover";
   const m = (p.media && p.media[0]) || {ph:"ph-a"};
   if (m.video){
-    if (m.poster){
+    if (m.poster || m.thumb){
       const i = document.createElement("img");
-      i.src = m.poster; i.alt = ""; i.loading = "lazy";
+      i.src = m.poster || m.thumb; i.alt = ""; i.loading = "lazy";
       wrap.appendChild(i);
     } else {
       wrap.appendChild(mediaNode({ph:"ph-a", tag:"Video"}));
@@ -610,6 +612,10 @@ function coverNode(p){
     badge.className = "play-badge";
     badge.innerHTML = "<span>▶</span>";
     wrap.appendChild(badge);
+  } else if (m.img && m.thumb){
+    const i = document.createElement("img");
+    i.src = m.thumb; i.alt = m.alt || ""; i.loading = "lazy";
+    wrap.appendChild(i);
   } else {
     wrap.appendChild(mediaNode(m));
   }
@@ -625,10 +631,10 @@ function render(){
     const body = document.createElement("div");
     body.className = "tile-body";
     body.innerHTML =
-      '<div class="type">' + p.type + " · " + p.sector + "</div>" +
-      "<h4>" + p.name + "</h4>" +
-      '<div class="meta">' + p.location + "</div>" +
-      '<div class="scope">' + p.scope + "</div>";
+      '<div class="type">' + esc(p.type) + " · " + esc(p.sector) + "</div>" +
+      "<h4>" + esc(p.name) + "</h4>" +
+      '<div class="meta">' + esc(p.location) + "</div>" +
+      '<div class="scope">' + esc(p.scope) + "</div>";
     t.appendChild(body);
     t.onclick = () => p.caseId ? document.getElementById(p.caseId).scrollIntoView({behavior:"smooth"}) : openModal(p);
     gridEl.appendChild(t);
@@ -645,10 +651,10 @@ function openModal(p){
   document.getElementById("modalTitle").textContent = p.name;
   document.getElementById("modalLoc").textContent = p.location;
   document.getElementById("modalFacts").innerHTML =
-    '<div><div class="k">Scope</div><div class="v">' + p.scope + '</div></div>' +
-    '<div><div class="k">Systems</div><div class="v">' + p.systems + '</div></div>' +
-    '<div><div class="k">GC / Client</div><div class="v">' + p.gc + '</div></div>' +
-    '<div><div class="k">Timeline</div><div class="v">' + p.timeline + '</div></div>';
+    '<div><div class="k">Scope</div><div class="v">' + esc(p.scope) + '</div></div>' +
+    '<div><div class="k">Systems</div><div class="v">' + esc(p.systems) + '</div></div>' +
+    '<div><div class="k">GC / Client</div><div class="v">' + esc(p.gc) + '</div></div>' +
+    '<div><div class="k">Timeline</div><div class="v">' + esc(p.timeline) + '</div></div>';
   document.getElementById("modalDesc").textContent = p.desc;
   back.classList.add("open");
 }
