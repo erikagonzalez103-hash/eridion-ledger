@@ -223,7 +223,7 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
 <body>
 
 <div class="notice" id="notice">
-  <strong>Template preview.</strong> All five featured case studies are real; some grid projects are still sample data — replace before publishing.
+  <strong>Template preview.</strong> All six featured case studies are real; some grid projects are still sample data — replace before publishing.
   <button onclick="document.getElementById('notice').style.display='none'">Dismiss</button>
 </div>
 
@@ -385,6 +385,31 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
       </div>
     </div>
   </article>
+
+  <!-- REAL PROJECT — daylight wine room (owner interview, July 2026) -->
+  <article class="case cut rv" id="case-wineroom">
+    <div class="case-media media" data-media="case-wineroom"></div>
+    <div class="case-body">
+      <div class="eyebrow">Luxury Custom Home · Specialty</div>
+      <h3>A wine room in full daylight</h3>
+      <div class="loc">Off the Dining Room, Overlooking the Golf Course</div>
+      <div class="case-facts">
+        <div><div class="k">Scope</div><div class="v">4 slim-profile aluminum-framed panels — one an 11-ft full-height door</div></div>
+        <div><div class="k">Systems</div><div class="v">Insulated, UV-protected glazing · channel-set · pivot hinges</div></div>
+        <div><div class="k">Client</div><div class="v">Builder partner — award-winning custom homes</div></div>
+        <div><div class="k">Coordination</div><div class="v">Interior enclosure by Eridion, matched with the exterior glazing sub</div></div>
+      </div>
+      <div class="case-story">
+        <p><strong>Challenge</strong>This wine room sits right off the dining room with glass on two sides: ours on the inside, floor-to-ceiling windows on the corner, overlooking the golf course. The builder is one of our regular partners — they build beautiful, award-winning homes — and this was meant to be a dramatic focal point the family uses year-round. The honest conversation up front: a glass room in full daylight is the opposite of a wine cave. This was actually our second one — the first was a temperature-controlled room inside a sunroom — so we'd already worked through those considerations with a builder and designer before.</p>
+        <p><strong>Approach</strong>The room is climate controlled, UV protected, and highly insulated — and the serious wine lives in cases and coolers in the cabinets beneath the racks. It's an entertaining and display room, definitely not an aging cellar, and everything was specced around that honesty. We did all the interior work: four slim-profile aluminum-framed panels, one of them a full-height eleven-foot door on pivot hinges, so a door that size opens effortlessly. We partnered with the window sub so the hardware matched and the insulation and UV protection worked as one assembly. The channel system is one we use often in small commercial, and we meet stone all the time in storefronts — so landing the frames against the stacked stone was well within our wheelhouse: flashing and sealed channels between the stone and the frame, for good measure, even with the exterior glazing carrying its own.</p>
+        <p><strong>Result</strong>The room became exactly what it was meant to be: the focal point you see from the dining table, in use year-round. As for the builder's reaction — it's the nicest thing anyone has ever said about our glazing, and too generous to put in writing. We'll just say we heard it, and that we keep working with them regularly, on their luxury homes and their custom ones too.</p>
+      </div>
+      <div class="case-quote">
+        <p>“The nicest thing a builder has ever said about our work — we'll keep the exact words to ourselves.”</p>
+        <div class="who">On the builder's reaction</div>
+      </div>
+    </div>
+  </article>
 </section>
 
 <!-- ═══ FULL PORTFOLIO GRID ═══ -->
@@ -516,11 +541,12 @@ const PROJECTS = [
    gc:"Direct to homeowner", timeline:"1 week from final measure",
    media:[{ph:"ph-c", tag:"Sample"}],
    desc:"Remodel-scope shower and mirror package coordinated with the homeowner's contractor. Sample project."},
-  {name:"Wine Cellar Glass Enclosure", type:"Specialty", sector:"Custom Residential", location:"City, TX",
-   scope:"Climate-rated glass wall + pivot door", systems:"Insulated glass · patch fittings",
-   gc:"[Builder Name]", timeline:"Coordinated with millwork",
-   media:[{ph:"ph-a", tag:"Sample"}],
-   desc:"Full-height cellar enclosure holding temperature and humidity spec without visual bulk. Sample project."},
+  {layout:"wide", name:"A wine room in full daylight", type:"Specialty", sector:"Luxury Custom Home", location:"Overlooking the golf course",
+   scope:"4 slim-profile aluminum panels — one 11-ft pivot door", systems:"Insulated, UV-protected glazing · channel-set",
+   gc:"Builder partner — award-winning custom homes", timeline:"Coordinated with the exterior glazing sub",
+   media:[{ph:"ph-a", tag:"Add photo"}],
+   caseId:"case-wineroom",
+   desc:"A climate-controlled, UV-protected glass wine room in full daylight — an entertaining room, not an aging cellar, off the dining room with the golf course beyond."},
   {layout:"tall", name:"A staircase that looks like it's floating", type:"Specialty", sector:"Custom Residential", location:"DFW, TX",
    scope:"241.5 sq ft · 15 panels — stair + both loft runs", systems:"1/2″ tempered Starphire · adjustable standoffs",
    gc:"Stair contractor partner", timeline:"Templated per panel · ~1-day set",
