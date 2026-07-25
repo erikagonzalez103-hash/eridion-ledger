@@ -319,7 +319,7 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
 <body>
 
 <div class="notice" id="notice">
-  <strong>Template preview.</strong> All eleven featured case studies are real; some grid projects are still sample data — replace before publishing.
+  <strong>Template preview.</strong> All twelve featured case studies are real; some grid projects are still sample data — replace before publishing.
   <button onclick="document.getElementById('notice').style.display='none'">Dismiss</button>
 </div>
 
@@ -631,6 +631,31 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
       </div>
     </div>
   </article>
+
+  <article class="case cut rv wide" id="case-office">
+    <div class="case-media media" data-media="case-office"></div>
+    <div class="case-body">
+      <div class="eyebrow">Builder's Own Office · Colorback Glass</div>
+      <h3>The backsplash they ordered twice</h3>
+      <div class="loc">Little Rock, AR</div>
+      <div class="case-facts">
+        <div><div class="k">Scope</div><div class="v">Matte colorback kitchenette backsplash — a 12-ft run with a 3-ft return, within a whole-office glass package</div></div>
+        <div><div class="k">Systems</div><div class="v">Satin-etched colorback glass · matte face out, gloss to the wall · near-black</div></div>
+        <div><div class="k">Client</div><div class="v">Builder partner — their own office, a 13-person team</div></div>
+        <div><div class="k">Timeline</div><div class="v">The office set the schedule; the backsplash itself goes up in about an hour</div></div>
+      </div>
+      <div class="case-story">
+        <p><strong>Challenge</strong>This is a builder partner's own office in Little Rock — a thirteen-person team, and we did the glass throughout. But the interesting part is how the kitchenette happened: they treated their new office like a model home and asked us what <em>we</em> wanted to showcase in it. Any sub who's ever wished a builder would just let them show what they can do knows what an invitation that is. We chose something most people haven't seen: matte colorback glass.</p>
+        <p><strong>Approach</strong>Colorback glass is usually glossy — that's the look people know from our kitchens and wet rooms. This is the same product, flipped: satin-etched glass, back-painted, with the gloss face against the wall carrying the color and the soft etched face outward. The finish reads matte — near-black here, quiet against the dark cabinets — but it behaves exactly like glass, because it is glass: no grout, wipes clean with window cleaner, vinegar, or alcohol. A twelve-foot run with a three-foot return, cutouts for every outlet and switch (the team later swapped the outlets to black to finish the look).</p>
+        <p>Then the backsplash grew a second job. The first time I saw the matte finish I thought: that looks like a chalkboard. It evolved from there — the team started writing on it with neon dry-erase markers, and the break-room backsplash became the office message board. Wipes clean, obviously. It's glass.</p>
+        <p><strong>Result</strong>The whole office ran on a construction schedule, but the backsplash itself went up in about an hour — colorback is a fast install once the measuring is done right. The real verdict came later: the team grew, the builder moved to a bigger office, and they asked us to build the same backsplash again. It's already on the wall in the new space. A builder sees every product on the market — and when they moved, this is the one they took with them.</p>
+      </div>
+      <div class="case-quote">
+        <p>“When they moved offices, they asked for the same backsplash again. That's the whole review.”</p>
+        <div class="who">Owner, Eridion Glass</div>
+      </div>
+    </div>
+  </article>
 </section>
 
 <!-- ═══ FULL PORTFOLIO GRID ═══ -->
@@ -810,11 +835,12 @@ const PROJECTS = [
    media:[{ph:"ph-a", tag:"Add photo"}],
    caseId:"case-storefront",
    desc:"Seven-plus brand storefronts for the same GC across DFW — each brand's standards held, from bronze mirror to smoky grey, storefront to interior glass."},
-  {name:"[Office Suite Glass Package]", type:"Storefronts", sector:"Commercial", location:"City, TX",
-   scope:"Glazed office fronts + conference wall", systems:"Interior storefront · glass partitions",
-   gc:"[GC Name]", timeline:"4 weeks",
-   media:[{ph:"ph-d", tag:"Sample"}],
-   desc:"Interior commercial glazing package — sample project, replace with a real one."}
+  {layout:"wide", name:"The backsplash they ordered twice", type:"Colorback Glass", sector:"Builder's Own Office", location:"Little Rock, AR",
+   scope:"Matte colorback kitchenette backsplash — 12-ft run + 3-ft return", systems:"Satin-etched colorback · matte face out · near-black",
+   gc:"Builder partner — their own office, 13-person team", timeline:"About an hour on the wall",
+   media:[{ph:"ph-d", tag:"Add photo"}],
+   caseId:"case-office",
+   desc:"Matte colorback in a builder's own break room — reads like a chalkboard, cleans like glass, doubles as the office message board. Re-ordered when they moved offices."}
 ];
 
 function esc(v){ return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
