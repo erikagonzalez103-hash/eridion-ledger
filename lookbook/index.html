@@ -319,7 +319,7 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
 <body>
 
 <div class="notice" id="notice">
-  <strong>Template preview.</strong> All eight featured case studies are real; some grid projects are still sample data — replace before publishing.
+  <strong>Template preview.</strong> All nine featured case studies are real; some grid projects are still sample data — replace before publishing.
   <button onclick="document.getElementById('notice').style.display='none'">Dismiss</button>
 </div>
 
@@ -556,6 +556,31 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
       </div>
     </div>
   </article>
+
+  <article class="case cut rv" id="case-storefront">
+    <div class="case-media media" data-media="case-storefront"></div>
+    <div class="case-body">
+      <div class="eyebrow">National Retail · Storefronts</div>
+      <h3>One web search, then storefronts across DFW</h3>
+      <div class="loc">Dallas–Fort Worth</div>
+      <div class="case-facts">
+        <div><div class="k">Scope</div><div class="v">Storefront and interior glass packages for seven-plus retail locations over four years</div></div>
+        <div><div class="k">Systems</div><div class="v">Aluminum storefront systems · bronze and smoky-grey mirrors · glass shelving and partitions</div></div>
+        <div><div class="k">Client</div><div class="v">Retail GC building out stores for a national eyewear company — same GC, every store</div></div>
+        <div><div class="k">Timeline</div><div class="v">Storefront up in about two days; interior glass staged around the other trades</div></div>
+      </div>
+      <div class="case-story">
+        <p><strong>Challenge</strong>Early in Eridion's history, a general contractor found us through a web search. He held the buildout contract for a national eyewear company with several retail brands under it — stores in shopping centers and malls across DFW, each one on a hard opening date. On a brand program like this, the specs arrive settled: the national office has already negotiated materials with its own vendors, and everything ships straight to the site. That's a different rhythm from the commercial and residential work where we're advising on glass and methods from the start — here, the skill is taking what procurement sends and turning it into a finished store, correctly, on schedule, brand after brand.</p>
+        <p><strong>Approach</strong>After the first few stores, the brand standards stopped being a puzzle. You learn which brand runs bronze mirror and which runs smoky grey. You learn which stores take a full interior package — mirrors, glass shelving, partitions — and which are storefront-only. You learn what changes when there's an optometrist in the store and a physician's requirements enter the drawings. Once we knew each brand's differentiators, we could move fast: a storefront goes up in about two days, interior glass in one or two more, sequenced around the brake metal delivery and the other subs. Our installers are skilled in both commercial and residential work — you don't find that often, and it's what lets the same crew set a storefront on Tuesday and a custom shower on Thursday.</p>
+        <p>The store pictured here went in around Christmas, in the middle of one of the busiest shopping and entertainment centers in the area — one level, no back corridor, which meant carrying glass by hand a few hundred yards, weaving through holiday crowds, load after load. That was the hard part. The install itself went smoothly.</p>
+        <p><strong>Result</strong>Seven-plus storefronts for the same contractor over four years, all across DFW, from “Opening Soon” vinyl to open doors. When the next store comes up, they know who to call — and they keep calling.</p>
+      </div>
+      <div class="case-quote">
+        <p>“Every brand has a standard, and they're trusting you to hold it — store after store, across the whole market.”</p>
+        <div class="who">Owner, Eridion Glass</div>
+      </div>
+    </div>
+  </article>
 </section>
 
 <!-- ═══ FULL PORTFOLIO GRID ═══ -->
@@ -722,11 +747,12 @@ const PROJECTS = [
    gc:"Direct to homeowner", timeline:"1 week",
    media:[{ph:"ph-f", tag:"Sample"}],
    desc:"Studio-quality mirror wall with near-invisible seams and safety backing. Sample project."},
-  {name:"[Retail Storefront]", type:"Storefronts", sector:"Commercial", location:"City, TX",
-   scope:"Storefront framing + all-glass entrance", systems:"Aluminum storefront · tempered entrance",
-   gc:"[GC Name]", timeline:"6 weeks",
-   media:[{ph:"ph-a", tag:"Sample"}],
-   desc:"Commercial storefront and entrance package — sample project, replace with a real one."},
+  {layout:"tall", name:"One web search, then storefronts across DFW", type:"Storefronts", sector:"National Retail", location:"Dallas–Fort Worth",
+   scope:"Storefront + interior glass for seven-plus retail locations over four years", systems:"Aluminum storefront · bronze & smoky-grey mirrors · shelving & partitions",
+   gc:"Retail GC — national eyewear brand program", timeline:"Storefront up in ~2 days · interior glass around the other trades",
+   media:[{ph:"ph-a", tag:"Add photo"}],
+   caseId:"case-storefront",
+   desc:"Seven-plus brand storefronts for the same GC across DFW — each brand's standards held, from bronze mirror to smoky grey, storefront to interior glass."},
   {name:"[Office Suite Glass Package]", type:"Storefronts", sector:"Commercial", location:"City, TX",
    scope:"Glazed office fronts + conference wall", systems:"Interior storefront · glass partitions",
    gc:"[GC Name]", timeline:"4 weeks",
