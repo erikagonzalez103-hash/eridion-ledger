@@ -13,6 +13,11 @@
      search credit should accrue to your domain, not github.io.
 <link rel="canonical" href="https://lookbook.eridionglass.com/">
 -->
+<link rel="preconnect" href="https://eridion-image-library.erikagonzalez103.workers.dev" crossorigin>
+<link rel="dns-prefetch" href="https://eridion-image-library.erikagonzalez103.workers.dev">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23153862'/%3E%3Cpath d='M64 0v18L46 0z' fill='%2332A200'/%3E%3Ctext x='32' y='45' font-family='Arial,sans-serif' font-size='38' font-weight='bold' fill='white' text-anchor='middle'%3EE%3C/text%3E%3C/svg%3E">
+<meta name="theme-color" content="#153862">
+<noscript><style>.rv{opacity:1 !important;transform:none !important;}</style></noscript>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Eridion Glass">
 <meta property="og:title" content="Eridion Glass — Custom Glazing Case Studies">
@@ -619,12 +624,16 @@ function mediaNode(m){
   }
   if (m.img){
     const i = document.createElement("img");
-    i.src = m.img; i.alt = m.alt || ""; i.loading = "lazy";
+    i.src = m.img; i.alt = m.alt || ""; i.loading = "lazy"; i.decoding = "async";
+    i.onerror = () => {
+      if (!i.dataset.retried){ i.dataset.retried = "1"; i.src = m.img + (m.img.includes("?") ? "&" : "?") + "r=1"; return; }
+      i.replaceWith(mediaNode({ph:"ph-a", tag:"Photo loading…"}));
+    };
     return applyCrop(i, m);
   }
   const d = document.createElement("div");
   d.className = "ph " + (m.ph || "ph-a");
-  d.innerHTML = '<div class="mullions"></div><span class="ph-tag">' + esc(m.tag || "Sample") + "</span>";
+  d.innerHTML = '<div class="mullions"></div><span class="ph-tag">' + esc(m.tag !== undefined ? m.tag : "Sample") + "</span>";
   return d;
 }
 
@@ -711,7 +720,8 @@ function coverNode(p){
   if (m.video){
     if (m.poster || m.thumb){
       const i = document.createElement("img");
-      i.src = m.poster || m.thumb; i.alt = ""; i.loading = "lazy";
+      i.src = m.poster || m.thumb; i.alt = ""; i.loading = "lazy"; i.decoding = "async";
+      i.onerror = () => i.replaceWith(mediaNode({ph:"ph-a", tag:"Video"}));
       wrap.appendChild(i);
     } else {
       wrap.appendChild(mediaNode({ph:"ph-a", tag:"Video"}));
@@ -722,7 +732,11 @@ function coverNode(p){
     wrap.appendChild(badge);
   } else if (m.img && m.thumb){
     const i = document.createElement("img");
-    i.src = m.thumb; i.alt = m.alt || ""; i.loading = "lazy";
+    i.src = m.thumb; i.alt = m.alt || ""; i.loading = "lazy"; i.decoding = "async";
+    i.onerror = () => {
+      if (!i.dataset.retried){ i.dataset.retried = "1"; i.src = m.img || m.thumb; return; }
+      i.replaceWith(mediaNode({ph:"ph-a", tag:""}));
+    };
     wrap.appendChild(applyCrop(i, m));
   } else {
     wrap.appendChild(mediaNode(m));
@@ -753,6 +767,7 @@ render();
 
 /* ── Hero spotlight: projects flagged featured ── */
 const spotEl = document.getElementById("heroSpot");
+try {
 if (spotEl){
   const sh = document.createElement("div");
   sh.className = "spot-head";
@@ -771,6 +786,7 @@ if (spotEl){
     spotEl.appendChild(b);
   });
 }
+} catch(e) { console.warn("spotlight:", e); }
 
 /* ── Modal: full media carousel + facts ── */
 const back = document.getElementById("modalBack");
@@ -820,13 +836,18 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal()
       }
     }))
   };
-  const sc = document.createElement("script");
-  sc.type = "application/ld+json";
-  sc.textContent = JSON.stringify(ld);
-  document.head.appendChild(sc);
+  try {
+    const sc = document.createElement("script");
+    sc.type = "application/ld+json";
+    sc.textContent = JSON.stringify(ld);
+    document.head.appendChild(sc);
+  } catch(e) { console.warn("jsonld:", e); }
 })();
 
 /* ── Scroll reveal ── */
+if (!("IntersectionObserver" in window)){
+  document.querySelectorAll(".rv").forEach(el => el.classList.add("in"));
+}
 const io = new IntersectionObserver(entries => {
   entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
 }, {threshold: 0.12});
