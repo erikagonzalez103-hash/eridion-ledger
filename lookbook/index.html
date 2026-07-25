@@ -318,10 +318,6 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
 </head>
 <body>
 
-<div class="notice" id="notice">
-  <strong>Template preview.</strong> All twelve featured case studies are real; some grid projects are still sample data — replace before publishing.
-  <button onclick="document.getElementById('notice').style.display='none'">Dismiss</button>
-</div>
 
 <header class="hdr">
   <a class="wordmark" href="#top" aria-label="Eridion Glass">
@@ -656,6 +652,31 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
       </div>
     </div>
   </article>
+
+  <article class="case cut rv" id="case-pivot">
+    <div class="case-media media" data-media="case-pivot"></div>
+    <div class="case-body">
+      <div class="eyebrow">Boutique Gym · Specialty</div>
+      <h3>Five hundred pounds, one pinky</h3>
+      <div class="loc">Little Rock, AR</div>
+      <div class="case-facts">
+        <div><div class="k">Scope</div><div class="v">8′ × 8′ center-pivot glass door with a sidelite filling the opening</div></div>
+        <div><div class="k">Systems</div><div class="v">1/2″ clear tempered · fully framed · center-pivot hinges, special-ordered from Germany</div></div>
+        <div><div class="k">Client</div><div class="v">Veteran-owned gym — referred by an employee of one of our builder partners</div></div>
+        <div><div class="k">The wait</div><div class="v">Three weeks for the hinges to cross the Atlantic — worth it</div></div>
+      </div>
+      <div class="case-story">
+        <p><strong>Challenge</strong>A veteran-owned gym in Little Rock found us the best way there is: a gym member who worked for one of our builder partners told the owner to give us a call. The problem was an opening — no door at all — between the class space and a hallway that led to the smoothie bar and two recovery rooms. Classes and clanging weights poured noise straight down that hall. But a regular set of double doors would have choked the traffic; the way the space flowed, with people moving between classes, smoothies, and recovery, swinging doors would slow everyone down all day to solve a problem that only existed during class.</p>
+        <p><strong>Approach</strong>We suggested a center-pivot door: a single eight-by-eight-foot panel of half-inch glass that rotates on pivot points at top and bottom, with a slim sidelite filling the rest of the opening. The physics is the whole trick — the pivots carry the entire weight of the door on its axis, so all five hundred pounds move with a pinky finger. Parked open, it disappears and the opening flows like there's no door at all; one easy push and the class is behind glass. The half-inch thickness matters twice: it keeps a panel that size from bowing, and the sheer mass of the glass is what muffles the noise — this was never meant to be soundproof, just to take the edge off the clanging, and it does. Fully framed, so the edges can't chip and the panel is protected from shattering. The hinges were a special order from Germany — three weeks in transit. (We've since found a U.S. supplier, so the next one ships faster.)</p>
+        <p>Setting a five-hundred-pound panel is a leverage game, and the crew has it down to a science — but the owner, a genuinely muscular guy, wanted to help anyway. OSHA rules don't allow it, so he stood close behind, just in case. That's the kind of client he was.</p>
+        <p><strong>Result</strong>He got exactly the cool vibe he wanted — at the opening, we stood back and watched everyone ogling the door. The gym itself didn't make it, which genuinely made us sad; the owner was passionate about the place. But here's the part that says everything about the work: the space is an indoor golf-simulator business now, and the new owners kept the door. Tenants change. The right answer for a space stays.</p>
+      </div>
+      <div class="case-quote">
+        <p>“The pivots carry all five hundred pounds — you can move it with your pinky.”</p>
+        <div class="who">Owner, Eridion Glass</div>
+      </div>
+    </div>
+  </article>
 </section>
 
 <!-- ═══ FULL PORTFOLIO GRID ═══ -->
@@ -818,11 +839,12 @@ const PROJECTS = [
    ],
    caseId:"case-staircase",
    desc:"Half a ton of near-invisible low-iron glass wrapping a floating stair and loft — set by a two-man crew in about a day."},
-  {name:"Full-Wall Vanity Mirrors", type:"Mirrors", sector:"Luxury Custom Home", location:"City, TX",
-   scope:"6 baths, wall-to-wall mirrors with integrated lighting cutouts", systems:"Polished-edge mirror · precision cutouts",
-   gc:"[Builder Name]", timeline:"2 weeks",
-   media:[{ph:"ph-c", tag:"Sample"}],
-   desc:"Wall-to-wall vanity mirrors with precision cutouts for sconces and outlets. Sample project."},
+  {layout:"tall", name:"Five hundred pounds, one pinky", type:"Specialty", sector:"Boutique Gym", location:"Little Rock, AR",
+   scope:"8′ × 8′ center-pivot glass door + sidelite filling the opening", systems:"1/2″ clear tempered · fully framed · German center-pivot hinges",
+   gc:"Veteran-owned gym — referred by a builder partner's employee", timeline:"3-week special-order hinges — worth the wait",
+   media:[{ph:"ph-c", tag:"Add photo"}],
+   caseId:"case-pivot",
+   desc:"An 8×8 center-pivot door in half-inch glass — 500 pounds that move with a pinky. Muffles the class noise without choking the traffic. The gym changed hands; the door stayed."},
   {layout:"wide", name:"The basketball hoop on the other side of the wall", type:"Mirrors", sector:"Athletic Performance Facility", location:"DFW, TX",
    scope:"~100 ft of mirror wall — full demo of the failed wall, new framed install", systems:"Safety-backed mirror · framed mounting with room to flex",
    gc:"Facility owner — lead physical therapist, found us online", timeline:"14–16-hour controlled demo, then the new wall",
