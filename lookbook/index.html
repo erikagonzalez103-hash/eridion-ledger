@@ -152,7 +152,15 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
 @media(max-width:720px){.hdr nav a:not(.cta){display:none;}}
 
 /* ── HERO ────────────────────────────────────────── */
-.hero{padding:10vh 5vw 8vh;max-width:1200px;margin:0 auto;}
+.hero{padding:10vh 5vw 8vh;max-width:1200px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:56px;align-items:center;}
+@media(max-width:960px){.hero{grid-template-columns:1fr;gap:40px;}}
+.hero-spot{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.spot-card{cursor:pointer;text-align:left;background:#fff;border:1px solid var(--divider);padding:0 0 12px;font-family:inherit;transition:transform .2s,box-shadow .2s,border-color .2s;}
+.spot-card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(14,39,65,.10);border-color:var(--navy);}
+.spot-card .media-cover{height:118px;}
+.spot-card .s-type{font-size:9.5px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--slate);margin:10px 12px 4px;}
+.spot-card .s-name{font-family:var(--head);font-weight:400;font-size:15px;line-height:1.3;color:var(--navy);margin:0 12px;}
+@media(max-width:960px){.hero-spot{max-width:480px;}}
 .hero .eyebrow{color:var(--slate);margin-bottom:20px;}
 .hero h1{font-size:44px;max-width:22ch;}
 .hero h1::after{content:"";display:block;width:56px;height:5px;background:var(--green);margin-top:18px;}
@@ -332,11 +340,14 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
 </header>
 
 <section class="hero" id="top">
-  <div class="eyebrow rv">Glazing · Design · Craft — DFW Metroplex</div>
-  <h1 class="rv">Custom glazing, built to spec.</h1>
-  <p class="lead rv">Eridion Glass is a husband-and-wife shop fabricating and installing custom glazing for high-end homes.</p>
-  <p class="sub rv">We field-verify every opening and set each panel to spec — so the people who quote your job are the same ones who stand behind it. A selection of that work follows.</p>
-  <a class="hero-cta rv" href="#featured">View selected projects ↓</a>
+  <div class="hero-copy">
+    <div class="eyebrow rv">Glazing · Design · Craft — DFW Metroplex</div>
+    <h1 class="rv">Custom glazing, built to spec.</h1>
+    <p class="lead rv">Eridion Glass is a husband-and-wife shop fabricating and installing custom glazing for high-end homes.</p>
+    <p class="sub rv">We field-verify every opening and set each panel to spec — so the people who quote your job are the same ones who stand behind it. A selection of that work follows.</p>
+    <a class="hero-cta rv" href="#featured">View selected projects ↓</a>
+  </div>
+  <div class="hero-spot rv" id="heroSpot" aria-label="Featured projects"></div>
 </section>
 <div class="hero-stats rv">
   <div class="stat"><div class="num">25+</div><div class="lbl">Years Master Glazier</div></div>
@@ -811,13 +822,13 @@ const PROJECTS = [
    media:[{ph:"ph-d", tag:"Add photo"}],
    caseId:"case-jewelbox",
    desc:"A full-height steam enclosure framed in polished nickel — the Italian art-deco look done right, in Starphire against dramatic veined marble. Every anchor a held breath."},
-  {layout:"tall", name:"Clean enough for a surgeon", type:"Colorback Glass", sector:"Medical Suite Remodel", location:"DFW, TX",
+  {layout:"tall", featured:true, name:"Clean enough for a surgeon", type:"Colorback Glass", sector:"Medical Suite Remodel", location:"DFW, TX",
    scope:"2 colorback panels 4′×8′ · enclosure, mirrors, pocket door", systems:"Grey-blue colorback · designer-palette match",
    gc:"GC partner — studs-out commercial remodel", timeline:"Daytime work — doctor operating from another suite",
    media:[{ph:"ph-c", tag:"Add photo"}],
    caseId:"case-surgeon",
    desc:"Grey-blue colorback in a surgeon's private shower — no grout, sprayable with alcohol — plus a consultation pocket door and custom mirrors through the suite. One remodel became three years of work."},
-  {layout:"wide", name:"A wine room in full daylight", type:"Specialty", sector:"Luxury Custom Home", location:"Overlooking the golf course",
+  {layout:"wide", featured:true, name:"A wine room in full daylight", type:"Specialty", sector:"Luxury Custom Home", location:"Overlooking the golf course",
    scope:"4 slim-profile aluminum panels — one 11-ft pivot door", systems:"UV-protected glazing · channel-set",
    gc:"Builder partner — award-winning custom homes", timeline:"Coordinated with the exterior glazing sub",
    media:[
@@ -827,7 +838,7 @@ const PROJECTS = [
    ],
    caseId:"case-wineroom",
    desc:"A UV-protected glass wine room in full daylight — an entertaining room, not an aging cellar, off the dining room with the golf course beyond."},
-  {layout:"tall", name:"A staircase that looks like it's floating", type:"Specialty", sector:"Custom Residential", location:"DFW, TX",
+  {layout:"tall", featured:true, name:"A staircase that looks like it's floating", type:"Specialty", sector:"Custom Residential", location:"DFW, TX",
    scope:"241.5 sq ft · 15 panels — stair + both loft runs", systems:"1/2″ tempered Starphire · adjustable standoffs",
    gc:"Stair contractor partner", timeline:"Templated per panel · ~1-day set",
    media:[
@@ -840,7 +851,7 @@ const PROJECTS = [
    ],
    caseId:"case-staircase",
    desc:"Half a ton of near-invisible low-iron glass wrapping a floating stair and loft — set by a two-man crew in about a day."},
-  {layout:"tall", name:"Five hundred pounds, one pinky", type:"Specialty", sector:"Boutique Gym", location:"Little Rock, AR",
+  {layout:"tall", featured:true, name:"Five hundred pounds, one pinky", type:"Specialty", sector:"Boutique Gym", location:"Little Rock, AR",
    scope:"8′ × 8′ center-pivot glass door + sidelite filling the opening", systems:"1/2″ clear tempered · fully framed · German center-pivot hinges",
    gc:"Veteran-owned gym — referred by a builder partner's employee", timeline:"3-week special-order hinges — worth the wait",
    media:[{ph:"ph-c", tag:"Add photo"}],
@@ -1056,6 +1067,23 @@ function render(){
   });
 }
 render();
+
+/* ── Hero spotlight: projects flagged featured ── */
+const spotEl = document.getElementById("heroSpot");
+if (spotEl){
+  PROJECTS.filter(p => p.featured && p.caseId).slice(0, 4).forEach(p => {
+    const b = document.createElement("button");
+    b.className = "spot-card";
+    b.appendChild(coverNode(p));
+    const ty = document.createElement("div");
+    ty.className = "s-type"; ty.textContent = p.type;
+    const nm = document.createElement("div");
+    nm.className = "s-name"; nm.textContent = p.name;
+    b.appendChild(ty); b.appendChild(nm);
+    b.onclick = () => { expandCase(p.caseId); document.getElementById(p.caseId).scrollIntoView({behavior:"smooth"}); };
+    spotEl.appendChild(b);
+  });
+}
 
 /* ── Modal: full media carousel + facts ── */
 const back = document.getElementById("modalBack");

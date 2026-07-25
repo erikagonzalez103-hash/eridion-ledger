@@ -57,7 +57,9 @@ callback IS the ending.
 2. **+ New Project** (or open the one Claude seeded). Fill the facts:
    name, type (must match a filter), sector, location, quantified scope,
    systems, client, timeline. Paste the approved story into the
-   case-study fields, tick **Featured** if it deserves a featured slot.
+   case-study fields. **Featured** now means the hero spotlight — the
+   3–4 cards at the top of the page. Keep exactly 3–4 projects ticked;
+   every project with a case study still gets its full case-study bar.
 3. Find its photos: filter by the facet dropdowns (Category / Product /
    Space / Style / Tags / Job) or search. **Click photos in display
    order — the first is the cover/hero.**
