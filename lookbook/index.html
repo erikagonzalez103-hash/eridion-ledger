@@ -319,7 +319,7 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
 <body>
 
 <div class="notice" id="notice">
-  <strong>Template preview.</strong> All ten featured case studies are real; some grid projects are still sample data — replace before publishing.
+  <strong>Template preview.</strong> All eleven featured case studies are real; some grid projects are still sample data — replace before publishing.
   <button onclick="document.getElementById('notice').style.display='none'">Dismiss</button>
 </div>
 
@@ -606,6 +606,31 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
       </div>
     </div>
   </article>
+
+  <article class="case cut rv wide" id="case-gym">
+    <div class="case-media media" data-media="case-gym"></div>
+    <div class="case-body">
+      <div class="eyebrow">Athletic Performance Facility · Mirrors</div>
+      <h3>The basketball hoop on the other side of the wall</h3>
+      <div class="loc">Dallas–Fort Worth</div>
+      <div class="case-facts">
+        <div><div class="k">Scope</div><div class="v">Roughly 100 feet of mirror wall — full demo of the failed wall, new framed install</div></div>
+        <div><div class="k">Systems</div><div class="v">Safety-backed mirror · framed mounting with room to flex</div></div>
+        <div><div class="k">Client</div><div class="v">Facility owner — the lead physical therapist, found us online</div></div>
+        <div><div class="k">The demo</div><div class="v">14–16 hours in full protective kit — no accidental shatter</div></div>
+      </div>
+      <div class="case-story">
+        <p><strong>Challenge</strong>The owner of a physical-therapy and athletic-performance gym in DFW found us online with a mystery: the mirrors along one wall of his training floor kept cracking, and he couldn't figure out why. We could. On the other side of that wall was a basketball training facility — with a hoop mounted directly against the shared wall. Every drill, every rebound, every body hitting the floor sent vibration through the studs, and mirror glued rigid to a wall that moves is going to lose that fight every time. Nobody had ever looked at the problem from the other side of the wall.</p>
+        <p><strong>Approach</strong>Before anything new could go up, the old wall had to come down — and pulling glued, cracked mirror off a wall is the half of this trade nobody photographs for the portfolio. Fourteen to sixteen hours in full protective kit: face shields, gauntlets, coveralls, steel-toed boots. The crew sawed each panel cleanly off its adhesive, cracking glass only when they chose to, never by accident — then went back and chipped the dried mastic off the wall until there was a flat, true surface to build on.</p>
+        <p>The new wall got two upgrades. Safety backing — a film on the back of the glass, so if a mirror ever does break, the pieces stick to the backing instead of coming down on someone mid-workout; in a room full of athletes, that's not optional. And framed mounting: the frame carries the mirror's weight and gives the glass a little room to move when the wall gets jostled, instead of holding it rigid against every vibration. Still glued, still solid — just no longer fighting the basketball court next door.</p>
+        <p><strong>Result</strong>We never got another call — and in mirror work, that's the review. The phone rings when something cracks. Gym mirrors live a hard life anywhere; the fix was never mirrors that can't break, it was mirrors that stop breaking for no reason and stay safe if they ever do. Athletic facilities have been steady work for us since — right now we're building out mirror walls for a large fitness chain across Arkansas.</p>
+      </div>
+      <div class="case-quote">
+        <p>“Glass glued rigid to a wall that moves is going to lose that fight. Give it a frame and a little room to flex.”</p>
+        <div class="who">Owner, Eridion Glass</div>
+      </div>
+    </div>
+  </article>
 </section>
 
 <!-- ═══ FULL PORTFOLIO GRID ═══ -->
@@ -773,11 +798,12 @@ const PROJECTS = [
    gc:"[Builder Name]", timeline:"2 weeks",
    media:[{ph:"ph-c", tag:"Sample"}],
    desc:"Wall-to-wall vanity mirrors with precision cutouts for sconces and outlets. Sample project."},
-  {name:"Home Gym Mirror Wall", type:"Mirrors", sector:"Custom Residential", location:"City, TX",
-   scope:"320 sq ft of seamed mirror wall", systems:"Safety-backed mirror · flush seams",
-   gc:"Direct to homeowner", timeline:"1 week",
-   media:[{ph:"ph-f", tag:"Sample"}],
-   desc:"Studio-quality mirror wall with near-invisible seams and safety backing. Sample project."},
+  {layout:"wide", name:"The basketball hoop on the other side of the wall", type:"Mirrors", sector:"Athletic Performance Facility", location:"DFW, TX",
+   scope:"~100 ft of mirror wall — full demo of the failed wall, new framed install", systems:"Safety-backed mirror · framed mounting with room to flex",
+   gc:"Facility owner — lead physical therapist, found us online", timeline:"14–16-hour controlled demo, then the new wall",
+   media:[{ph:"ph-f", tag:"Add photo"}],
+   caseId:"case-gym",
+   desc:"Mirrors kept cracking and nobody knew why — until we looked at the basketball hoop on the other side of the shared wall. Safety backing and a framed, flex-tolerant mount fixed it."},
   {layout:"tall", name:"One web search, then storefronts across DFW", type:"Storefronts", sector:"National Retail", location:"Dallas–Fort Worth",
    scope:"Storefront + interior glass for seven-plus retail locations over four years", systems:"Aluminum storefront · bronze & smoky-grey mirrors · shelving & partitions",
    gc:"Retail GC — national eyewear brand program", timeline:"Storefront up in ~2 days · interior glass around the other trades",
