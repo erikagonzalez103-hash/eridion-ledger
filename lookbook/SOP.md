@@ -99,6 +99,24 @@ format (media is attached inside Wix afterward). See
 - **Photos stay in the library** — the lookbook displays them from
   there; never delete a photo that a case study uses.
 
+## SEO / AEO checklist (per new case study)
+
+The page ships with structured data (LocalBusiness + FAQ) and social
+share tags. Each new case study helps search and AI answers most when:
+
+- The **scope line is quantified** (sizes, counts, panel limits) — AI
+  answer engines quote checkable numbers.
+- Any **standing answer** you give clients (like the colorback price
+  posture) appears in the text — if it's worth saying to a client, it's
+  worth being the quoted answer online. Tell Claude and it gets added
+  to the page's FAQ data.
+- **Alt text** describes the photo specifically (the builder export
+  handles this when captions are real).
+- At go-live: point `lookbook.eridionglass.com` at the page and enable
+  the canonical tag (marked in index.html) **before** promoting the
+  URL, add the lookbook link to the Wix site menu, and submit the URL
+  in Google Search Console.
+
 ## Troubleshooting
 
 | Symptom | Fix |
