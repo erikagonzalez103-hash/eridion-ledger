@@ -319,7 +319,7 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
 <body>
 
 <div class="notice" id="notice">
-  <strong>Template preview.</strong> All seven featured case studies are real; some grid projects are still sample data — replace before publishing.
+  <strong>Template preview.</strong> All eight featured case studies are real; some grid projects are still sample data — replace before publishing.
   <button onclick="document.getElementById('notice').style.display='none'">Dismiss</button>
 </div>
 
@@ -531,6 +531,31 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
       </div>
     </div>
   </article>
+
+  <!-- REAL PROJECT — lake cabin steam shower (owner interview, July 2026) -->
+  <article class="case cut rv" id="case-cabin">
+    <div class="case-media media" data-media="case-cabin"></div>
+    <div class="case-body">
+      <div class="eyebrow">Getaway Cabin · Showers &amp; Wet Rooms</div>
+      <h3>Steam after a day on the lake</h3>
+      <div class="loc">Lake Country — Central Arkansas</div>
+      <div class="case-facts">
+        <div><div class="k">Scope</div><div class="v">Steam-rated corner enclosure with operable transom</div></div>
+        <div><div class="k">Systems</div><div class="v">3/8″ tempered · bulb seals on door and transom · matte black hardware</div></div>
+        <div><div class="k">Client</div><div class="v">Builder partner — an hour past our usual area; for repeat clients, we drive</div></div>
+        <div><div class="k">The install</div><div class="v">Clean set — no callbacks since</div></div>
+      </div>
+      <div class="case-story">
+        <p><strong>Challenge</strong>This one is at a homeowner's getaway cabin in the lake country of central Arkansas — small but luxe, exactly what a second home needs. It came through a builder partner we work with all the time, about an hour past our usual install area; for loyal clients, we make the drive. The brief was steam after a day on the lake: water skiing is tough on the body, and the shower doubles as recovery — and as a warm luxury when the family gathers there over the holidays.</p>
+        <p><strong>Approach</strong>A steam-rated corner enclosure in standard three-eighths tempered with matte black hardware, sealed with the bulb seals we like best for steam doors and transoms. The transom is operable — we always suggest that, because, honestly, how often does the steam feature actually get used? Most days it's just a great shower, and an operable transom lets it breathe. The cabin was a new build, so everything was plumb and straight — for the moment — and the enclosure went in clean.</p>
+        <p><strong>Result</strong>No drama to report — the enclosure went in clean and has been making steam ever since, without a single callback. Sometimes the quietest jobs are the best ones.</p>
+      </div>
+      <div class="case-quote">
+        <p>“Sometimes the best things come in small packages.”</p>
+        <div class="who">Owner, Eridion Glass</div>
+      </div>
+    </div>
+  </article>
 </section>
 
 <!-- ═══ FULL PORTFOLIO GRID ═══ -->
@@ -652,11 +677,12 @@ const PROJECTS = [
    ],
    caseId:"case-kitchen",
    desc:"A dual-tone green backsplash matched to the island's accent \u2014 built for a Top Builder's own parents and a kitchen full of grandkids. Seams hidden at the vent hood."},
-  {name:"Steam Shower Enclosure", type:"Showers & Wet Rooms", sector:"Custom Residential", location:"City, TX",
-   scope:"Steam-rated frameless enclosure with transom", systems:"Low-iron tempered glass · steam hardware",
-   gc:"[Builder Name]", timeline:"1 week from final measure",
-   media:[{ph:"ph-b", tag:"Sample"}],
-   desc:"Fully sealed steam enclosure with operable transom and concealed hinging. Sample project."},
+  {layout:"tall", name:"Steam after a day on the lake", type:"Showers & Wet Rooms", sector:"Getaway Cabin", location:"Lake Country, Central AR",
+   scope:"Steam-rated corner enclosure with operable transom", systems:"3/8″ tempered · bulb seals · matte black hardware",
+   gc:"Builder partner — repeat client", timeline:"An hour past our usual area — for repeat clients, we drive",
+   media:[{ph:"ph-b", tag:"Add photo"}],
+   caseId:"case-cabin",
+   desc:"A steam-rated enclosure in a small-but-luxe lake cabin — recovery after a day of water skiing, warmth over the holidays. Went in clean, no callbacks."},
   {layout:"tall", name:"Clean enough for a surgeon", type:"Colorback Glass", sector:"Medical Suite Remodel", location:"DFW, TX",
    scope:"2 colorback panels 4′×8′ · enclosure, mirrors, pocket door", systems:"Grey-blue colorback · designer-palette match",
    gc:"GC partner — studs-out commercial remodel", timeline:"Daytime work — doctor operating from another suite",
