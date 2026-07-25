@@ -319,7 +319,7 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
 <body>
 
 <div class="notice" id="notice">
-  <strong>Template preview.</strong> All nine featured case studies are real; some grid projects are still sample data — replace before publishing.
+  <strong>Template preview.</strong> All ten featured case studies are real; some grid projects are still sample data — replace before publishing.
   <button onclick="document.getElementById('notice').style.display='none'">Dismiss</button>
 </div>
 
@@ -581,6 +581,31 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
       </div>
     </div>
   </article>
+
+  <article class="case cut rv" id="case-jewelbox">
+    <div class="case-media media" data-media="case-jewelbox"></div>
+    <div class="case-body">
+      <div class="eyebrow">Designer Townhome · Showers &amp; Wet Rooms</div>
+      <h3>Even the guest bath is a jewel box</h3>
+      <div class="loc">Near Downtown Dallas</div>
+      <div class="case-facts">
+        <div><div class="k">Scope</div><div class="v">Full-height framed steam enclosure — part of a whole-home glass and mirror package</div></div>
+        <div><div class="k">Systems</div><div class="v">3/8″ Starphire · polished nickel framing · waterproofed ceiling</div></div>
+        <div><div class="k">Client</div><div class="v">Interior designer — found us through our website, worked every detail with us</div></div>
+        <div><div class="k">Timeline</div><div class="v">About three weeks — framed work earns a longer schedule, by agreement</div></div>
+      </div>
+      <div class="case-story">
+        <p><strong>Challenge</strong>An interior designer found us through our website for her townhome near downtown Dallas — a complete remodel, taken down to the studs. We did the glass and mirror through the whole house, but the room worth telling is not the primary bath. It's the guest bath, wrapped floor to ceiling in dramatic veined marble — and the designer was deep in an Italian art-deco moment. Here's the thing about that look: in the era it comes from, frameless glass didn't exist. Showers were framed in polished metal, like everything else worth looking at. So our signature frameless approach would have been the wrong answer, and we knew it.</p>
+        <p><strong>Approach</strong>A fully framed steam enclosure, run all the way to the waterproofed ceiling with a glass band across the top — a little glass architecture, banded like the era demanded. The framing did double duty: anchored to the marble walls, it carried most of the stability, so we weren't hunting studs across the ceiling (we used them where we found them). The glass is 3/8-inch Starphire — low-iron, almost invisible — because with marble like that, the glass's job is to get out of the way. And one detail for the design-minded: the frame is polished nickel, not chrome. The two read almost the same on day one, but chrome patinas quickly in a wet area; nickel holds its finish and runs a touch warmer against the stone. No transom on this one — in a guest bath, the steam feature is an occasional luxury, and she planned accordingly.</p>
+        <p>Every anchor into that marble was a held breath. Drilling stone takes special bits and a steady hand — slip and you scratch it, crack it, chip it. A costly mistake, sure, but that's not really why we were careful. Who would want to damage something so beautiful? Eridion understands what designers, architects, and homeowners are choosing when they choose materials like this — and we treat them accordingly.</p>
+        <p><strong>Result</strong>This one didn't run on our usual one-week shower timeline — framed work takes longer, and the designer agreed the three weeks were worth it. She was there with us every step, a real partner, and it was genuinely fun — the kind of collaboration where the trade and the designer make each other better. The enclosure went in clean, the marble untouched except where it was meant to be touched. And when her next project came — a large home in Highland Park — she brought us with her.</p>
+      </div>
+      <div class="case-quote">
+        <p>“Who would want to damage something so beautiful?”</p>
+        <div class="who">Owner, Eridion Glass</div>
+      </div>
+    </div>
+  </article>
 </section>
 
 <!-- ═══ FULL PORTFOLIO GRID ═══ -->
@@ -708,6 +733,12 @@ const PROJECTS = [
    media:[{ph:"ph-b", tag:"Add photo"}],
    caseId:"case-cabin",
    desc:"A steam-rated enclosure in a small-but-luxe lake cabin — recovery after a day of water skiing, warmth over the holidays. Went in clean, no callbacks."},
+  {layout:"tall", name:"Even the guest bath is a jewel box", type:"Showers & Wet Rooms", sector:"Designer Townhome", location:"Near Downtown Dallas",
+   scope:"Full-height framed steam enclosure — part of a whole-home glass package", systems:"3/8″ Starphire · polished nickel framing · waterproofed ceiling",
+   gc:"Interior designer — worked every detail with us", timeline:"About three weeks — framed work earns a longer schedule",
+   media:[{ph:"ph-d", tag:"Add photo"}],
+   caseId:"case-jewelbox",
+   desc:"A full-height steam enclosure framed in polished nickel — the Italian art-deco look done right, in Starphire against dramatic veined marble. Every anchor a held breath."},
   {layout:"tall", name:"Clean enough for a surgeon", type:"Colorback Glass", sector:"Medical Suite Remodel", location:"DFW, TX",
    scope:"2 colorback panels 4′×8′ · enclosure, mirrors, pocket door", systems:"Grey-blue colorback · designer-palette match",
    gc:"GC partner — studs-out commercial remodel", timeline:"Daytime work — doctor operating from another suite",
