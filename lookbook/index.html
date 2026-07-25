@@ -219,7 +219,7 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
 .media-cover{position:relative;height:200px;overflow:hidden;}
 .play-badge{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;}
 .play-badge span{width:44px;height:44px;background:rgba(21,56,98,.85);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;}
-.modal-media{position:relative;height:260px;}
+.modal-media{position:relative;height:clamp(260px,44vw,500px);}
 @media(prefers-reduced-motion:reduce){.car-track{transition:none;}}
 
 /* ── SECTION SHELL ───────────────────────────────── */
@@ -313,10 +313,10 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
 .foot .fine{margin-top:60px;padding-top:24px;border-top:1px solid var(--hairline);font-size:11px;color:var(--slate);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
 
 /* ── MODAL ───────────────────────────────────────── */
-.modal-back{position:fixed;inset:0;z-index:100;background:rgba(14,39,65,.55);display:none;align-items:center;justify-content:center;padding:5vw;}
+.modal-back{position:fixed;inset:0;z-index:100;background:rgba(14,39,65,.55);display:none;align-items:flex-start;justify-content:center;padding:4vw;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .modal-back.open{display:flex;}
-.modal{background:var(--card);max-width:640px;width:100%;max-height:86vh;overflow-y:auto;border:1px solid var(--hairline);}
-.modal .ph{height:240px;}
+.modal{background:var(--card);max-width:960px;width:100%;margin:auto;border:1px solid var(--hairline);}
+.modal .ph{height:clamp(240px,44vw,500px);}
 .modal-body{padding:30px 32px 34px;}
 .modal-body .type{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--slate);}
 .modal-body h3{font-size:26px;font-weight:400;margin:6px 0 0;}
