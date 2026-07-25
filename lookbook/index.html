@@ -223,7 +223,7 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
 <body>
 
 <div class="notice" id="notice">
-  <strong>Template preview.</strong> All six featured case studies are real; some grid projects are still sample data — replace before publishing.
+  <strong>Template preview.</strong> All seven featured case studies are real; some grid projects are still sample data — replace before publishing.
   <button onclick="document.getElementById('notice').style.display='none'">Dismiss</button>
 </div>
 
@@ -410,6 +410,31 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
       </div>
     </div>
   </article>
+
+  <!-- REAL PROJECT — surgeon's suite colorback (owner interview, July 2026) -->
+  <article class="case cut rv" id="case-surgeon">
+    <div class="case-media media" data-media="case-surgeon"></div>
+    <div class="case-body">
+      <div class="eyebrow">Medical Suite Remodel · Colorback Glass</div>
+      <h3>Clean enough for a surgeon</h3>
+      <div class="loc">Plastic Surgery Clinic — DFW</div>
+      <div class="case-facts">
+        <div><div class="k">Scope</div><div class="v">Two 4′ × 8′ colorback panels · frameless enclosure · vanity mirror</div></div>
+        <div><div class="k">Systems</div><div class="v">Grey-blue colorback matched to the designer's palette · hardware cutouts</div></div>
+        <div><div class="k">Client</div><div class="v">GC partner — full commercial remodel, taken to the studs</div></div>
+        <div><div class="k">Since then</div><div class="v">3 years on: the doctor's home, a second office, and ongoing GC work</div></div>
+      </div>
+      <div class="case-story">
+        <p><strong>Challenge</strong>This was a commercial remodel the GC brought us into: a plastic surgery clinic with its own surgery suite, taken down to the studs and rebuilt — and, this being plastic surgery, very luxe. The doctor kept operating out of another suite, so we had the space to ourselves during the day. The building added its own complication: the panels were too large for the freight elevator, so they went up four flights of stairs by hand.</p>
+        <p><strong>Approach</strong>The colorback twist is in the doctor's private bathroom — his own shower, where he cleans up between procedures. Two four-by-eight panels in a grey-blue matched to the designer's palette, cutouts for the hardware, plus the frameless enclosure and the mirror over the vanity. The logic was hygiene: no grout, nothing porous — the doctor can spray the whole enclosure down with an alcohol mix and feel safe. We made the case for colorback in the exam rooms too; it wasn't quite the look they wanted in there. We'll keep making that case. The rest of our scope ran through the suite: a custom sliding pocket door for the consultation office, and custom mirrors throughout.</p>
+        <p><strong>Result</strong>The doctor loved the work so much that his wife hired us for their own home. Three years later, we're still working for them — the house, and now a second office — and we keep working with the GC on both residential and commercial projects.</p>
+      </div>
+      <div class="case-quote">
+        <p>“It's the shower he cleans up in between procedures. That's a high bar for clean.”</p>
+        <div class="who">Owner, Eridion Glass</div>
+      </div>
+    </div>
+  </article>
 </section>
 
 <!-- ═══ FULL PORTFOLIO GRID ═══ -->
@@ -536,11 +561,12 @@ const PROJECTS = [
    gc:"[Builder Name]", timeline:"1 week from final measure",
    media:[{ph:"ph-b", tag:"Sample"}],
    desc:"Fully sealed steam enclosure with operable transom and concealed hinging. Sample project."},
-  {name:"Boutique Remodel — Frameless Shower", type:"Showers & Wet Rooms", sector:"Kitchen & Bath Remodel", location:"City, TX",
-   scope:"Frameless enclosure + custom mirror package", systems:"Low-iron glass · polished-edge mirrors",
-   gc:"Direct to homeowner", timeline:"1 week from final measure",
-   media:[{ph:"ph-c", tag:"Sample"}],
-   desc:"Remodel-scope shower and mirror package coordinated with the homeowner's contractor. Sample project."},
+  {layout:"tall", name:"Clean enough for a surgeon", type:"Colorback Glass", sector:"Medical Suite Remodel", location:"DFW, TX",
+   scope:"2 colorback panels 4′×8′ · enclosure, mirrors, pocket door", systems:"Grey-blue colorback · designer-palette match",
+   gc:"GC partner — studs-out commercial remodel", timeline:"Daytime work — doctor operating from another suite",
+   media:[{ph:"ph-c", tag:"Add photo"}],
+   caseId:"case-surgeon",
+   desc:"Grey-blue colorback in a surgeon's private shower — no grout, sprayable with alcohol — plus a consultation pocket door and custom mirrors through the suite. One remodel became three years of work."},
   {layout:"wide", name:"A wine room in full daylight", type:"Specialty", sector:"Luxury Custom Home", location:"Overlooking the golf course",
    scope:"4 slim-profile aluminum panels — one 11-ft pivot door", systems:"UV-protected glazing · channel-set",
    gc:"Builder partner — award-winning custom homes", timeline:"Coordinated with the exterior glazing sub",
