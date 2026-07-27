@@ -316,6 +316,7 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
 .modal-back{position:fixed;inset:0;z-index:100;background:rgba(14,39,65,.55);display:none;align-items:flex-start;justify-content:center;padding:4vw;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .modal-back.open{display:flex;}
 .modal{background:var(--card);max-width:960px;width:100%;margin:auto;border:1px solid var(--hairline);}
+.modal .case{border:none;}
 .modal .ph{height:clamp(240px,44vw,500px);}
 .modal-body{padding:30px 32px 34px;}
 .modal-body .type{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--slate);}
@@ -403,16 +404,7 @@ h1,h2,h3,h4,.disp{font-family:var(--head);font-weight:300;color:var(--navy);line
 <div class="modal-back" id="modalBack">
   <div class="modal" role="dialog" aria-modal="true">
     <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
-    <div class="modal-media" id="modalPh"></div>
-    <div class="modal-body">
-      <div class="type" id="modalType"></div>
-      <h3 id="modalTitle"></h3>
-      <div class="loc" id="modalLoc"></div>
-      <div class="case-facts" id="modalFacts"></div>
-      <div class="desc" id="modalDesc"></div>
-      <div class="case-story" id="modalStory"></div>
-      <div class="case-quote" id="modalQuote" style="display:none"><p id="modalQuoteText"></p><div class="who" id="modalQuoteWho"></div></div>
-    </div>
+    <div id="modalContent"></div>
   </div>
 </div>
 
@@ -791,25 +783,28 @@ if (spotEl){
 /* ── Modal: full media carousel + facts ── */
 const back = document.getElementById("modalBack");
 function openModal(p){
-  renderMedia(document.getElementById("modalPh"), p.media);
-  document.getElementById("modalType").textContent = p.type + " · " + p.sector;
-  document.getElementById("modalTitle").textContent = p.name;
-  document.getElementById("modalLoc").textContent = p.location;
-  document.getElementById("modalFacts").innerHTML =
-    '<div><div class="k">Scope</div><div class="v">' + esc(p.scope) + '</div></div>' +
-    '<div><div class="k">Systems</div><div class="v">' + esc(p.systems) + '</div></div>' +
-    '<div><div class="k">GC / Client</div><div class="v">' + esc(p.gc) + '</div></div>' +
-    '<div><div class="k">Timeline</div><div class="v">' + esc(p.timeline) + '</div></div>';
-  document.getElementById("modalDesc").textContent = p.desc;
-  const st = document.getElementById("modalStory");
-  st.innerHTML = (p.story || []).map(([label, text]) =>
-    "<p>" + (label ? "<strong>" + esc(label) + "</strong>" : "") + esc(text) + "</p>").join("");
-  const q = document.getElementById("modalQuote");
-  if (p.quote){
-    q.style.display = "";
-    document.getElementById("modalQuoteText").textContent = "\u201C" + p.quote + "\u201D";
-    document.getElementById("modalQuoteWho").textContent = p.quoteWho || "";
-  } else q.style.display = "none";
+  const mc = document.getElementById("modalContent");
+  const facts = [["Scope",p.scope],["Systems",p.systems],["Client",p.gc],["Timeline",p.timeline]]
+    .filter(f => f[1])
+    .map(f => '<div><div class="k">' + esc(f[0]) + '</div><div class="v">' + esc(f[1]) + '</div></div>').join("");
+  const story = (p.story || []).map(pr =>
+    "<p>" + (pr[0] ? "<strong>" + esc(pr[0]) + "</strong>" : "") + esc(pr[1]) + "</p>").join("");
+  const quote = p.quote
+    ? '<div class="case-quote"><p>\u201C' + esc(p.quote) + '\u201D</p><div class="who">' + esc(p.quoteWho || "") + '</div></div>'
+    : "";
+  mc.innerHTML =
+    '<article class="case' + (p.layout === "wide" ? " wide" : "") + '">' +
+      '<div class="case-media media"></div>' +
+      '<div class="case-body">' +
+        '<div class="eyebrow">' + esc(p.sector) + ' \u00B7 ' + esc(p.type) + '</div>' +
+        '<h3>' + esc(p.name) + '</h3>' +
+        '<div class="loc">' + esc(p.location) + '</div>' +
+        '<div class="case-facts">' + facts + '</div>' +
+        '<div class="case-story">' + story + '</div>' +
+        quote +
+      '</div>' +
+    '</article>';
+  renderMedia(mc.querySelector(".case-media"), p.media);
   back.classList.add("open");
   back.scrollTop = 0;
 }
