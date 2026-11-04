@@ -3465,18 +3465,19 @@ function apOwnerPay(year) {
   var sum = function(cat){ return paid.filter(function(e){ return e.category === cat; }).reduce(function(s,e){ return s + e.amount; }, 0); };
   var out = {unassigned: sum('Owner Distribution')};
   AP_PEOPLE.forEach(function(p){ out[p] = {payroll: sum('Payroll – ' + p), dist: sum('Owner Distribution – ' + p)}; });
-  // Zelle draws to Erika from the Xero report (Jan–Oct 2026) — use per month whichever is larger.
-  out.xeroErika = 0;
+  // 2026 Zelle draws from Owner's Comp to our JOINT USAA account (Xero report, Jan–Oct) benefit
+  // both owners → counted 51/49. Per month, anything already tagged to a person in the ledger is
+  // subtracted so nothing is counted twice.
+  out.xeroJoint = 0;
   if (typeof GD_DRAWS_XERO !== 'undefined') {
     Object.keys(GD_DRAWS_XERO).filter(function(k){ return k.slice(0,4) === String(year); }).forEach(function(k){
-      var led = paid.filter(function(e){ return e.category === 'Owner Distribution – Erika' && (e.date||'').slice(0,7) === k; }).reduce(function(s,e){ return s + e.amount; }, 0);
-      if (GD_DRAWS_XERO[k] > led) { out.xeroErika += GD_DRAWS_XERO[k] - led; }
+      var led = paid.filter(function(e){ return /^Owner Distribution – /.test(e.category || '') && (e.date||'').slice(0,7) === k; }).reduce(function(s,e){ return s + e.amount; }, 0);
+      if (GD_DRAWS_XERO[k] > led) { out.xeroJoint += GD_DRAWS_XERO[k] - led; }
     });
-    out.Erika.dist += out.xeroErika;
   }
   // Personal debts paid with business money = distributions that benefit both owners → counted 51/49.
   out.jointDebt = paid.filter(function(e){ return e.debtKind === 'personal'; }).reduce(function(s,e){ return s + e.amount; }, 0);
-  AP_PEOPLE.forEach(function(p){ out[p].dist += out.jointDebt * OWNER_PAY[p].own; });
+  AP_PEOPLE.forEach(function(p){ out[p].dist += (out.jointDebt + out.xeroJoint) * OWNER_PAY[p].own; });
   return out;
 }
 function renderOwnerPay() {
@@ -3500,7 +3501,7 @@ function renderOwnerPay() {
     notes.push(off ? '<span class="ap-age-warn">⚠ Distributions are ' + Math.round(eShare*100) + ' / ' + Math.round((1-eShare)*100) + ' — must be 51 / 49. ' + trueUp + ' to even up.</span>'
                    : '<span class="ap-age-ok">✓ Distributions are on the 51 / 49 split.</span>');
   }
-  if (op.xeroErika > 0) notes.push('Includes ' + fmt(op.xeroErika,0) + ' of 2026 Zelle draws to Erika from Xero (USAA transfers and any Dion draws not yet included).');
+  if (op.xeroJoint > 0) notes.push('Includes ' + fmt(op.xeroJoint,0) + ' of 2026 Zelle draws to our joint USAA account (Xero), counted 51/49 — confirm this treatment with Lupe.');
   if (op.jointDebt > 0) notes.push('Includes ' + fmt(op.jointDebt,0) + ' of personal debt paid by the company, counted 51/49 — confirm this treatment with Lupe.');
   if (op.unassigned > 0) notes.push('<span class="ap-age-warn">' + fmt(op.unassigned,0) + ' logged as plain "Owner Distribution" — re-tag each to Erika or Dion so the 51/49 check is complete.</span>');
   notes.push('Payroll: record <strong>gross</strong> wages as "Payroll – Erika/Dion" in Owner\'s Comp; employer taxes as "Payroll Tax – Employer" in Tax Reserve. ' + year + ' payroll must run by Dec 31.');
@@ -3586,7 +3587,7 @@ function apInit() {
 // (from monthly statement updates). Car notes intentionally left out.
 var GD_DEBT_KEY  = 'eg_debt_v1';
 var GD_GUARD_KEY = 'eg_guard_v1';
-// Baseline: 2026 Zelle draws to Erika from Owner's Comp x7799 (Xero "Account
+// Baseline: 2026 Zelle draws to the joint USAA account from Owner's Comp x7799 (Xero "Account
 // Transactions" report run Nov 4, 2026; acct 310 Owners Draw). Months the ledger
 // tracks itself use whichever is larger, so nothing is double-counted.
 var GD_DRAWS_XERO = {'2026-01':5554.00,'2026-02':1456.00,'2026-03':2832.00,'2026-04':900.00,'2026-05':2726.00,
@@ -3843,7 +3844,7 @@ function renderGuard() {
       ? '✓ Payroll is covered. Draws beyond payroll should still wait for the quarterly Profit distribution.'
       : '✕ <strong>No draws.</strong> Owner\'s Comp is ' + fmt(-free,0) + ' short of this year\'s payroll. Every draw makes the December payroll harder to fund.') + '</div>' +
     '<div class="ap-note">Spent from Owner\'s Comp in ' + year + ' (ledger): payroll ' + fmt(ytd.payroll,0) + ' · personal bills ' + fmt(ytd.bills,0) + ' · draws ' + fmt(Math.max(ytd.draws, xeroYtd),0) +
-      (xeroYtd > ytd.draws ? ' <em>(Xero: Zelle to Erika)</em>' : '') + '. Personal bills should move to your personal account and be paid from paychecks.</div>';
+      (xeroYtd > ytd.draws ? ' <em>(Xero: Zelle to joint USAA)</em>' : '') + '. Personal bills should move to your personal account and be paid from paychecks.</div>';
 
   // Draws by month
   var dm = gdDrawsByMonth(year), maxD = Math.max(1, GDG.drawAllowance, Math.max.apply(null, Object.keys(dm).map(function(k){ return dm[k].amount; })));
