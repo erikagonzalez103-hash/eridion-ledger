@@ -331,6 +331,25 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
 .hq-nav-link{font-size:12px;font-weight:500;padding:5px 14px;border-radius:6px;color:rgba(255,255,255,.45);text-decoration:none;transition:all .2s;white-space:nowrap;}
 .hq-nav-link:hover{color:rgba(255,255,255,.8);background:rgba(255,255,255,.07);}
 .hq-nav-link.active{color:#fff;background:rgba(255,255,255,.13);}
+/* ACCOUNTABLE PLAN */
+.ap-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+.ap-tile{background:#152844;border:1px solid #2A4A6A;border-radius:8px;padding:12px 14px;}
+.ap-tile-lbl{font-size:8px;font-weight:600;letter-spacing:2px;color:#5A7A99;text-transform:uppercase;}
+.ap-tile-val{font-family:'DM Serif Display',serif;font-size:22px;margin-top:4px;}
+.ap-tile-sub{font-size:10px;color:#7C9AB5;margin-top:3px;line-height:1.4;}
+.ap-check{list-style:none;font-size:12px;color:#D0DDE8;line-height:1.9;}
+.ap-check li::before{content:'\2610  ';color:#3CA83C;}
+.ap-note{font-size:10px;color:#7C9AB5;line-height:1.6;margin-top:8px;}
+.ap-age-ok{color:#7DD87D;} .ap-age-warn{color:#F0B05A;font-weight:600;} .ap-age-late{color:#E24B4A;font-weight:600;}
+.ap-flag{display:inline-block;background:#E24B4A;color:#fff;border-radius:10px;font-size:9px;padding:0 6px;margin-left:6px;letter-spacing:0;}
+.ap-two{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.ap-ho-row{display:grid;grid-template-columns:1fr 120px;gap:8px;align-items:center;margin-bottom:5px;font-size:11px;color:#D0DDE8;}
+.ap-ho-row input{background:#0E1E35;border:1px solid #2A4A6A;border-radius:4px;padding:5px 8px;color:#F5F5F5;font-family:'DM Sans',sans-serif;font-size:12px;width:100%;text-align:right;}
+.ap-ho-out{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-top:1px solid #1E3A5A;}
+.ap-mini-btn{background:transparent;border:1px solid #2A4A6A;border-radius:4px;color:#7C9AB5;font-size:10px;padding:3px 8px;cursor:pointer;font-family:inherit;margin-right:4px;}
+.ap-mini-btn:hover{border-color:#3CA83C;color:#3CA83C;}
+.ap-mini-btn.danger:hover{border-color:#E24B4A;color:#E24B4A;}
+@media (max-width:760px){.ap-tiles{grid-template-columns:1fr 1fr;}.ap-two{grid-template-columns:1fr;}}
 </style>
 <nav class="hq-nav">
   <span class="hq-nav-brand">ERIDION HQ</span>
@@ -371,6 +390,7 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
   <div class="tab" onclick="showTab('bills',this)">Bills</div>
   <div class="tab" onclick="showTab('expense',this)">Add Expense</div>
   <div class="tab" onclick="showTab('distribute',this)">Distribute</div>
+  <div class="tab" id="ap-tab" onclick="showTab('accountable',this)">Accountable Plan<span id="ap-tab-flag"></span></div>
   <div class="tab" onclick="showTab('ledger',this)">Ledger</div>
   <div class="tab" onclick="showTab('buckets',this)">Buckets</div>
   <div class="tab" onclick="showTab('cashflow',this)">Cash Flow</div>
@@ -457,7 +477,7 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
       <div class="field"><label>Category</label><select id="bf_category"><option>Sub installer</option><option>Vendor / supplier</option><option>Insurance</option><option>Vehicle / fleet</option><option>Property / utilities</option><option>Software / subs</option><option>Membership</option><option>Security</option><option>Health / medical</option><option>Other</option></select></div>
     </div>
     <div class="form-row r3">
-      <div class="field"><label>PF Bucket</label><select id="bf_bucket"><option value="opex">OPEX</option><option value="materials">Materials</option><option value="subs">Subs / Payroll</option><option value="owners">Owner's Comp</option><option value="tax">Tax Reserve</option><option value="profit">Profit</option></select></div>
+      <div class="field"><label>PF Bucket</label><select id="bf_bucket"><option value="opex">OPEX</option><option value="materials">Materials</option><option value="subs">Subs</option><option value="owners">Owner's Comp</option><option value="tax">Tax Reserve</option><option value="profit">Profit</option></select></div>
       <div class="field"><label>Amount *</label><input id="bf_amount" type="number" step="0.01" placeholder="0.00" /></div>
       <div class="field"><label>Due Date</label><input id="bf_due_date" type="date" /></div>
     </div>
@@ -485,7 +505,7 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
       <div class="field"><label>Month</label><select id="e-month"></select></div>
       <div class="field"><label>Bucket</label><select id="e-bucket" onchange="updateExpCats()">
         <option value="opex">OPEX</option><option value="materials">Materials</option>
-        <option value="subs">Subs / Payroll</option><option value="owners">Owner's Comp</option>
+        <option value="subs">Subs</option><option value="owners">Owner's Comp</option>
         <option value="tax">Tax Reserve</option><option value="profit">Profit</option>
       </select></div>
       <div class="field"><label>Status</label><select id="e-status">
@@ -591,7 +611,7 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
         </div>
         <div>
           <div style="font-size:9px;color:#5A7A99;margin-bottom:4px;letter-spacing:1px;text-transform:uppercase;">Distribution Date</div>
-          <input type="date" id="dist-date" style="background:#0E1E35;border:1px solid #2A4A6A;border-radius:4px;padding:8px 10px;color:#F5F5F5;font-family:'DM Sans',sans-serif;font-size:12px;outline:none;"/>
+          <input type="date" id="dist-date" onchange="previewDistribution()" style="background:#0E1E35;border:1px solid #2A4A6A;border-radius:4px;padding:8px 10px;color:#F5F5F5;font-family:'DM Sans',sans-serif;font-size:12px;outline:none;"/>
         </div>
         <div>
           <div style="font-size:9px;color:#5A7A99;margin-bottom:4px;letter-spacing:1px;text-transform:uppercase;">Month</div>
@@ -615,6 +635,91 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
   <div class="recent-card" id="recent-dist-card">
     <div class="section-lbl">Recent Distributions</div>
     <div id="recent-dist-list"></div>
+  </div>
+</div>
+
+<!-- ACCOUNTABLE PLAN -->
+<div class="panel" id="panel-accountable">
+  <div class="ap-tiles" id="ap-tiles"></div>
+
+  <div class="ap-two">
+    <div class="card">
+      <div class="card-title-row"><div class="card-title">Weekly Checklist (Mondays)</div><div style="font-size:10px;color:#5A7A99;" id="ap-week-lbl"></div></div>
+      <ul class="ap-check">
+        <li>Log last week's business miles (date, from &rarr; to, why, miles) &mdash; no commuting</li>
+        <li>Snap &amp; save receipts &mdash; required for anything <strong>$75+</strong> and <strong>all lodging</strong></li>
+        <li>Log out-of-pocket business buys: tools, supplies, meals, travel, dues</li>
+        <li>Paid a home bill or phone/internet bill? Note it for the home office / cell % line</li>
+        <li>Anything older than <strong>45 days</strong> below? Build the request now (60-day limit)</li>
+        <li>First Monday of the month: build each person's request &rarr; approve &rarr; pay from OPEX</li>
+      </ul>
+      <div class="ap-note" id="ap-week-stats"></div>
+    </div>
+    <div class="card">
+      <div class="card-title-row"><div class="card-title">Owner Pay &mdash; S-Corp</div><div style="font-size:10px;color:#5A7A99;" id="ap-op-year"></div></div>
+      <div id="ap-owner-pay"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title-row"><div class="card-title">Log a Business Expense</div><div style="font-size:10px;color:#5A7A99;">Paid personally &rarr; reimbursed tax-free under the Accountable Plan (eff. Jan 1, 2026)</div></div>
+    <div class="form-row r4">
+      <div class="field"><label>Person</label><select id="ap-person"><option>Erika</option><option>Dion</option></select></div>
+      <div class="field"><label>Date paid / driven</label><input type="date" id="ap-date" onchange="apCalcMileage()"/></div>
+      <div class="field"><label>Category</label><select id="ap-type" onchange="apTypeChanged()"></select></div>
+      <div class="field"><label>Amount ($)</label><input type="number" id="ap-amount" placeholder="0.00" step="0.01"/></div>
+    </div>
+    <div class="form-row r4" id="ap-mile-row">
+      <div class="field"><label>From</label><input type="text" id="ap-from" placeholder="e.g. Office (Knoll Manor)"/></div>
+      <div class="field"><label>To</label><input type="text" id="ap-to" placeholder="e.g. Grand Homes jobsite, Frisco"/></div>
+      <div class="field"><label>Miles (round trip)</label><input type="number" id="ap-miles" step="0.1" placeholder="0" oninput="apCalcMileage()"/></div>
+      <div class="field"><label>IRS rate $/mi</label><input type="text" id="ap-rate" readonly style="color:#3CA83C;"/></div>
+    </div>
+    <div class="form-row r3w">
+      <div class="field"><label>Receipt saved?</label><select id="ap-receipt"><option value="yes">Yes</option><option value="no">No</option><option value="na">Not needed (&lt;$75, not lodging)</option></select></div>
+      <div class="field"><label>Vendor (optional)</label><input type="text" id="ap-vendor" placeholder="e.g. Home Depot"/></div>
+      <div class="field"><label>Business purpose (required)</label><input type="text" id="ap-purpose" placeholder="e.g. Measure shower glass for Hines job #2190"/></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-primary" onclick="apAddItem()">Log Expense</button>
+      <button class="btn-secondary" onclick="apClearForm()">Clear</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title-row">
+      <div class="card-title">Expense Log</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <select class="fsel" id="ap-f-person" onchange="renderAccountable()"><option value="all">Both</option><option>Erika</option><option>Dion</option></select>
+        <select class="fsel" id="ap-f-status" onchange="renderAccountable()"><option value="open">Not yet submitted</option><option value="submitted">Submitted</option><option value="paid">Paid</option><option value="all">All</option></select>
+        <button class="btn-secondary" style="font-size:10px;" onclick="apBuildRequest('Erika')">Build Erika's Request</button>
+        <button class="btn-secondary" style="font-size:10px;" onclick="apBuildRequest('Dion')">Build Dion's Request</button>
+      </div>
+    </div>
+    <div class="tbl-wrap" id="ap-items"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title-row"><div class="card-title">Reimbursement Requests</div><div style="font-size:10px;color:#5A7A99;">Submitted &rarr; approved &rarr; paid from OPEX (posts an expense to the ledger)</div></div>
+    <div class="tbl-wrap" id="ap-requests"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title-row">
+      <div class="card-title">Home Office Worksheet</div>
+      <div style="display:flex;gap:8px;align-items:center;"><select class="fsel" id="ap-ho-person" onchange="renderHomeOffice()"><option>Erika</option><option>Dion</option></select><input type="number" class="fsel" id="ap-ho-year" style="width:80px;" onchange="renderHomeOffice()"/></div>
+    </div>
+    <div class="ap-two">
+      <div id="ap-ho-inputs"></div>
+      <div>
+        <div id="ap-ho-results"></div>
+        <div class="btn-row">
+          <button class="btn-primary" onclick="apAddHomeOffice('month')">Log This Month</button>
+          <button class="btn-secondary" onclick="apAddHomeOffice('quarter')">Log This Quarter</button>
+        </div>
+        <div class="ap-note">Space must be used <strong>regularly and only</strong> for business. Enter what you actually pay &mdash; no depreciation. Mortgage interest &amp; property tax: reimburse <em>or</em> deduct on Schedule A, not both (check with Lupe). Don't count internet here if it's logged under Cell / internet. Keep the bills.</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -868,21 +973,46 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
 
 <script>
 // ─── CONSTANTS ───────────────────────────────────────────────
-var PCT = {profit:.127, owners:.107, tax:.17, opex:.135, mat:.318, subs:.143};
+// TAP history. Each payment / weekly sweep uses the TAPs in effect on ITS date,
+// so changing TAPs never rewrites history (entries store their split when recorded).
+// Nov 2026 change: S-corp W-2 payroll ($75,797/yr — Dion $45,242 + Erika $30,555,
+// per the reasonable-comp resolution) needs ~11.7% of ~$650K revenue; materials +4%;
+// Subs and Tax held; Profit absorbs the difference. Employer payroll tax (~1%) is
+// paid from Tax Reserve.
+var TAP_SCHEDULE = [
+  {from:'2000-01-01', profit:.127, owners:.107, tax:.17, opex:.135, mat:.318, subs:.143},
+  {from:'2026-11-01', profit:.077, owners:.117, tax:.17, opex:.135, mat:.358, subs:.143}
+];
+function pctFor(ds) {
+  ds = ds || todayStr();
+  var p = TAP_SCHEDULE[0];
+  TAP_SCHEDULE.forEach(function(t){ if (t.from <= ds) p = t; });
+  return p;
+}
+var PCT = pctFor(); // TAPs in effect today (display + defaults)
+
+// S-corp officer payroll (W-2), from the reasonable-compensation resolution.
+// 2026 keeps the 2025 amounts. Distributions must follow ownership: 51 / 49.
+var OWNER_PAY = {
+  Erika: { own:.51, w2:30555 },
+  Dion:  { own:.49, w2:45242 }
+};
 var BUCKET_COLORS  = {profit:'#3CA83C', owners:'#5599CC', tax:'#F0B05A', opex:'#9B7DD8', materials:'#E87040', subs:'#40C0B0'};
-var BUCKET_LABELS  = {profit:'Profit', owners:"Owner's Comp", tax:'Tax Reserve', opex:'OPEX', materials:'Materials', subs:'Subs / Payroll'};
+var BUCKET_LABELS  = {profit:'Profit', owners:"Owner's Comp", tax:'Tax Reserve', opex:'OPEX', materials:'Materials', subs:'Subs'};
 var BUCKET_ACCTS   = {profit:'...6180', owners:'...7799', tax:'...8710', opex:'...2122', materials:'...6985', subs:'...4814'};
 var BUCKET_KEYS    = ['profit','owners','tax','opex','materials','subs'];
 var BUCKET_CLASSES = {profit:'bc-p', owners:'bc-o', tax:'bc-t', opex:'bc-x', materials:'bc-m', subs:'bc-s'};
 var BVA_CLASSES    = {profit:'bva-p', owners:'bva-o', tax:'bva-t', opex:'bva-x', materials:'bva-m', subs:'bva-s'};
 
 var EXP_CATS = {
-  opex:['Insurance','Bookkeeper','Truck Payment','AT&T','Public Storage','Software Subscriptions','Utilities','Vehicle Insurance','Dues & Memberships','Tools & Supplies','Loan Repayment','Bank Charges','Misc / Other'],
+  opex:['Accountable Plan Reimbursement','Insurance','Bookkeeper','Truck Payment','AT&T','Public Storage','Software Subscriptions','Utilities','Vehicle Insurance','Dues & Memberships','Tools & Supplies','Loan Repayment','Bank Charges','Misc / Other'],
   materials:['Sky','Imperial','Waterfall','CMI','DFG','FHC','M3','Smart Glazier','Other Supplier','Misc / Other'],
   subs:['Dallas Installer','Little Rock Installer','Other Subcontractor','Misc / Other'],
-  owners:['Mortgage','Groceries','Vehicle Payment','Personal Insurance','Personal Bills','Owner Distribution','Misc / Other'],
-  tax:['Federal Estimated Tax','State Tax','Annual Tax Bill','Payroll Tax','Misc / Other'],
-  profit:['Owner Distribution','Reinvestment','Buffer Account','Misc / Other']
+  // S-corp: Owner's Comp pays W-2 payroll (enter GROSS wages). Distributions must split 51/49.
+  // The personal categories below are pre-payroll legacy — once payroll runs, personal bills come from paychecks.
+  owners:['Payroll – Erika','Payroll – Dion','Owner Distribution – Erika','Owner Distribution – Dion','Mortgage','Groceries','Vehicle Payment','Personal Insurance','Personal Bills','Owner Distribution','Misc / Other'],
+  tax:['Federal Estimated Tax','State Tax','Annual Tax Bill','Payroll Tax','Payroll Tax – Employer (941/940/TWC)','Misc / Other'],
+  profit:['Owner Distribution – Erika','Owner Distribution – Dion','Owner Distribution','Reinvestment','Buffer Account','Misc / Other']
 };
 
 var RECURRING = [
@@ -941,7 +1071,7 @@ var BUCKET_RULES = [
   // Materials / suppliers
   { pattern: /sky glass|imperial|waterfall|cmi|dfg|fhc|m3|glass supply|glazing supply/i, result: 'materials' },
   // Owner's Comp
-  { pattern: /mortgage|cadillac|grocery|groceries|personal|embrace pet|insurance.*personal/i, result: 'owners' },
+  { pattern: /mortgage|cadillac|grocery|groceries|personal|embrace pet|insurance.*personal|zelle|usaa|payroll(?! tax)/i, result: 'owners' },
   // Tax
   { pattern: /irs|federal tax|estimated tax|state tax|payroll tax/i, result: 'tax' },
   // OPEX — specific vendors
@@ -1083,25 +1213,20 @@ function renderBVA(txs, range) {
   document.getElementById('bva-period-label').textContent = range.fromDate + ' to ' + range.toDate;
   // Actual spend per bucket from Xero transactions
   var actual = {profit:0, owners:0, tax:0, opex:0, materials:0, subs:0};
-  var actualRevenue = 0;
+  var budget = {profit:0, owners:0, tax:0, opex:0, materials:0, subs:0};
   txs.forEach(function(tx) {
     var bucket = mapXeroToBucket(tx);
     if (tx.type === 'RECEIVE') {
-      actualRevenue += tx.total;
+      // Budget = TAP % (in effect on the receipt's date) of actual revenue
+      var ds = tx.date ? String(tx.date).replace(/\/Date\((\d+)[+-].+\)\//,function(_,ms){ return new Date(parseInt(ms)).toISOString().split('T')[0]; }) : '';
+      var P = pctFor(ds);
+      budget.profit += tx.total*P.profit; budget.owners += tx.total*P.owners; budget.tax += tx.total*P.tax;
+      budget.opex += tx.total*P.opex; budget.materials += tx.total*P.mat; budget.subs += tx.total*P.subs;
     } else if (tx.type === 'SPEND' && actual[bucket] !== undefined) {
       actual[bucket] += tx.total;
     }
   });
 
-  // Budget = TAP % of actual revenue
-  var budget = {
-    profit:   actualRevenue * PCT.profit,
-    owners:   actualRevenue * PCT.owners,
-    tax:      actualRevenue * PCT.tax,
-    opex:     actualRevenue * PCT.opex,
-    materials: actualRevenue * PCT.mat,
-    subs:     actualRevenue * PCT.subs
-  };
 
   var html = '';
   BUCKET_KEYS.forEach(function(bk) {
@@ -1179,7 +1304,7 @@ function importOneTx(idx) {
   if (isReceive && bucket === 'income') {
     // Import as income with full PF allocation
     var fee = 0; // no Stripe fee on Xero bank transactions
-    var a = calcAlloc(tx.total, fee);
+    var a = calcAlloc(tx.total, fee, xeroDate);
     incomes.unshift({
       id: Date.now(), type:'income',
       date: xeroDate, month: xeroMonth,
@@ -1265,7 +1390,7 @@ var HQ_WORKER = 'https://frosty-base-f01e.erikagonzalez103.workers.dev';
 var LEDGER_SYNC_KEYS = [
   'eg_income_v1','eg_expense_v1','eg_dist_v1','eg_actual_v1','eg_forecast_v1',
   'eridion_bill_schedule_v1','eridion_bills_v1','eridion_bills_cash_v1',
-  'eridion_cashflow_settings_v1'
+  'eridion_cashflow_settings_v1','eg_accountable_v1'
 ];
 var LEDGER_META_KEY = 'eg_ledger_synced_at';
 
@@ -1454,9 +1579,10 @@ function fmt(n, dec) {
   return '$' + Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec});
 }
 function calcStripeFee(p) { return p > 0 ? Math.round((p * 0.029 + 0.30) * 100) / 100 : 0; }
-function calcAlloc(payment, fee) {
+function calcAlloc(payment, fee, date) {
   var real = Math.max(0, payment - fee);
-  return {real:real, profit:real*PCT.profit, owners:real*PCT.owners, tax:real*PCT.tax, opex:real*PCT.opex, mat:real*PCT.mat, subs:real*PCT.subs};
+  var P = pctFor(date);
+  return {real:real, profit:real*P.profit, owners:real*P.owners, tax:real*P.tax, opex:real*P.opex, mat:real*P.mat, subs:real*P.subs};
 }
 function daysUntil(ds) {
   if (!ds) return null;
@@ -1616,13 +1742,14 @@ function previewDistribution() {
   var preview = document.getElementById('dist-preview');
   if (amount <= 0) { preview.style.display = 'none'; return; }
   preview.style.display = 'block';
+  var P = pctFor(document.getElementById('dist-date').value);
   var splits = {
-    profit: Math.round(amount * PCT.profit * 100) / 100,
-    owners: Math.round(amount * PCT.owners * 100) / 100,
-    tax:    Math.round(amount * PCT.tax    * 100) / 100,
-    opex:   Math.round(amount * PCT.opex   * 100) / 100,
-    mat:    Math.round(amount * PCT.mat    * 100) / 100,
-    subs:   Math.round(amount * PCT.subs   * 100) / 100
+    profit: Math.round(amount * P.profit * 100) / 100,
+    owners: Math.round(amount * P.owners * 100) / 100,
+    tax:    Math.round(amount * P.tax    * 100) / 100,
+    opex:   Math.round(amount * P.opex   * 100) / 100,
+    mat:    Math.round(amount * P.mat    * 100) / 100,
+    subs:   Math.round(amount * P.subs   * 100) / 100
   };
   var html = '';
   BUCKET_KEYS.forEach(function(bk) {
@@ -1643,14 +1770,15 @@ function confirmDistribution() {
   var month  = document.getElementById('dist-month').value;
   if (!amount) { alert('Please enter the amount to distribute.'); return; }
   if (!date)   { alert('Please enter the distribution date.'); return; }
+  var P = pctFor(date);
   distributions.unshift({
     id:Date.now(), type:'distribution', date:date, month:month, amount:amount,
-    profit: Math.round(amount*PCT.profit*100)/100,
-    owners: Math.round(amount*PCT.owners*100)/100,
-    tax:    Math.round(amount*PCT.tax*100)/100,
-    opex:   Math.round(amount*PCT.opex*100)/100,
-    mat:    Math.round(amount*PCT.mat*100)/100,
-    subs:   Math.round(amount*PCT.subs*100)/100
+    profit: Math.round(amount*P.profit*100)/100,
+    owners: Math.round(amount*P.owners*100)/100,
+    tax:    Math.round(amount*P.tax*100)/100,
+    opex:   Math.round(amount*P.opex*100)/100,
+    mat:    Math.round(amount*P.mat*100)/100,
+    subs:   Math.round(amount*P.subs*100)/100
   });
   saveDistributions(); clearDistForm(); renderRecentDist(); updateAlert();
   alert('Distribution of ' + fmt(amount) + ' recorded for ' + date + '.');
@@ -1920,7 +2048,7 @@ function confirmFcPaid() {
   if (!gross) { alert('Please enter the gross payment amount.'); return; }
 
   // Create an income entry — runs the standard Profit First allocation.
-  var a = calcAlloc(gross, stripe);
+  var a = calcAlloc(gross, stripe, date);
   var jobDesc = f.job ? (f.address + ' \u2014 ' + f.job) : f.address;
   var paidD = new Date(date);
   var paidMonth = MONTHS[paidD.getMonth()] + ' ' + paidD.getFullYear();
@@ -2050,7 +2178,7 @@ function confirmQuickPaid() {
   saveForecasts();
 
   // Create income entry with full PF allocation
-  var a = calcAlloc(gross, stripe);
+  var a = calcAlloc(gross, stripe, date);
   var displayJob = jobDesc ? (address + ' \u2014 ' + jobDesc) : address;
   incomes.unshift({
     id: incomeId, type: 'income',
@@ -2285,6 +2413,7 @@ function showTab(name, el) {
   if (name==='cashflow')  renderCashFlow();
   if (name==='reports')   renderReports();
   if (name==='distribute') renderRecentDist();
+  if (name==='accountable') renderAccountable();
   if (name==='bills')      renderBills();
   if (name==='forecast')  { autorollForecasts(); renderForecast(); refreshBuilderDatalist(); }
   if (name==='xero') {
@@ -2855,7 +2984,7 @@ function renderReports() {
     '<div style="height:1px;background:#2A4A6A;margin:6px 0"></div>' +
     ['profit','owners','tax','opex','materials','subs'].map(function(bk){
       var inKey={profit:'profit',owners:'owners',tax:'tax',opex:'opex',materials:'mat',subs:'subs'}[bk];
-      var pct={profit:12.7,owners:10.7,tax:17,opex:13.5,materials:31.8,subs:14.3}[bk];
+      var pct=tInc.real>0 ? (Math.round(tInc[inKey]/tInc.real*1000)/10) : Math.round(PCT[inKey]*1000)/10;
       return '<div class="rrow"><span class="rrow-lbl" style="color:'+BUCKET_COLORS[bk]+'">'+BUCKET_LABELS[bk]+' ('+pct+'%)</span><span class="rrow-amt" style="color:'+BUCKET_COLORS[bk]+'">'+fmt(tInc[inKey])+'</span></div>';
     }).join('') +
     '<div class="rtotal"><span class="rtotal-lbl">Total Allocated</span><span class="rtotal-amt">'+fmt(tInc.real)+'</span></div>' +
@@ -2973,6 +3102,368 @@ function fillFromScan() {
   }
 }
 
+// ─── ACCOUNTABLE PLAN (Treas. Reg. §1.62-2, eff. Jan 1, 2026) ─────────
+// Business costs Erika/Dion pay personally → logged here → monthly request →
+// approved → reimbursed tax-free from OPEX. Rules: business purpose, receipts
+// for $75+ and all lodging, mileage log, submit within 60 days.
+var AP_KEY = 'eg_accountable_v1';
+var AP_TYPES = ['Mileage','Home office','Cell phone / internet','Tools & supplies','Travel','Lodging','Meals','Dues & subscriptions','Education','Other'];
+var MILEAGE_RATES = [ // IRS standard business rate, by trip date
+  {from:'2026-01-01', rate:0.725},
+  {from:'2026-07-01', rate:0.76}
+];
+var AP_PEOPLE = ['Erika','Dion'];
+var AP_HO_FIELDS = [
+  ['rent','Rent (if renting)'],['mortInt','Mortgage interest (if owned)'],['propTax','Property taxes (if owned)'],
+  ['electric','Electricity'],['gas','Natural gas'],['water','Water / sewer / trash'],['insurance',"Homeowner's / renter's insurance"],
+  ['hoa','HOA dues'],['repairs','Repairs & maintenance (whole home)'],['other','Other']
+];
+var AP = {items:[], requests:[], homeOffice:{}};
+
+function apLoad() {
+  try { var r = localStorage.getItem(AP_KEY); if (r) AP = JSON.parse(r); } catch(e) {}
+  AP.items = AP.items || []; AP.requests = AP.requests || []; AP.homeOffice = AP.homeOffice || {};
+}
+function apSave() { try { localStorage.setItem(AP_KEY, JSON.stringify(AP)); } catch(e) {} scheduleCloudSync(); }
+
+function apMileRate(ds) {
+  var r = MILEAGE_RATES[0].rate;
+  MILEAGE_RATES.forEach(function(m){ if ((ds||'') >= m.from) r = m.rate; });
+  return r;
+}
+function apAge(ds) { // days since the expense was paid
+  if (!ds) return 0;
+  var now = new Date(); now.setHours(0,0,0,0);
+  var d = new Date(ds + 'T00:00:00');
+  return Math.round((now - d) / 86400000);
+}
+function apAgeHtml(it) {
+  if (it.status !== 'logged') return '<span style="color:#5A7A99">—</span>';
+  var a = apAge(it.date), left = 60 - a;
+  var cls = a >= 60 ? 'ap-age-late' : a >= 45 ? 'ap-age-warn' : 'ap-age-ok';
+  return '<span class="' + cls + '">' + a + 'd · ' + (left > 0 ? left + 'd left' : 'PAST 60') + '</span>';
+}
+function apEsc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function apNeedsReceipt(it) { return it.type !== 'Mileage' && (it.amount >= 75 || it.type === 'Lodging'); }
+
+function apTypeChanged() {
+  var isMile = document.getElementById('ap-type').value === 'Mileage';
+  document.getElementById('ap-mile-row').style.display = isMile ? 'grid' : 'none';
+  document.getElementById('ap-amount').readOnly = isMile;
+  document.getElementById('ap-amount').style.color = isMile ? '#3CA83C' : '';
+  if (isMile) { document.getElementById('ap-receipt').value = 'na'; apCalcMileage(); }
+}
+function apCalcMileage() {
+  var ds = document.getElementById('ap-date').value;
+  var rate = apMileRate(ds);
+  var late = ds && ds.slice(0,4) > '2026';
+  document.getElementById('ap-rate').value = rate.toFixed(3) + (late ? ' (2026 rate — update for ' + ds.slice(0,4) + ')' : '');
+  if (document.getElementById('ap-type').value !== 'Mileage') return;
+  var miles = parseFloat(document.getElementById('ap-miles').value) || 0;
+  document.getElementById('ap-amount').value = miles ? (Math.round(miles * rate * 100) / 100).toFixed(2) : '';
+}
+function apClearForm() {
+  ['ap-amount','ap-from','ap-to','ap-miles','ap-vendor','ap-purpose'].forEach(function(id){ document.getElementById(id).value = ''; });
+  document.getElementById('ap-date').value = todayStr();
+  document.getElementById('ap-receipt').value = 'yes';
+  apTypeChanged();
+}
+function apAddItem() {
+  var it = {
+    id: Date.now(), person: document.getElementById('ap-person').value,
+    date: document.getElementById('ap-date').value, type: document.getElementById('ap-type').value,
+    vendor: document.getElementById('ap-vendor').value.trim(),
+    purpose: document.getElementById('ap-purpose').value.trim(),
+    receipt: document.getElementById('ap-receipt').value,
+    amount: parseFloat(document.getElementById('ap-amount').value) || 0,
+    status: 'logged'
+  };
+  if (!it.date) { alert('Enter the date the expense was paid (or the trip date).'); return; }
+  if (!it.purpose) { alert('A business purpose is required — the IRS needs to see why this was for the business.'); return; }
+  if (it.date < '2026-01-01') { alert('The Accountable Plan starts January 1, 2026 — earlier expenses can\'t be reimbursed under it.'); return; }
+  if (it.type === 'Mileage') {
+    it.from = document.getElementById('ap-from').value.trim();
+    it.to = document.getElementById('ap-to').value.trim();
+    it.miles = parseFloat(document.getElementById('ap-miles').value) || 0;
+    it.rate = apMileRate(it.date);
+    it.amount = Math.round(it.miles * it.rate * 100) / 100;
+    if (!it.from || !it.to || !it.miles) { alert('Mileage needs From, To and Miles for the log.'); return; }
+  }
+  if (!it.amount) { alert('Enter the amount.'); return; }
+  if (apNeedsReceipt(it) && it.receipt !== 'yes') {
+    if (!confirm('A receipt is required for anything $75+ and all lodging. Without one this can\'t be reimbursed tax-free.\n\nLog it anyway (and find the receipt before submitting)?')) return;
+  }
+  if (apAge(it.date) > 60) {
+    if (!confirm('This expense is more than 60 days old — past the plan\'s submission window. Ask Lupe before reimbursing it (it may have to run through payroll as wages).\n\nLog it anyway?')) return;
+  }
+  AP.items.unshift(it);
+  apSave(); apClearForm(); renderAccountable();
+}
+function apDeleteItem(id) {
+  var it = AP.items.find(function(x){ return x.id === id; });
+  if (!it || it.status !== 'logged') return;
+  if (!confirm('Delete this logged expense?')) return;
+  AP.items = AP.items.filter(function(x){ return x.id !== id; });
+  apSave(); renderAccountable();
+}
+
+// ── Requests ───────────────────────────────────────────────
+function apBuildRequest(person) {
+  var items = AP.items.filter(function(it){ return it.person === person && it.status === 'logged'; });
+  if (!items.length) { alert('No unsubmitted expenses for ' + person + '.'); return; }
+  var missing = items.filter(function(it){ return apNeedsReceipt(it) && it.receipt !== 'yes'; });
+  var total = items.reduce(function(s,it){ return s + it.amount; }, 0);
+  var msg = 'Build ' + person + '\'s reimbursement request?\n\n' + items.length + ' item(s) · ' + fmt(total) +
+    (missing.length ? '\n\n⚠ ' + missing.length + ' item(s) need a receipt that isn\'t marked saved.' : '') +
+    '\n\nThis marks them Submitted and opens the printable form to sign and approve.';
+  if (!confirm(msg)) return;
+  var dates = items.map(function(it){ return it.date; }).sort();
+  var req = {
+    id: Date.now(), person: person, submitted: todayStr(),
+    periodFrom: dates[0], periodTo: dates[dates.length-1],
+    itemIds: items.map(function(it){ return it.id; }),
+    total: Math.round(total * 100) / 100, status: 'submitted'
+  };
+  items.forEach(function(it){ it.status = 'submitted'; it.requestId = req.id; });
+  AP.requests.unshift(req);
+  apSave(); renderAccountable();
+  apPrintRequest(req.id);
+}
+function apUndoRequest(id) {
+  var req = AP.requests.find(function(r){ return r.id === id; });
+  if (!req || req.status !== 'submitted') return;
+  if (!confirm('Cancel this request and move its items back to "not yet submitted"?')) return;
+  AP.items.forEach(function(it){ if (it.requestId === id) { it.status = 'logged'; delete it.requestId; } });
+  AP.requests = AP.requests.filter(function(r){ return r.id !== id; });
+  apSave(); renderAccountable();
+}
+function apMarkPaid(id) {
+  var req = AP.requests.find(function(r){ return r.id === id; });
+  if (!req || req.status !== 'submitted') return;
+  var date = prompt('Date the reimbursement was paid (YYYY-MM-DD).\nThis posts a paid OPEX expense of ' + fmt(req.total) + ' to the ledger.', todayStr());
+  if (!date) return;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { alert('Use the format YYYY-MM-DD.'); return; }
+  var d = new Date(date + 'T00:00:00');
+  var expId = Date.now();
+  expenses.unshift({
+    id: expId, type:'expense', date: date, month: MONTHS[d.getMonth()] + ' ' + d.getFullYear(),
+    bucket:'opex', category:'Accountable Plan Reimbursement',
+    vendor:'Reimbursement — ' + req.person, amount: req.total, status:'paid',
+    notes:'Accountable Plan request ' + req.submitted + ' (' + req.itemIds.length + ' items, ' + req.periodFrom + ' → ' + req.periodTo + '). Not wages — not on W-2.',
+    apRequestId: req.id
+  });
+  saveExpenses(); renderRecentExpense(); updateAlert();
+  req.status = 'paid'; req.paidDate = date; req.expenseId = expId;
+  AP.items.forEach(function(it){ if (it.requestId === id) it.status = 'paid'; });
+  apSave(); renderAccountable();
+}
+function apPrintRequest(id) {
+  var req = AP.requests.find(function(r){ return r.id === id; });
+  if (!req) return;
+  var items = AP.items.filter(function(it){ return it.requestId === id; }).sort(function(a,b){ return a.date < b.date ? -1 : 1; });
+  var miles = items.filter(function(it){ return it.type === 'Mileage'; });
+  var other = items.filter(function(it){ return it.type !== 'Mileage'; });
+  var mSub = miles.reduce(function(s,it){ return s+it.amount; },0), oSub = other.reduce(function(s,it){ return s+it.amount; },0);
+  var money = function(n){ return '$' + n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); };
+  var e = apEsc;
+  var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Reimbursement Request — ' + e(req.person) + ' — ' + e(req.submitted) + '</title><style>' +
+    'body{font-family:Calibri,Segoe UI,Arial,sans-serif;color:#222;max-width:8in;margin:.4in auto;font-size:12px}' +
+    'h1{color:#6B1F1F;font-size:20px;margin:0}h2{font-size:14px;margin:2px 0 2px}.sub{color:#777;font-style:italic;font-size:11px;margin-bottom:12px}' +
+    '.meta{display:grid;grid-template-columns:1fr 1fr;gap:4px 20px;margin:10px 0 14px}.meta b{display:inline-block;width:130px}' +
+    '.bar{background:#6B1F1F;color:#fff;font-weight:bold;padding:5px 8px;margin-top:14px}' +
+    'table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:4px 6px;text-align:left;vertical-align:top}th{background:#f4ede4;font-size:11px}td.r,th.r{text-align:right}' +
+    '.st td{background:#faf6f0;font-weight:bold}.tot{background:#6B1F1F;color:#fff;font-weight:bold;display:flex;justify-content:space-between;padding:6px 8px;margin-top:14px}' +
+    '.cert{margin-top:16px;line-height:1.5}.sig{display:grid;grid-template-columns:2fr 1fr;gap:28px 20px;margin-top:26px}.sig div{border-top:1px solid #555;padding-top:3px;font-size:11px}' +
+    '.fine{color:#777;font-style:italic;font-size:10.5px;margin-top:20px}@media print{body{margin:.3in}}</style></head><body>' +
+    '<h1>ERIDION GLASS, LLC</h1><h2>Employee Business Expense Reimbursement Request</h2>' +
+    '<div class="sub">Accountable Plan (Treas. Reg. §1.62-2) · Submit within 60 days of the expense with receipts attached</div>' +
+    '<div class="meta"><div><b>Employee:</b> ' + e(req.person) + '</div><div><b>Reimbursement period:</b> ' + e(req.periodFrom) + ' → ' + e(req.periodTo) + '</div>' +
+    '<div><b>Date submitted:</b> ' + e(req.submitted) + '</div></div>' +
+    '<div class="bar">1. Business Mileage</div><table><tr><th>Date</th><th>From → To</th><th>Business purpose</th><th class="r">Miles</th><th class="r">Rate $/mi</th><th class="r">Amount</th></tr>' +
+    (miles.length ? miles.map(function(it){ return '<tr><td>'+e(it.date)+'</td><td>'+e(it.from)+' → '+e(it.to)+'</td><td>'+e(it.purpose)+'</td><td class="r">'+it.miles+'</td><td class="r">'+it.rate.toFixed(3)+'</td><td class="r">'+money(it.amount)+'</td></tr>'; }).join('') : '<tr><td colspan="6" style="color:#999">No mileage this period</td></tr>') +
+    '<tr class="st"><td colspan="5" class="r">Mileage subtotal</td><td class="r">'+money(mSub)+'</td></tr></table>' +
+    '<div class="bar">2. Other Business Expenses</div><table><tr><th>Date</th><th>Category</th><th>Description / business purpose</th><th>Receipt?</th><th class="r">Amount</th></tr>' +
+    (other.length ? other.map(function(it){ return '<tr><td>'+e(it.date)+'</td><td>'+e(it.type)+'</td><td>'+(it.vendor?e(it.vendor)+' — ':'')+e(it.purpose)+'</td><td>'+(it.receipt==='yes'?'Yes':it.receipt==='na'?'n/a':'<b style="color:#A32D2D">MISSING</b>')+'</td><td class="r">'+money(it.amount)+'</td></tr>'; }).join('') : '<tr><td colspan="5" style="color:#999">No other expenses this period</td></tr>') +
+    '<tr class="st"><td colspan="4" class="r">Other expenses subtotal</td><td class="r">'+money(oSub)+'</td></tr></table>' +
+    '<div class="tot"><span>TOTAL REIMBURSEMENT REQUESTED</span><span>'+money(mSub+oSub)+'</span></div>' +
+    '<div class="cert">Employee certification: I certify that the amounts above were paid by me for ordinary and necessary business expenses of Eridion Glass, LLC, that the required substantiation is attached, and that no amount is personal or has been or will be reimbursed elsewhere.</div>' +
+    '<div class="sig"><div>Employee signature</div><div>Date</div><div>Approved by</div><div>Date</div></div>' +
+    '<div class="fine">Reimbursed amounts that meet the Accountable Plan are excluded from wages (not on Form W-2). Retain this form and all receipts.</div>' +
+    '<script>window.onload=function(){window.print();}<\/script></body></html>';
+  var w = window.open('', '_blank');
+  if (!w) { alert('Pop-up blocked — allow pop-ups for this page to print the request.'); return; }
+  w.document.open(); w.document.write(html); w.document.close();
+}
+
+// ── Home office worksheet ──────────────────────────────────
+function apHO(person, year) {
+  var k = person + '_' + year;
+  if (!AP.homeOffice[k]) AP.homeOffice[k] = {officeSqft:0, totalSqft:0, costs:{}};
+  return AP.homeOffice[k];
+}
+function apHOCalc(h) {
+  var pct = h.totalSqft > 0 ? Math.min(1, h.officeSqft / h.totalSqft) : 0;
+  var total = AP_HO_FIELDS.reduce(function(s,f){ return s + (parseFloat(h.costs[f[0]]) || 0); }, 0);
+  var annual = Math.round(total * pct * 100) / 100;
+  return {pct:pct, total:total, annual:annual, monthly:Math.round(annual/12*100)/100, quarterly:Math.round(annual/4*100)/100};
+}
+function renderHomeOffice() {
+  var person = document.getElementById('ap-ho-person').value;
+  var yEl = document.getElementById('ap-ho-year');
+  if (!yEl.value) yEl.value = new Date().getFullYear();
+  var h = apHO(person, yEl.value);
+  var row = function(key, label, val, ph){ return '<div class="ap-ho-row"><span>'+label+'</span><input type="number" step="0.01" value="'+(val||'')+'" placeholder="'+(ph||'0')+'" oninput="apHOInput(\''+key+'\',this.value)"/></div>'; };
+  var html = '<div class="section-lbl">1. Business-use percentage</div>' +
+    row('officeSqft','Office square footage', h.officeSqft, 'sq ft') + row('totalSqft','Total home square footage', h.totalSqft, 'sq ft') +
+    '<div class="section-lbl" style="margin-top:12px">2. Annual home costs you actually pay</div>' +
+    AP_HO_FIELDS.map(function(f){ return row('c.'+f[0], f[1], h.costs[f[0]]); }).join('');
+  document.getElementById('ap-ho-inputs').innerHTML = html;
+  renderHOResults();
+}
+function apHOInput(key, val) {
+  var h = apHO(document.getElementById('ap-ho-person').value, document.getElementById('ap-ho-year').value);
+  var v = parseFloat(val) || 0;
+  if (key.indexOf('c.') === 0) h.costs[key.slice(2)] = v; else h[key] = v;
+  apSave(); renderHOResults();
+}
+function renderHOResults() {
+  var h = apHO(document.getElementById('ap-ho-person').value, document.getElementById('ap-ho-year').value);
+  var c = apHOCalc(h);
+  document.getElementById('ap-ho-results').innerHTML = '<div class="section-lbl">3. Reimbursable amount</div>' +
+    '<div class="ap-ho-out"><span>Business-use percentage</span><strong style="color:#3CA83C">' + (Math.round(c.pct*10000)/100).toFixed(2) + '%</strong></div>' +
+    '<div class="ap-ho-out"><span>Total annual home costs</span><strong>' + fmt(c.total) + '</strong></div>' +
+    '<div class="ap-ho-out"><span>Annual reimbursable amount</span><strong style="color:#3CA83C">' + fmt(c.annual) + '</strong></div>' +
+    '<div class="ap-ho-out"><span>&nbsp;&nbsp;Monthly (÷ 12)</span><strong>' + fmt(c.monthly) + '</strong></div>' +
+    '<div class="ap-ho-out"><span>&nbsp;&nbsp;Quarterly (÷ 4)</span><strong>' + fmt(c.quarterly) + '</strong></div>';
+}
+function apAddHomeOffice(period) {
+  var person = document.getElementById('ap-ho-person').value, year = document.getElementById('ap-ho-year').value;
+  var c = apHOCalc(apHO(person, year));
+  var amt = period === 'month' ? c.monthly : c.quarterly;
+  if (!amt) { alert('Fill in the square footage and home costs first.'); return; }
+  var now = new Date();
+  var label = period === 'month' ? MONTHS[now.getMonth()] + ' ' + now.getFullYear() : 'Q' + (Math.floor(now.getMonth()/3)+1) + ' ' + now.getFullYear();
+  if (AP.items.some(function(it){ return it.person === person && it.type === 'Home office' && it.hoPeriod === label; })) {
+    if (!confirm('Home office for ' + person + ' is already logged for ' + label + '. Log it again?')) return;
+  }
+  AP.items.unshift({
+    id: Date.now(), person: person, date: todayStr(), type: 'Home office', vendor: '', hoPeriod: label,
+    purpose: 'Home office — ' + label + ' (' + (Math.round(c.pct*10000)/100).toFixed(2) + '% business use of ' + year + ' home costs, per worksheet)',
+    receipt: 'yes', amount: amt, status: 'logged'
+  });
+  apSave(); renderAccountable();
+}
+
+// ── Owner pay (S-corp) ─────────────────────────────────────
+function apOwnerPay(year) {
+  var inYear = function(e){ return (e.date||'').slice(0,4) === String(year) || (!e.date && (e.month||'').slice(-4) === String(year)); };
+  var paid = expenses.filter(function(e){ return e.status === 'paid' && inYear(e); });
+  var sum = function(cat){ return paid.filter(function(e){ return e.category === cat; }).reduce(function(s,e){ return s + e.amount; }, 0); };
+  var out = {unassigned: sum('Owner Distribution')};
+  AP_PEOPLE.forEach(function(p){ out[p] = {payroll: sum('Payroll – ' + p), dist: sum('Owner Distribution – ' + p)}; });
+  return out;
+}
+function renderOwnerPay() {
+  var year = new Date().getFullYear();
+  document.getElementById('ap-op-year').textContent = year + ' · paid entries in the ledger';
+  var op = apOwnerPay(year);
+  var html = '<table><thead><tr><th>Person</th><th>Own</th><th>W-2 target</th><th>Payroll YTD</th><th>Distributions YTD</th></tr></thead><tbody>';
+  AP_PEOPLE.forEach(function(p){
+    var t = OWNER_PAY[p].w2, got = op[p].payroll;
+    html += '<tr><td>' + p + '</td><td>' + Math.round(OWNER_PAY[p].own*100) + '%</td><td>' + fmt(t,0) + '</td>' +
+      '<td style="color:' + (got >= t ? '#7DD87D' : '#F0B05A') + '">' + fmt(got,0) + '</td><td>' + fmt(op[p].dist,0) + '</td></tr>';
+  });
+  html += '</tbody></table>';
+  var dE = op.Erika.dist, dD = op.Dion.dist, tot = dE + dD, notes = [];
+  if (tot > 0) {
+    var eShare = dE / tot;
+    var off = Math.abs(eShare - OWNER_PAY.Erika.own) > 0.005;
+    var trueUp = dE / OWNER_PAY.Erika.own > dD / OWNER_PAY.Dion.own
+      ? 'Dion is owed ' + fmt(dE / OWNER_PAY.Erika.own * OWNER_PAY.Dion.own - dD, 0)
+      : 'Erika is owed ' + fmt(dD / OWNER_PAY.Dion.own * OWNER_PAY.Erika.own - dE, 0);
+    notes.push(off ? '<span class="ap-age-warn">⚠ Distributions are ' + Math.round(eShare*100) + ' / ' + Math.round((1-eShare)*100) + ' — must be 51 / 49. ' + trueUp + ' to even up.</span>'
+                   : '<span class="ap-age-ok">✓ Distributions are on the 51 / 49 split.</span>');
+  }
+  if (op.unassigned > 0) notes.push('<span class="ap-age-warn">' + fmt(op.unassigned,0) + ' logged as plain "Owner Distribution" — re-tag each to Erika or Dion so the 51/49 check is complete.</span>');
+  notes.push('Payroll: record <strong>gross</strong> wages as "Payroll – Erika/Dion" in Owner\'s Comp; employer taxes as "Payroll Tax – Employer" in Tax Reserve. ' + year + ' payroll must run by Dec 31.');
+  document.getElementById('ap-owner-pay').innerHTML = html + '<div class="ap-note">' + notes.join('<br>') + '</div>';
+}
+
+// ── Main render ────────────────────────────────────────────
+function apStats() {
+  var s = {};
+  AP_PEOPLE.forEach(function(p){
+    var open = AP.items.filter(function(it){ return it.person === p && it.status === 'logged'; });
+    s[p] = { open: open.reduce(function(a,it){ return a + it.amount; }, 0), count: open.length,
+             oldest: open.reduce(function(m,it){ return Math.max(m, apAge(it.date)); }, 0) };
+  });
+  s.awaiting = AP.requests.filter(function(r){ return r.status === 'submitted'; }).reduce(function(a,r){ return a + r.total; }, 0);
+  var yr = String(new Date().getFullYear());
+  s.paidYTD = AP.requests.filter(function(r){ return r.status === 'paid' && (r.paidDate||'').slice(0,4) === yr; }).reduce(function(a,r){ return a + r.total; }, 0);
+  s.urgent = AP.items.filter(function(it){ return it.status === 'logged' && apAge(it.date) >= 45; }).length;
+  return s;
+}
+function apUpdateTabFlag() {
+  var el = document.getElementById('ap-tab-flag'); if (!el) return;
+  var n = apStats().urgent;
+  el.innerHTML = n ? '<span class="ap-flag" title="Expenses 45+ days old — submit before 60">' + n + '</span>' : '';
+}
+function renderAccountable() {
+  var s = apStats();
+  var tile = function(lbl, val, sub, color){ return '<div class="ap-tile"><div class="ap-tile-lbl">'+lbl+'</div><div class="ap-tile-val" style="color:'+color+'">'+val+'</div><div class="ap-tile-sub">'+sub+'</div></div>'; };
+  var ageSub = function(p){ var o = s[p].oldest; return s[p].count ? s[p].count + ' item' + (s[p].count>1?'s':'') + ' · oldest <span class="' + (o>=60?'ap-age-late':o>=45?'ap-age-warn':'ap-age-ok') + '">' + o + ' days</span>' : 'nothing waiting'; };
+  document.getElementById('ap-tiles').innerHTML =
+    tile('Erika — not yet submitted', fmt(s.Erika.open), ageSub('Erika'), '#5599CC') +
+    tile('Dion — not yet submitted', fmt(s.Dion.open), ageSub('Dion'), '#5599CC') +
+    tile('Submitted, awaiting payment', fmt(s.awaiting), 'approve &amp; pay from OPEX', '#F0B05A') +
+    tile('Reimbursed ' + new Date().getFullYear(), fmt(s.paidYTD), 'tax-free · not on W-2', '#3CA83C');
+
+  // weekly stats (Mon–Sun of this week)
+  var now = new Date(); var mon = new Date(now); mon.setDate(now.getDate() - ((now.getDay()+6)%7)); mon.setHours(0,0,0,0);
+  var monStr = mon.getFullYear()+'-'+String(mon.getMonth()+1).padStart(2,'0')+'-'+String(mon.getDate()).padStart(2,'0');
+  document.getElementById('ap-week-lbl').textContent = 'week of ' + mon.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  var wk = AP_PEOPLE.map(function(p){
+    var w = AP.items.filter(function(it){ return it.person === p && it.id >= mon.getTime(); });
+    return p + ': ' + w.length + ' logged this week' + (w.length ? ' (' + fmt(w.reduce(function(a,it){ return a+it.amount; },0)) + ')' : '');
+  });
+  document.getElementById('ap-week-stats').innerHTML = wk.join(' &nbsp;·&nbsp; ') + (s.urgent ? '<br><span class="ap-age-warn">⚠ ' + s.urgent + ' item(s) are 45+ days old — build the request this week.</span>' : '');
+
+  // items table
+  var fp = document.getElementById('ap-f-person').value, fs = document.getElementById('ap-f-status').value;
+  var rows = AP.items.filter(function(it){
+    return (fp === 'all' || it.person === fp) && (fs === 'all' || (fs === 'open' ? it.status === 'logged' : it.status === fs));
+  }).sort(function(a,b){ return a.date < b.date ? 1 : -1; });
+  document.getElementById('ap-items').innerHTML = rows.length ? '<table><thead><tr><th>Date</th><th>Person</th><th>Category</th><th>Purpose / trip</th><th>Miles</th><th>Receipt</th><th>Amount</th><th>Age / 60-day</th><th>Status</th><th></th></tr></thead><tbody>' +
+    rows.map(function(it){
+      var rc = it.type === 'Mileage' ? '<span style="color:#5A7A99">log</span>' : it.receipt === 'yes' ? '<span class="ap-age-ok">✓</span>' : apNeedsReceipt(it) ? '<span class="ap-age-late">NEEDED</span>' : '<span style="color:#5A7A99">n/a</span>';
+      var desc = it.type === 'Mileage' ? apEsc(it.from) + ' → ' + apEsc(it.to) + ' · ' + apEsc(it.purpose) : (it.vendor ? apEsc(it.vendor) + ' — ' : '') + apEsc(it.purpose);
+      var st = it.status === 'logged' ? '<span class="sb sb-due">Logged</span>' : it.status === 'submitted' ? '<span class="sb sb-recurring">Submitted</span>' : '<span class="sb sb-paid">Paid</span>';
+      return '<tr><td>' + apEsc(it.date) + '</td><td>' + apEsc(it.person) + '</td><td>' + apEsc(it.type) + '</td><td style="white-space:normal;max-width:320px">' + desc + '</td><td>' + (it.miles || '') + '</td><td>' + rc + '</td><td>' + fmt(it.amount) + '</td><td>' + apAgeHtml(it) + '</td><td>' + st + '</td>' +
+        '<td>' + (it.status === 'logged' ? '<button class="ap-mini-btn danger" onclick="apDeleteItem(' + it.id + ')">Delete</button>' : '') + '</td></tr>';
+    }).join('') + '</tbody></table>' : '<div class="empty">Nothing here. Log mileage and out-of-pocket business costs above.</div>';
+
+  // requests table
+  document.getElementById('ap-requests').innerHTML = AP.requests.length ? '<table><thead><tr><th>Submitted</th><th>Person</th><th>Period</th><th>Items</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody>' +
+    AP.requests.map(function(r){
+      var st = r.status === 'paid' ? '<span class="sb sb-paid">Paid ' + apEsc(r.paidDate) + '</span>' : '<span class="sb sb-recurring">Awaiting payment</span>';
+      return '<tr><td>' + apEsc(r.submitted) + '</td><td>' + apEsc(r.person) + '</td><td>' + apEsc(r.periodFrom) + ' → ' + apEsc(r.periodTo) + '</td><td>' + r.itemIds.length + '</td><td>' + fmt(r.total) + '</td><td>' + st + '</td><td>' +
+        '<button class="ap-mini-btn" onclick="apPrintRequest(' + r.id + ')">Print</button>' +
+        (r.status === 'submitted' ? '<button class="ap-mini-btn" onclick="apMarkPaid(' + r.id + ')">Mark Paid</button><button class="ap-mini-btn danger" onclick="apUndoRequest(' + r.id + ')">Cancel</button>' : '') +
+        '</td></tr>';
+    }).join('') + '</tbody></table>' : '<div class="empty">No requests yet. Use "Build Erika\'s / Dion\'s Request" on the log.</div>';
+
+  renderOwnerPay();
+  renderHomeOffice();
+  apUpdateTabFlag();
+}
+function apInit() {
+  apLoad();
+  document.getElementById('ap-type').innerHTML = AP_TYPES.map(function(t){ return '<option>' + t + '</option>'; }).join('');
+  document.getElementById('ap-date').value = todayStr();
+  apTypeChanged();
+  apUpdateTabFlag();
+}
+
 // ─── MISC ────────────────────────────────────────────────────
 function updateHdrCount() {
   var n=incomes.length;
@@ -3000,6 +3491,7 @@ allMonthSels.forEach(function(id){
 document.getElementById('e-date').value = todayStr();
 document.getElementById('dist-date').value = todayStr();
 updateExpCats();
+apInit();
 updateHdrCount();
 renderRecentExpense();
 renderRecentDist();

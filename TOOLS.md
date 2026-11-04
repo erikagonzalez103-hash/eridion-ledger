@@ -1,6 +1,6 @@
 # TOOLS.md — Eridion / Quinta & Co. Tool Registry
 
-**Owner:** Erika Gonzalez · **Last updated:** July 23, 2026
+**Owner:** Erika Gonzalez · **Last updated:** November 4, 2026
 **Purpose:** Living inventory of every custom tool built. Claude Code: read this alongside CLAUDE.md at the start of any session that touches an existing app. When you ship a change, update the relevant entry (status, roadmap, date).
 **Searchable viewer:** erikagonzalez103-hash.github.io/eridion-ledger/tools.html — reads this file directly, so editing TOOLS.md is all that's needed; the viewer stays current automatically.
 
@@ -50,6 +50,8 @@
 - **Backend:** `eridion-xero-worker` — OAuth complete, tokens in KV, passphrase-gated endpoints, account numbers sanitized at Worker level
 - **Gap:** Frontend sync UI not yet built (backend done April 9, 2026)
 - **Roadmap:** (1) Sync button → pull month transactions; (2) auto-categorize to buckets; (3) budget vs. actual; (4) AI coaching layer; (5) check/remittance photo scan → AI auto-fill (Grand Homes remittance = priority 1, Hines Bill.com = priority 2, Stripe screenshots = priority 3; DR Horton needs a manual translator/lookup table); (6) Order Tracker sync via job number
+- **TAPs (effective Nov 1, 2026):** Profit 7.7 · Owner's Comp 11.7 · Tax 17 · OPEX 13.5 · Materials 35.8 · Subs 14.3. Earlier entries keep the split they were recorded with (`TAP_SCHEDULE` in `index.html`). Owner's Comp now funds S-corp W-2 payroll (2026 = 2025 reasonable-comp amounts: Dion $45,242, Erika $30,555); employer payroll tax from Tax Reserve; distributions must split 51/49.
+- **Accountable Plan tab (Nov 2026):** log of out-of-pocket business costs (mileage at IRS rate by trip date, receipts $75+/lodging, home office worksheet, 60-day countdown) → printable reimbursement request matching the CPA's form → Mark Paid posts an OPEX "Accountable Plan Reimbursement" expense. Also an Owner Pay card (W-2 YTD vs target, 51/49 distribution check). Synced via key `eg_accountable_v1`; the Snapshot reads it for its Monday card.
 - **Note:** This repo previously hosted the pricing audit + negotiation prep pages; both moved to `eridion-pricing` (redirect stubs remain at /pricing.html and /negotiation.html)
 
 ### Estimate Studio 🔵
