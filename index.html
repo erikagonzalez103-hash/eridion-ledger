@@ -765,6 +765,11 @@ tfoot td{background:#0A1728;font-weight:600;border-top:2px solid #2A4A6A;}
 
   <div class="gd-debts" id="gd-debts"></div>
 
+  <div class="card">
+    <div class="card-title-row"><div class="card-title">This Month's Debt Paydown Plan</div><div style="font-size:10px;color:#5A7A99;" id="gd-plan-sub"></div></div>
+    <div class="tbl-wrap" id="gd-plan"></div>
+  </div>
+
   <div class="ap-two">
     <div class="card">
       <div class="card-title-row"><div class="card-title">Log a Debt Payment</div></div>
@@ -1120,8 +1125,9 @@ var RECURRING = [
   {bucket:'opex',category:'Truck Payment',vendor:'Truck Payment',amount:831.03},
   {bucket:'opex',category:'Insurance',vendor:'GL Insurance',amount:691.99},
   {bucket:'opex',category:'Insurance',vendor:'Health Insurance',amount:665.70},
-  {bucket:'opex',category:'Loan Repayment',vendor:'Beyond Loan (8th)',amount:361.09},
-  {bucket:'opex',category:'Loan Repayment',vendor:'Beyond Loan (23rd)',amount:361.09},
+  // Beyond = the USAA card's 0% debt reduction program (personal debt) — paid from Debt Paydown, not OPEX
+  {bucket:'debt',category:'USAA CC',vendor:'Beyond (USAA CC program) — 8th',amount:361.09},
+  {bucket:'debt',category:'USAA CC',vendor:'Beyond (USAA CC program) — 23rd',amount:361.09},
   {bucket:'opex',category:'AT&T',vendor:'AT&T',amount:385.18},
   {bucket:'opex',category:'Vehicle Insurance',vendor:'Progressive',amount:617.70},
   {bucket:'opex',category:'Bookkeeper',vendor:'North Bay Bookkeeper',amount:575.00},
@@ -1140,7 +1146,7 @@ var RECURRING = [
   {bucket:'opex',category:'Dues & Memberships',vendor:"Let's Grow Networks",amount:10.00},
   {bucket:'opex',category:'Tools & Supplies',vendor:'HP Inkjet',amount:8.65},
   {bucket:'owners',category:'Mortgage',vendor:'Mortgage 1 (Knoll Manor)',amount:2293.00},
-  {bucket:'owners',category:'Mortgage',vendor:'Mortgage 2',amount:262.63},
+  {bucket:'debt',category:'Mortgage 2',vendor:'Mortgage 2 (IBC)',amount:262.63},
   {bucket:'owners',category:'Groceries',vendor:'Groceries',amount:1250.00},
   {bucket:'owners',category:'Vehicle Payment',vendor:'Cadillac Payment',amount:625.32},
   {bucket:'owners',category:'Personal Insurance',vendor:'Cadillac Insurance',amount:194.07},
@@ -3610,17 +3616,87 @@ function gdLoad() {
       {id:'mortgage2', name:'Mortgage 2',             kind:'personal', start:32000, startDate:d, rate:null, priority:3, goal:'Pay off to free up a HELOC'}
     ];
     GD.seeded = true;
-    gdSave();
   }
+  gdMigrateV2();
+  gdSave();
+}
+// Nov 2026 plan: Mortgage 2 first (6.5%, IBC, matures Jun 1 2029 with a balloon) —
+// pay it off before then; keep Beyond's $362 biweekly USAA program payment
+// (0%) and the Capital One payment going. Only fills values still at defaults.
+function gdMigrateV2() {
+  if (GD.v2) return;
+  var byId = {}; GD.debts.forEach(function(x){ byId[x.id] = x; });
+  var u = byId.usaa_cc, c = byId.capone_cc, m = byId.mortgage2;
+  if (m) { if (m.rate == null) m.rate = 6.5; if (!m.deadline) m.deadline = '2029-06-01'; if (m.payment == null) m.payment = 275;
+           if (!m.match) m.match = 'mortgage 2|ibc'; m.name = m.name === 'Mortgage 2' ? 'Mortgage 2 (IBC Bank)' : m.name;
+           m.goal = 'Pay off before the June 1, 2029 balloon — then open a HELOC'; }
+  if (c) { if (c.rate == null) c.rate = 20.74; if (c.payment === undefined) c.payment = null; if (!c.match) c.match = 'capital one cc|spark';
+           c.note = '$0 interest while each month\'s charges are paid in full'; c.paidMonthly = true; }
+  if (u) { if (u.rate == null) u.rate = 0; if (u.payment == null) u.payment = Math.round(362 * 26 / 12); if (!u.match) u.match = 'beyond(?!\\s*filing)|usaa cc';
+           u.note = '$362 biweekly through Beyond (debt reduction program, 0%)'; }
+  // Reorder only if the debts are still in the original default order.
+  if (u && c && m && u.priority === 1 && c.priority === 2 && m.priority === 3) { m.priority = 1; c.priority = 2; u.priority = 3; }
+  GD.v2 = true;
+}
+// Monthly payment that brings a balance to $0 by a date (amortized at the debt's rate).
+function gdRequiredPayment(d) {
+  if (!d.deadline) return 0;
+  var bal = gdBalance(d), t = new Date(todayStr() + 'T00:00:00'), dl = new Date(d.deadline + 'T00:00:00');
+  var n = Math.max(1, (dl.getFullYear() - t.getFullYear()) * 12 + (dl.getMonth() - t.getMonth()));
+  var r = (d.rate || 0) / 100 / 12;
+  if (bal <= 0) return 0;
+  return r > 0 ? bal * r / (1 - Math.pow(1 + r, -n)) : bal / n;
+}
+// Months to pay off a balance at a monthly payment (null = never).
+function gdMonthsToPayoff(bal, rate, pay) {
+  var r = (rate || 0) / 100 / 12, m = 0;
+  if (bal <= 0) return 0;
+  if (pay <= bal * r) return null; // payment doesn't even cover the interest
+  while (bal > 0.005 && m < 600) { bal = bal * (1 + r) - pay; m++; }
+  return m >= 600 ? null : m;
+}
+// This month's plan for the Debt Paydown bucket: each debt's scheduled payment,
+// at least what a deadline requires, and everything left over to the focus debt.
+function gdPlan() {
+  var inflow = gdRecentMonthlyRevenue() * (PCT.debt || 0);
+  var open = gdOpenDebts();
+  var rows = open.map(function(d){
+    var req = gdRequiredPayment(d), base = Math.max(d.payment || 0, req);
+    return {d: d, bal: gdBalance(d), req: req, base: base, plan: base};
+  });
+  var used = rows.reduce(function(s,r){ return s + r.base; }, 0);
+  var left = inflow - used;
+  if (rows.length && left > 0) rows[0].plan += left;
+  rows.forEach(function(r){
+    r.months = gdMonthsToPayoff(r.bal, r.d.rate, r.plan);
+    if (r.months != null) { var x = new Date(); x.setMonth(x.getMonth() + r.months); r.payoff = x.toISOString().slice(0,10); }
+    r.ok = !r.d.deadline || (r.payoff && r.payoff <= r.d.deadline);
+  });
+  return {inflow: inflow, rows: rows, short: left < 0 ? -left : 0};
 }
 function gdSave()  { try { localStorage.setItem(GD_DEBT_KEY, JSON.stringify(GD)); } catch(e) {} scheduleCloudSync(); }
 function gdSaveG() { try { localStorage.setItem(GD_GUARD_KEY, JSON.stringify(GDG)); } catch(e) {} scheduleCloudSync(); }
 
+// Payments logged on this tab + paid ledger expenses whose vendor matches a debt
+// (e.g. the Beyond bill marked Paid on the Bills tab counts toward the USAA card).
+function gdAllEvents() {
+  var out = GD.events.slice();
+  GD.debts.forEach(function(d){
+    if (!d.match) return;
+    var re; try { re = new RegExp(d.match, 'i'); } catch(e) { return; }
+    expenses.forEach(function(e){
+      if (e.status !== 'paid' || e.debtEventId || !e.date || e.date < d.startDate) return;
+      if (!re.test((e.vendor || '') + ' ' + (e.category || ''))) return;
+      out.push({id: e.id, debtId: d.id, type:'payment', date: e.date, amount: e.amount, from: e.bucket, auto: true});
+    });
+  });
+  return out;
+}
 // Balance of one debt as of a date (inclusive).
 function gdBalance(debt, asOf) {
   asOf = asOf || '9999-12-31';
   var bal = debt.start;
-  GD.events.filter(function(ev){ return ev.debtId === debt.id && ev.date <= asOf; })
+  gdAllEvents().filter(function(ev){ return ev.debtId === debt.id && ev.date <= asOf; })
     .sort(function(a,b){ return a.date < b.date ? -1 : a.date > b.date ? 1 : a.id - b.id; })
     .forEach(function(ev){
       if (ev.type === 'payment') bal -= ev.amount;
@@ -3629,7 +3705,7 @@ function gdBalance(debt, asOf) {
   return Math.max(0, Math.round(bal * 100) / 100);
 }
 function gdPaid(debt, from, to) {
-  return GD.events.filter(function(ev){ return ev.debtId === debt.id && ev.type === 'payment' && (!from || ev.date >= from) && (!to || ev.date <= to); })
+  return gdAllEvents().filter(function(ev){ return ev.debtId === debt.id && ev.type === 'payment' && (!from || ev.date >= from) && (!to || ev.date <= to); })
     .reduce(function(s,ev){ return s + ev.amount; }, 0);
 }
 function gdOpenDebts() { return GD.debts.filter(function(d){ return gdBalance(d) > 0; }).sort(function(a,b){ return a.priority - b.priority; }); }
@@ -3640,8 +3716,8 @@ function gdYm(ds) { return (ds || '').slice(0,7); }
 // Average monthly paydown pace: last 90 days of payments, else the Debt TAP on recent revenue.
 function gdPace() {
   var from = gdDateAdd(todayStr(), -90);
-  var paid90 = GD.events.filter(function(ev){ return ev.type === 'payment' && ev.date >= from; }).reduce(function(s,ev){ return s + ev.amount; }, 0);
-  var firstEv = GD.events.filter(function(ev){ return ev.type === 'payment'; }).map(function(ev){ return ev.date; }).sort()[0];
+  var paid90 = gdAllEvents().filter(function(ev){ return ev.type === 'payment' && ev.date >= from; }).reduce(function(s,ev){ return s + ev.amount; }, 0);
+  var firstEv = gdAllEvents().filter(function(ev){ return ev.type === 'payment'; }).map(function(ev){ return ev.date; }).sort()[0];
   if (paid90 > 0 && firstEv) {
     var days = Math.max(30, Math.min(90, (new Date(todayStr()) - new Date(firstEv)) / 86400000 + 1));
     return {monthly: paid90 / days * 30.4, basis:'your last ' + Math.round(days) + ' days of payments'};
@@ -3715,9 +3791,9 @@ function gdUndoEvent(id) {
 }
 function gdEditDebts() {
   var lines = GD.debts.slice().sort(function(a,b){ return a.priority - b.priority; }).map(function(d){
-    return [d.name, d.kind, d.start, d.rate == null ? '' : d.rate].join(' | ');
+    return [d.name, d.kind, d.start, d.rate == null ? '' : d.rate, d.payment == null ? '' : d.payment, d.deadline || ''].join(' | ');
   }).join('\n');
-  var out = prompt('One debt per line, in payoff ORDER (top = focus):\nName | business/personal | starting balance | rate %\n\nEdit, reorder or add lines. Delete a line to remove that debt.', lines);
+  var out = prompt('One debt per line, in payoff ORDER (top = focus):\nName | business/personal | starting balance | rate % | monthly payment | pay off by (YYYY-MM-DD)\n\nEdit, reorder or add lines. Delete a line to remove that debt.', lines);
   if (out == null) return;
   var rows = out.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
   var next = [];
@@ -3726,10 +3802,11 @@ function gdEditDebts() {
     var start = parseFloat(String(f[2]||'').replace(/[$,]/g,''));
     if (!f[0] || isNaN(start)) { alert('Line ' + (i+1) + ' needs at least a name and a starting balance.'); return; }
     var ex = GD.debts.find(function(d){ return d.name.toLowerCase() === f[0].toLowerCase(); });
-    var rate = parseFloat(f[3]);
+    var rate = parseFloat(f[3]), pay = parseFloat(String(f[4]||'').replace(/[$,]/g,'')), due = /^\d{4}-\d{2}-\d{2}$/.test(f[5]||'') ? f[5] : '';
     next.push({
       id: ex ? ex.id : 'd' + Date.now() + i, name: f[0], kind: /^b/i.test(f[1]||'') ? 'business' : 'personal',
-      start: start, startDate: ex ? ex.startDate : todayStr(), rate: isNaN(rate) ? null : rate, priority: i + 1, goal: ex ? ex.goal : ''
+      start: start, startDate: ex ? ex.startDate : todayStr(), rate: isNaN(rate) ? null : rate, priority: i + 1, goal: ex ? ex.goal : '',
+      payment: isNaN(pay) ? null : pay, deadline: due, match: ex ? ex.match : '', note: ex ? ex.note : ''
     });
   }
   var removed = GD.debts.filter(function(d){ return !next.some(function(n){ return n.id === d.id; }); });
@@ -3781,7 +3858,7 @@ function renderGuard() {
   var now = GD.debts.reduce(function(s,d){ return s + gdBalance(d); }, 0);
   var paidAll = GD.debts.reduce(function(s,d){ return s + gdPaid(d); }, 0);
   var interest = GD.events.filter(function(ev){ return ev.type === 'statement' && ev.delta > 0; }).reduce(function(s,ev){ return s + ev.delta; }, 0);
-  var monthPaid = GD.events.filter(function(ev){ return ev.type === 'payment' && gdYm(ev.date) === ymNow; }).reduce(function(s,ev){ return s + ev.amount; }, 0);
+  var monthPaid = gdAllEvents().filter(function(ev){ return ev.type === 'payment' && gdYm(ev.date) === ymNow; }).reduce(function(s,ev){ return s + ev.amount; }, 0);
   var pace = gdPace();
   var months = pace.monthly > 0 ? now / pace.monthly : null;
   var freeDate = months != null ? (function(){ var d = new Date(); d.setDate(d.getDate() + Math.round(months * 30.4)); return d.toLocaleDateString('en-US',{month:'short',year:'numeric'}); })() : '—';
@@ -3801,27 +3878,47 @@ function renderGuard() {
   var focusId = (gdOpenDebts()[0] || {}).id;
   document.getElementById('gd-debts').innerHTML = GD.debts.slice().sort(function(a,b){ return a.priority - b.priority; }).map(function(d){
     var bal = gdBalance(d), p = d.start > 0 ? Math.max(0, Math.min(100, (1 - bal / d.start) * 100)) : 0, done = bal <= 0;
-    var mo = GD.events.filter(function(ev){ return ev.debtId === d.id && ev.type === 'payment' && gdYm(ev.date) === ymNow; }).reduce(function(s,ev){ return s + ev.amount; }, 0);
+    var mo = gdAllEvents().filter(function(ev){ return ev.debtId === d.id && ev.type === 'payment' && gdYm(ev.date) === ymNow; }).reduce(function(s,ev){ return s + ev.amount; }, 0);
     return '<div class="gd-debt' + (done ? ' done' : d.id === focusId ? ' focus' : '') + '">' +
       '<div class="gd-debt-name">' + apEsc(d.name) + '<span class="gd-tag ' + (d.kind === 'business' ? 'biz">Business' : 'pers">Personal') + '</span>' +
         (done ? '<span class="gd-tag done">Paid off 🎉</span>' : d.id === focusId ? '<span class="gd-tag focus">Focus</span>' : '') + '</div>' +
       '<div class="gd-debt-bal" style="color:' + (done ? '#3CA83C' : '#F5F5F5') + '">' + fmt(bal, 0) + '</div>' +
       '<div class="gd-bar"><div class="gd-bar-fill" style="width:' + p.toFixed(1) + '%"></div></div>' +
       '<div class="gd-meta">' + p.toFixed(0) + '% paid of ' + fmt(d.start,0) + ' · ' + fmt(mo,0) + ' this month' +
-        '<br>Rate: ' + (d.rate != null ? d.rate + '%' + (bal > 0 ? ' (≈' + fmt(bal * d.rate / 100 / 12, 0) + '/mo interest)' : '') : '<span class="ap-age-warn">add from statement</span>') +
+        '<br>Rate: ' + (d.rate != null ? d.rate + '%' + (bal > 0 && d.rate > 0 ? ' (≈' + fmt(bal * d.rate / 100 / 12, 0) + '/mo interest' + (d.paidMonthly ? ' only if a balance is carried' : '') + ')' : '') : '<span class="ap-age-warn">add from statement</span>') +
+        (d.note ? '<br>' + apEsc(d.note) : '') + (d.deadline ? '<br>Due in full by: <strong>' + new Date(d.deadline + 'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + '</strong>' : '') +
         (d.goal ? '<br>Goal: ' + apEsc(d.goal) : '') + '</div></div>';
   }).join('') || '<div class="empty">No debts yet — use "Edit debts / order".</div>';
 
   gdRenderChart(start, now, pace.monthly);
 
+  // plan
+  var plan = gdPlan();
+  document.getElementById('gd-plan-sub').textContent = 'Debt Paydown bucket ≈ ' + fmt(plan.inflow,0) + '/mo (' + (Math.round((PCT.debt||0)*1000)/10) + '% of recent revenue)';
+  document.getElementById('gd-plan').innerHTML = plan.rows.length ? '<table><thead><tr><th>Debt</th><th>Balance</th><th>Rate</th><th>Scheduled</th><th>Needed by deadline</th><th>Plan / month</th><th>Paid off</th><th></th></tr></thead><tbody>' +
+    plan.rows.map(function(r, i){
+      var dl = r.d.deadline ? new Date(r.d.deadline + 'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
+      var po = r.payoff ? new Date(r.payoff + 'T00:00:00').toLocaleDateString('en-US',{month:'short',year:'numeric'}) : 'not at this amount';
+      return '<tr><td>' + apEsc(r.d.name) + (i === 0 ? ' <span class="gd-tag focus">Focus</span>' : '') + '</td><td>' + fmt(r.bal,0) + '</td><td>' + (r.d.rate != null ? r.d.rate + '%' : '—') + '</td>' +
+        '<td>' + (r.d.payment ? fmt(r.d.payment,0) : '<span class="ap-age-warn">add</span>') + '</td>' +
+        '<td>' + (r.d.deadline ? fmt(r.req,0) + ' <span style="color:#5A7A99">(by ' + dl + ')</span>' : '—') + '</td>' +
+        '<td><strong>' + fmt(r.plan,0) + '</strong></td><td>' + po + '</td>' +
+        '<td>' + (r.d.deadline ? (r.ok ? '<span class="ap-age-ok">✓ no balloon</span>' : '<span class="ap-age-late">✕ misses ' + dl + '</span>') : '') + '</td></tr>';
+    }).join('') + '</tbody></table>' +
+    '<div class="gd-lock ' + (plan.short ? 'no' : 'yes') + '">' + (plan.short
+      ? '✕ The Debt Paydown bucket is ' + fmt(plan.short,0) + '/mo short of the scheduled and deadline payments. Add to it (trimmed bills, skipped draws) or raise the Debt TAP.'
+      : '✓ Covers every scheduled payment' + (plan.rows.some(function(r){ return r.d.deadline; }) ? ' and pays the dated debt off before its deadline' : '') + '. Everything left over goes to the focus debt.') + '</div>' +
+    '<div class="ap-note">"Scheduled" is the regular payment you already make (Beyond for USAA, the bill for Mortgage 2). Set or change it in "Edit debts / order". Paid bills whose name matches a debt (Beyond, Mortgage 2) count toward it automatically.</div>'
+    : '<div class="empty">All debts paid off. 🎉</div>';
+
   // events
-  var evs = GD.events.slice().sort(function(a,b){ return a.date < b.date ? 1 : a.date > b.date ? -1 : b.id - a.id; }).slice(0, 25);
+  var evs = gdAllEvents().sort(function(a,b){ return a.date < b.date ? 1 : a.date > b.date ? -1 : b.id - a.id; }).slice(0, 25);
   document.getElementById('gd-events').innerHTML = evs.length ? '<table><thead><tr><th>Date</th><th>Debt</th><th>Type</th><th>Amount</th><th>Paid from</th><th></th></tr></thead><tbody>' + evs.map(function(ev){
     var d = gdDebtById(ev.debtId) || {name:'?'};
     return '<tr><td>' + apEsc(ev.date) + '</td><td>' + apEsc(d.name) + '</td><td>' + (ev.type === 'payment' ? '<span class="sb sb-paid">Payment</span>' : '<span class="sb sb-recurring">Statement</span>') + '</td>' +
       '<td>' + (ev.type === 'payment' ? fmt(ev.amount) : 'Balance ' + fmt(ev.balance) + (ev.delta ? ' (' + (ev.delta > 0 ? '+' : '−') + fmt(Math.abs(ev.delta)) + (ev.delta > 0 ? ' interest/fees' : '') + ')' : '')) + '</td>' +
       '<td>' + (ev.type === 'payment' ? ({debt:'Debt bucket', profit:'Profit bucket', personal:'Personal'}[ev.from] || '') : '') + '</td>' +
-      '<td><button class="ap-mini-btn danger" onclick="gdUndoEvent(' + ev.id + ')">Undo</button></td></tr>';
+      '<td>' + (ev.auto ? '<span style="color:#5A7A99;font-size:10px">from ledger bill</span>' : '<button class="ap-mini-btn danger" onclick="gdUndoEvent(' + ev.id + ')">Undo</button>') + '</td></tr>';
   }).join('') + '</tbody></table>' : '<div class="empty">No payments logged yet. Your first one starts the chart.</div>';
 
   // Owner's Comp guardrail
@@ -4001,7 +4098,7 @@ let editingBillId = null;
 const BILL_SCHEDULE_SEED = [
   // ── Week 1: monthly fixed ────────────────────────────────────────
   {id:'mortgage1',  name:'Mortgage 1',           category:'Property / utilities', bucket:'owners',    amount:2197.00, weeks:[1],         variable:false, notes:'Primary residence'},
-  {id:'mortgage2',  name:'Mortgage 2',           category:'Property / utilities', bucket:'owners',    amount:275.00,  weeks:[1],         variable:false, notes:''},
+  {id:'mortgage2',  name:'Mortgage 2 (IBC)',     category:'Property / utilities', bucket:'debt',      amount:275.00,  weeks:[1],         variable:false, notes:'Paid from Debt Paydown — pay off before the Jun 1 2029 balloon'},
   {id:'truck',      name:'Truck',                category:'Vehicle / fleet',      bucket:'opex',      amount:827.04,  weeks:[1],         variable:false, notes:'Work truck loan'},
   {id:'hoa',        name:'HOA',                  category:'Property / utilities', bucket:'owners',    amount:278.00,  weeks:[1],         variable:false, notes:''},
   {id:'brinks',     name:'Brinks',               category:'Security',             bucket:'opex',      amount:70.00,   weeks:[1],         variable:false, notes:'Home security'},
@@ -4015,7 +4112,7 @@ const BILL_SCHEDULE_SEED = [
   {id:'cadillac',   name:'Cadillac',             category:'Vehicle / fleet',      bucket:'owners',    amount:621.00,  weeks:[1],         variable:false, notes:'Personal car'},
 
   // ── Biweekly (1 & 3) ─────────────────────────────────────────────
-  {id:'beyond',     name:'Beyond',               category:'Vehicle / fleet',      bucket:'opex',      amount:386.00,  weeks:[1,3],       variable:false, notes:'Biweekly loan payment'},
+  {id:'beyond',     name:'Beyond (USAA CC program)', category:'Other',            bucket:'debt',      amount:362.00,  weeks:[1,3],       variable:false, notes:'$362 biweekly — USAA card debt reduction program (0%)'},
 
   // ── Week 2 monthly ───────────────────────────────────────────────
   {id:'adobe',      name:'Adobe',                category:'Software / subs',      bucket:'opex',      amount:21.64,   weeks:[2],         variable:false, notes:''},
@@ -4090,6 +4187,17 @@ function loadBills() {
       localStorage.setItem(BILL_SCHED_KEY, JSON.stringify(schedule));
     }
   } catch(e) { schedule = BILL_SCHEDULE_SEED.slice(); }
+  // Nov 2026: Beyond (USAA program) and Mortgage 2 are paid from the Debt Paydown bucket.
+  try {
+    if (!localStorage.getItem('eg_sched_debt_v1')) {
+      schedule.forEach(function(it){
+        if (it.id === 'beyond' && it.bucket !== 'debt') { it.bucket = 'debt'; it.name = 'Beyond (USAA CC program)'; it.amount = 362; it.notes = '$362 biweekly — USAA card debt reduction program (0%)'; }
+        if (it.id === 'mortgage2' && it.bucket !== 'debt') { it.bucket = 'debt'; it.name = 'Mortgage 2 (IBC)'; it.notes = 'Paid from Debt Paydown — pay off before the Jun 1 2029 balloon'; }
+      });
+      localStorage.setItem(BILL_SCHED_KEY, JSON.stringify(schedule));
+      localStorage.setItem('eg_sched_debt_v1', '1');
+    }
+  } catch(e) {}
 
   // Bills
   try {
