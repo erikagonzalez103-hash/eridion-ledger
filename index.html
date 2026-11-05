@@ -3676,10 +3676,11 @@ function gdLoad() {
     GD.seeded = true;
   }
   gdMigrateV2();
+  gdMigrateV3();
   gdSave();
 }
 // Nov 2026 plan: Mortgage 2 first (6.5%, IBC, matures Jun 1 2029 with a balloon) —
-// pay it off before then; keep Beyond's $362 biweekly USAA program payment
+// pay it off before then; keep Beyond's $361.09 twice-monthly USAA program payment
 // (0%) and the Capital One payment going. Only fills values still at defaults.
 function gdMigrateV2() {
   if (GD.v2) return;
@@ -3690,11 +3691,19 @@ function gdMigrateV2() {
            m.goal = 'Pay off before the June 1, 2029 balloon — then open a HELOC'; }
   if (c) { if (c.rate == null) c.rate = 20.74; if (c.payment === undefined) c.payment = null; if (!c.match) c.match = 'capital one cc|spark';
            c.note = '$0 interest while each month\'s charges are paid in full'; c.paidMonthly = true; }
-  if (u) { if (u.rate == null) u.rate = 0; if (u.payment == null) u.payment = Math.round(362 * 26 / 12); if (!u.match) u.match = 'beyond(?!\\s*filing)|usaa cc';
-           u.note = '$362 biweekly through Beyond (debt reduction program, 0%)'; }
+  if (u) { if (u.rate == null) u.rate = 0; if (u.payment == null) u.payment = 722.18; if (!u.match) u.match = 'beyond(?!\\s*filing)|usaa cc';
+           u.note = '$361.09 twice a month (8th & 23rd) through Beyond — debt reduction program, 0%'; }
   // Reorder only if the debts are still in the original default order.
   if (u && c && m && u.priority === 1 && c.priority === 2 && m.priority === 3) { m.priority = 1; c.priority = 2; u.priority = 3; }
   GD.v2 = true;
+}
+// v3: Beyond is $361.09 twice a month ($722.18/mo), not $362 biweekly.
+function gdMigrateV3() {
+  if (GD.v3) return;
+  var u = GD.debts.find(function(x){ return x.id === 'usaa_cc'; });
+  if (u && u.payment === 784) u.payment = 722.18;
+  if (u && /\$362 biweekly/.test(u.note || '')) u.note = '$361.09 twice a month (8th & 23rd) through Beyond — debt reduction program, 0%';
+  GD.v3 = true;
 }
 // Monthly payment that brings a balance to $0 by a date (amortized at the debt's rate).
 function gdRequiredPayment(d) {
@@ -4170,7 +4179,7 @@ const BILL_SCHEDULE_SEED = [
   {id:'cadillac',   name:'Cadillac',             category:'Vehicle / fleet',      bucket:'owners',    amount:621.00,  weeks:[1],         variable:false, notes:'Personal car'},
 
   // ── Biweekly (1 & 3) ─────────────────────────────────────────────
-  {id:'beyond',     name:'Beyond (USAA CC program)', category:'Other',            bucket:'debt',      amount:362.00,  weeks:[1,3],       variable:false, notes:'$362 biweekly — USAA card debt reduction program (0%)'},
+  {id:'beyond',     name:'Beyond (USAA CC program)', category:'Other',            bucket:'debt',      amount:361.09,  weeks:[2,4],       variable:false, notes:'$361.09 on the 8th & 23rd — USAA card debt reduction program (0%)'},
 
   // ── Week 2 monthly ───────────────────────────────────────────────
   {id:'adobe',      name:'Adobe',                category:'Software / subs',      bucket:'opex',      amount:21.64,   weeks:[2],         variable:false, notes:''},
@@ -4249,11 +4258,18 @@ function loadBills() {
   try {
     if (!localStorage.getItem('eg_sched_debt_v1')) {
       schedule.forEach(function(it){
-        if (it.id === 'beyond' && it.bucket !== 'debt') { it.bucket = 'debt'; it.name = 'Beyond (USAA CC program)'; it.amount = 362; it.notes = '$362 biweekly — USAA card debt reduction program (0%)'; }
+        if (it.id === 'beyond' && it.bucket !== 'debt') { it.bucket = 'debt'; it.name = 'Beyond (USAA CC program)'; it.amount = 361.09; it.weeks = [2,4]; it.notes = '$361.09 on the 8th & 23rd — USAA card debt reduction program (0%)'; }
         if (it.id === 'mortgage2' && it.bucket !== 'debt') { it.bucket = 'debt'; it.name = 'Mortgage 2 (IBC)'; it.notes = 'Paid from Debt Paydown — pay off before the Jun 1 2029 balloon'; }
       });
       localStorage.setItem(BILL_SCHED_KEY, JSON.stringify(schedule));
       localStorage.setItem('eg_sched_debt_v1', '1');
+    }
+    if (!localStorage.getItem('eg_sched_debt_v2')) {
+      schedule.forEach(function(it){
+        if (it.id === 'beyond' && Number(it.amount) === 362) { it.amount = 361.09; it.weeks = [2,4]; it.notes = '$361.09 on the 8th & 23rd — USAA card debt reduction program (0%)'; }
+      });
+      localStorage.setItem(BILL_SCHED_KEY, JSON.stringify(schedule));
+      localStorage.setItem('eg_sched_debt_v2', '1');
     }
   } catch(e) {}
 
