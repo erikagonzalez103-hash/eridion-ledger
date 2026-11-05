@@ -3676,10 +3676,12 @@ function gdLoad() {
     GD.seeded = true;
   }
   gdMigrateV2();
+  gdMigrateV3();
+  gdMigrateV4();
   gdSave();
 }
 // Nov 2026 plan: Mortgage 2 first (6.5%, IBC, matures Jun 1 2029 with a balloon) —
-// pay it off before then; keep Beyond's $362 biweekly USAA program payment
+// pay it off before then; keep Beyond's $361.09 twice-monthly USAA program payment
 // (0%) and the Capital One payment going. Only fills values still at defaults.
 function gdMigrateV2() {
   if (GD.v2) return;
@@ -3690,11 +3692,33 @@ function gdMigrateV2() {
            m.goal = 'Pay off before the June 1, 2029 balloon — then open a HELOC'; }
   if (c) { if (c.rate == null) c.rate = 20.74; if (c.payment === undefined) c.payment = null; if (!c.match) c.match = 'capital one cc|spark';
            c.note = '$0 interest while each month\'s charges are paid in full'; c.paidMonthly = true; }
-  if (u) { if (u.rate == null) u.rate = 0; if (u.payment == null) u.payment = Math.round(362 * 26 / 12); if (!u.match) u.match = 'beyond(?!\\s*filing)|usaa cc';
-           u.note = '$362 biweekly through Beyond (debt reduction program, 0%)'; }
+  if (u) { if (u.rate == null) u.rate = 0; if (u.payment == null) u.payment = 722.18; if (!u.match) u.match = 'beyond(?!\\s*filing)|usaa cc';
+           u.note = '$361.09 twice a month (8th & 23rd) through Beyond — debt reduction program, 0%'; }
   // Reorder only if the debts are still in the original default order.
   if (u && c && m && u.priority === 1 && c.priority === 2 && m.priority === 3) { m.priority = 1; c.priority = 2; u.priority = 3; }
   GD.v2 = true;
+}
+// v4: Capital One is the materials card — new materials charges are paid from
+// the Materials bucket each month, which only replaces what was just charged.
+// To shrink the $25K balance it also gets a fixed EXTRA $500/mo from Debt Paydown
+// (Mortgage 2 still finishes ~Sep 2028, well before its June 2029 balloon).
+function gdMigrateV4() {
+  if (GD.v4) return;
+  var c = GD.debts.find(function(x){ return x.id === 'capone_cc'; });
+  if (c) {
+    if (!c.fundedBy) c.fundedBy = 'materials';
+    if (c.payment == null) c.payment = 500;
+    c.note = 'Materials charges are paid from the Materials bucket; the extra $500/mo from Debt Paydown is what shrinks the balance.';
+  }
+  GD.v4 = true;
+}
+// v3: Beyond is $361.09 twice a month ($722.18/mo), not $362 biweekly.
+function gdMigrateV3() {
+  if (GD.v3) return;
+  var u = GD.debts.find(function(x){ return x.id === 'usaa_cc'; });
+  if (u && u.payment === 784) u.payment = 722.18;
+  if (u && /\$362 biweekly/.test(u.note || '')) u.note = '$361.09 twice a month (8th & 23rd) through Beyond — debt reduction program, 0%';
+  GD.v3 = true;
 }
 // Monthly payment that brings a balance to $0 by a date (amortized at the debt's rate).
 function gdRequiredPayment(d) {
@@ -3717,7 +3741,9 @@ function gdMonthsToPayoff(bal, rate, pay) {
 // at least what a deadline requires, and everything left over to the focus debt.
 function gdPlan() {
   var inflow = gdRecentMonthlyRevenue() * (PCT.debt || 0);
-  var open = gdOpenDebts();
+  // Focus (leftover) goes to the first debt that isn't a revolving card; a card's
+  // "payment" here is only the EXTRA paydown on top of its regular cycle.
+  var open = gdOpenDebts().sort(function(a,b){ return (a.fundedBy ? 1 : 0) - (b.fundedBy ? 1 : 0) || a.priority - b.priority; });
   var rows = open.map(function(d){
     var req = gdRequiredPayment(d), base = Math.max(d.payment || 0, req);
     return {d: d, bal: gdBalance(d), req: req, base: base, plan: base};
@@ -3725,9 +3751,28 @@ function gdPlan() {
   var used = rows.reduce(function(s,r){ return s + r.base; }, 0);
   var left = inflow - used;
   if (rows.length && left > 0) rows[0].plan += left;
-  rows.forEach(function(r){
-    r.months = gdMonthsToPayoff(r.bal, r.d.rate, r.plan);
-    if (r.months != null) { var x = new Date(); x.setMonth(x.getMonth() + r.months); r.payoff = x.toISOString().slice(0,10); }
+  // Month-by-month projection with rollover: when a debt is paid off, its money
+  // moves to the next one (focus first, the revolving card last). A card paid
+  // monthly is projected at the interest it is actually charged ($0 unless a
+  // statement update shows interest), not its sticker APR.
+  var sim = rows.map(function(r){
+    var rate = r.d.paidMonthly || r.d.fundedBy ? (GD.events.some(function(ev){ return ev.debtId === r.d.id && ev.type === 'statement' && ev.delta > 0; }) ? r.d.rate : 0) : r.d.rate;
+    return {r: r, bal: r.bal, rate: (rate || 0) / 100 / 12, pay: r.plan, done: null};
+  });
+  for (var m = 1; m <= 360 && sim.some(function(x){ return x.done == null; }); m++) {
+    var spare = 0;
+    sim.forEach(function(x){
+      if (x.done != null) { spare += x.pay; return; }
+      x.bal = x.bal * (1 + x.rate);
+      var p = Math.min(x.bal, x.pay); x.bal -= p; spare += x.pay - p;
+      if (x.bal <= 0.5) x.done = m;
+    });
+    var next = sim.find(function(x){ return x.done == null; });
+    if (next && spare > 0) { var p2 = Math.min(next.bal, spare); next.bal -= p2; if (next.bal <= 0.5) next.done = m; }
+  }
+  sim.forEach(function(x){
+    var r = x.r; r.months = x.done;
+    if (r.months != null) { var dt = new Date(); dt.setDate(1); dt.setMonth(dt.getMonth() + r.months); r.payoff = dt.toISOString().slice(0,10); }
     r.ok = !r.d.deadline || (r.payoff && r.payoff <= r.d.deadline);
   });
   return {inflow: inflow, rows: rows, short: left < 0 ? -left : 0};
@@ -3933,12 +3978,13 @@ function renderGuard() {
     ' Every dollar of draws you <em>don\'t</em> take can go here instead.';
 
   // debt cards
-  var focusId = (gdOpenDebts()[0] || {}).id;
+  var focusId = (gdOpenDebts().filter(function(d){ return !d.fundedBy; })[0] || {}).id;
   document.getElementById('gd-debts').innerHTML = GD.debts.slice().sort(function(a,b){ return a.priority - b.priority; }).map(function(d){
     var bal = gdBalance(d), p = d.start > 0 ? Math.max(0, Math.min(100, (1 - bal / d.start) * 100)) : 0, done = bal <= 0;
     var mo = gdAllEvents().filter(function(ev){ return ev.debtId === d.id && ev.type === 'payment' && gdYm(ev.date) === ymNow; }).reduce(function(s,ev){ return s + ev.amount; }, 0);
     return '<div class="gd-debt' + (done ? ' done' : d.id === focusId ? ' focus' : '') + '">' +
       '<div class="gd-debt-name">' + apEsc(d.name) + '<span class="gd-tag ' + (d.kind === 'business' ? 'biz">Business' : 'pers">Personal') + '</span>' +
+        (d.fundedBy ? '<span class="gd-tag biz">Paid from ' + (BUCKET_LABELS[d.fundedBy] || d.fundedBy) + '</span>' : '') +
         (done ? '<span class="gd-tag done">Paid off 🎉</span>' : d.id === focusId ? '<span class="gd-tag focus">Focus</span>' : '') + '</div>' +
       '<div class="gd-debt-bal" style="color:' + (done ? '#3CA83C' : '#F5F5F5') + '">' + fmt(bal, 0) + '</div>' +
       '<div class="gd-bar"><div class="gd-bar-fill" style="width:' + p.toFixed(1) + '%"></div></div>' +
@@ -3957,8 +4003,8 @@ function renderGuard() {
     plan.rows.map(function(r, i){
       var dl = r.d.deadline ? new Date(r.d.deadline + 'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
       var po = r.payoff ? new Date(r.payoff + 'T00:00:00').toLocaleDateString('en-US',{month:'short',year:'numeric'}) : 'not at this amount';
-      return '<tr><td>' + apEsc(r.d.name) + (i === 0 ? ' <span class="gd-tag focus">Focus</span>' : '') + '</td><td>' + fmt(r.bal,0) + '</td><td>' + (r.d.rate != null ? r.d.rate + '%' : '—') + '</td>' +
-        '<td>' + (r.d.payment ? fmt(r.d.payment,0) : '<span class="ap-age-warn">add</span>') + '</td>' +
+      return '<tr><td>' + apEsc(r.d.name) + (i === 0 && !r.d.fundedBy ? ' <span class="gd-tag focus">Focus</span>' : '') + '</td><td>' + fmt(r.bal,0) + '</td><td>' + (r.d.rate != null ? r.d.rate + '%' : '—') + '</td>' +
+        '<td>' + (r.d.payment ? fmt(r.d.payment,0) + (r.d.fundedBy ? ' extra <span style="color:#5A7A99">(+ charges from ' + (BUCKET_LABELS[r.d.fundedBy] || r.d.fundedBy) + ')</span>' : '') : '<span class="ap-age-warn">add</span>') + '</td>' +
         '<td>' + (r.d.deadline ? fmt(r.req,0) + ' <span style="color:#5A7A99">(by ' + dl + ')</span>' : '—') + '</td>' +
         '<td><strong>' + fmt(r.plan,0) + '</strong></td><td>' + po + '</td>' +
         '<td>' + (r.d.deadline ? (r.ok ? '<span class="ap-age-ok">✓ no balloon</span>' : '<span class="ap-age-late">✕ misses ' + dl + '</span>') : '') + '</td></tr>';
@@ -3966,7 +4012,7 @@ function renderGuard() {
     '<div class="gd-lock ' + (plan.short ? 'no' : 'yes') + '">' + (plan.short
       ? '✕ The Debt Paydown bucket is ' + fmt(plan.short,0) + '/mo short of the scheduled and deadline payments. Add to it (trimmed bills, skipped draws) or raise the Debt TAP.'
       : '✓ Covers every scheduled payment' + (plan.rows.some(function(r){ return r.d.deadline; }) ? ' and pays the dated debt off before its deadline' : '') + '. Everything left over goes to the focus debt.') + '</div>' +
-    '<div class="ap-note">"Scheduled" is the regular payment you already make (Beyond for USAA, the bill for Mortgage 2). Set or change it in "Edit debts / order". Paid bills whose name matches a debt (Beyond, Mortgage 2) count toward it automatically.</div>'
+    '<div class="ap-note">"Scheduled" is the regular payment (Beyond for USAA, the bill for Mortgage 2). For Capital One it is the EXTRA paydown on top of paying off each month\'s materials charges from the Materials bucket — that extra is what shrinks the balance. Set or change any of them in "Edit debts / order". Paid bills whose name matches a debt (Beyond, Mortgage 2) count toward it automatically.</div>'
     : '<div class="empty">All debts paid off. 🎉</div>';
 
   // events
@@ -4170,7 +4216,7 @@ const BILL_SCHEDULE_SEED = [
   {id:'cadillac',   name:'Cadillac',             category:'Vehicle / fleet',      bucket:'owners',    amount:621.00,  weeks:[1],         variable:false, notes:'Personal car'},
 
   // ── Biweekly (1 & 3) ─────────────────────────────────────────────
-  {id:'beyond',     name:'Beyond (USAA CC program)', category:'Other',            bucket:'debt',      amount:362.00,  weeks:[1,3],       variable:false, notes:'$362 biweekly — USAA card debt reduction program (0%)'},
+  {id:'beyond',     name:'Beyond (USAA CC program)', category:'Other',            bucket:'debt',      amount:361.09,  weeks:[2,4],       variable:false, notes:'$361.09 on the 8th & 23rd — USAA card debt reduction program (0%)'},
 
   // ── Week 2 monthly ───────────────────────────────────────────────
   {id:'adobe',      name:'Adobe',                category:'Software / subs',      bucket:'opex',      amount:21.64,   weeks:[2],         variable:false, notes:''},
@@ -4249,11 +4295,18 @@ function loadBills() {
   try {
     if (!localStorage.getItem('eg_sched_debt_v1')) {
       schedule.forEach(function(it){
-        if (it.id === 'beyond' && it.bucket !== 'debt') { it.bucket = 'debt'; it.name = 'Beyond (USAA CC program)'; it.amount = 362; it.notes = '$362 biweekly — USAA card debt reduction program (0%)'; }
+        if (it.id === 'beyond' && it.bucket !== 'debt') { it.bucket = 'debt'; it.name = 'Beyond (USAA CC program)'; it.amount = 361.09; it.weeks = [2,4]; it.notes = '$361.09 on the 8th & 23rd — USAA card debt reduction program (0%)'; }
         if (it.id === 'mortgage2' && it.bucket !== 'debt') { it.bucket = 'debt'; it.name = 'Mortgage 2 (IBC)'; it.notes = 'Paid from Debt Paydown — pay off before the Jun 1 2029 balloon'; }
       });
       localStorage.setItem(BILL_SCHED_KEY, JSON.stringify(schedule));
       localStorage.setItem('eg_sched_debt_v1', '1');
+    }
+    if (!localStorage.getItem('eg_sched_debt_v2')) {
+      schedule.forEach(function(it){
+        if (it.id === 'beyond' && Number(it.amount) === 362) { it.amount = 361.09; it.weeks = [2,4]; it.notes = '$361.09 on the 8th & 23rd — USAA card debt reduction program (0%)'; }
+      });
+      localStorage.setItem(BILL_SCHED_KEY, JSON.stringify(schedule));
+      localStorage.setItem('eg_sched_debt_v2', '1');
     }
   } catch(e) {}
 
