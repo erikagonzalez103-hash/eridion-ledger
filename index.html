@@ -1167,6 +1167,55 @@ function getXeroHeaders() {
   return { 'Content-Type': 'application/json' };
 }
 
+
+// ─── XERO → BILLS: mark bills paid when Xero shows the payment ──────────
+// A SPEND transaction marks an open bill Paid when (1) a distinctive word of
+// the bill's name (or its optional `xero` alias on the schedule) appears in the
+// Xero contact/description, (2) the date is within 10 days of the due date, and
+// (3) for fixed bills the amount is within 2% or $2 (variable bills take the
+// Xero amount). Each payment pays at most one bill. It never creates an
+// expense — importing the Xero transaction does that, so nothing doubles.
+var _xeroBillMatches = {};
+var XERO_BILL_STOPWORDS = ['the','and','for','loan','payment','payments','bill','bills','insurance','card','credit','llc','inc','co','company','monthly','weekly','other','misc','program','plan','service','services'];
+function xeroBillWords(b) {
+  var alias = '';
+  try { var it = (schedule || []).find(function(x){ return x.id === b.scheduleId; }); if (it && it.xero) alias = ' ' + it.xero; } catch(e) {}
+  return ((b.name || '') + alias).toLowerCase().replace(/\([^)]*\)/g, ' ').split(/[^a-z0-9&]+/)
+    .filter(function(w){ return w.length >= 3 && XERO_BILL_STOPWORDS.indexOf(w) < 0 && !/^\d+$/.test(w); });
+}
+function xeroMatchBills(txs) {
+  if (typeof bills === 'undefined' || !bills.length) return [];
+  var open = bills.filter(function(b){ return b.status !== 'Paid' && b.due_date; });
+  var used = {}, hits = [];
+  txs.forEach(function(tx){
+    if (tx.type !== 'SPEND') return;
+    var key = tx.date + '_' + tx.total + '_' + tx.contact;
+    var ds = tx.date ? String(tx.date).replace(/\/Date\((\d+)[+-].+\)\//, function(_, ms){ return new Date(parseInt(ms)).toISOString().split('T')[0]; }) : '';
+    if (!ds) return;
+    var text = ((tx.contact || '') + ' ' + (tx.accountName || '') + ' ' + (tx.lineItems || []).map(function(li){ return li.description || ''; }).join(' ')).toLowerCase();
+    var best = null, bestScore = Infinity;
+    open.forEach(function(b){
+      if (used[b.id]) return;
+      var days = Math.abs((new Date(ds) - new Date(b.due_date)) / 86400000);
+      if (days > 10) return;
+      var words = xeroBillWords(b);
+      if (!words.length || !words.some(function(w){ return text.indexOf(w) >= 0; })) return;
+      var amt = Number(b.amount) || 0, diff = Math.abs(amt - tx.total);
+      if (!(b.variable && (!amt || diff <= Math.max(amt, tx.total) * 0.5)) && diff > Math.max(2, amt * 0.02)) return;
+      var score = days + diff / 10;
+      if (score < bestScore) { best = b; bestScore = score; }
+    });
+    if (!best) return;
+    used[best.id] = true;
+    best.status = 'Paid'; best.paid_date = ds; best.paid_via = 'xero';
+    if (best.variable || !Number(best.amount)) best.amount = tx.total;
+    _xeroBillMatches[key] = best.name;
+    hits.push({bill: best.name, amount: tx.total, date: ds, contact: tx.contact || tx.accountName || ''});
+  });
+  if (hits.length) { saveBillsRaw(); if (typeof renderBills === 'function') try { renderBills(); } catch(e) {} }
+  return hits;
+}
+
 // ─── BUCKET AUTO-MAPPER ──────────────────────────────────────
 // Maps Xero contact name + description to a Profit First bucket
 // Returns: 'income' | 'profit' | 'owners' | 'tax' | 'opex' | 'materials' | 'subs'
@@ -1285,6 +1334,14 @@ async function syncFromXero() {
     _xeroTransactions = (data.transactions || []).filter(function(tx){
       return !_importedXeroIds[tx.date + '_' + tx.total + '_' + tx.contact];
     });
+    var billHits = xeroMatchBills(data.transactions || []);
+    if (billHits.length) {
+      setTimeout(function(){
+        alert('Marked ' + billHits.length + ' bill' + (billHits.length > 1 ? 's' : '') + ' paid from Xero:\n\n' +
+          billHits.map(function(h){ return '• ' + h.bill + ' — ' + fmt(h.amount) + ' on ' + h.date + ' (' + h.contact + ')'; }).join('\n') +
+          '\n\nImport those Xero transactions as usual to record the expense.');
+      }, 50);
+    }
 
     renderXeroStats(_xeroTransactions, range);
     renderXeroTransactions(_xeroTransactions);
@@ -1377,7 +1434,8 @@ function renderXeroTransactions(txs) {
     html += '<div class="xtx-row" id="xtx-row-' + idx + '">' +
       '<span class="xtx-date">' + (xeroDate || '—') + '</span>' +
       '<span style="font-size:9px;font-weight:600;color:' + amtColor + ';min-width:30px;">' + typeLabel + '</span>' +
-      '<span class="xtx-contact">' + (tx.contact || tx.accountName || '—') + '</span>' +
+      '<span class="xtx-contact">' + (tx.contact || tx.accountName || '—') +
+        (_xeroBillMatches[tx.date + '_' + tx.total + '_' + tx.contact] ? ' <span class="sb sb-paid" title="This payment marked the bill paid">bill paid: ' + _xeroBillMatches[tx.date + '_' + tx.total + '_' + tx.contact] + '</span>' : '') + '</span>' +
       '<span class="xtx-desc">' + desc + '</span>' +
       '<div class="xtx-bucket">' +
         (isReceive && suggestedBucket === 'income' ?
